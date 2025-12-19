@@ -2,6 +2,7 @@
 using ECommerce.Core.Enums;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.Data;
 using Restaurent.Core.Domain.Identity;
 using Restaurent.Core.DTO;
 using Restaurent.Core.Helpers;
@@ -15,13 +16,17 @@ namespace Restaurent.Core.Service
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IEmailSenderService _emailSenderService;
+        private readonly IImageAdderService _imageAdderService;
+        private readonly IImageUpdateService _imageUpdateService; 
 
-        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, IEmailSenderService emailSenderService)
+        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, IEmailSenderService emailSenderService, IImageAdderService imageAdderService, IImageUpdateService imageUpdateService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _emailSenderService = emailSenderService;
+            _imageAdderService = imageAdderService;
+            _imageUpdateService = imageUpdateService;
         }
 
 
@@ -161,6 +166,25 @@ namespace Restaurent.Core.Service
             return user;
         }
 
+        public async Task<UserDTO?> GetUserByUserId(Guid userId)
+        {
+            if(userId == Guid.Empty)
+                throw new ArgumentNullException(nameof(userId));
+            string userID = userId.ToString();
+            ApplicationUser? user = await _userManager.FindByIdAsync(userID);
+            if (user == null)
+                return null;
+            UserDTO userDTO = new UserDTO()
+            {
+                UserId = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                ProfileImage = user.ProfileImagePath
+            };
+            return userDTO;
+        }
+
         public async Task UpdateRefreshTokenInTable(ApplicationUser user ,AuthenticationResponse authenticationResponse)
         {
             user.RefreshToken = authenticationResponse.RefreshToken;
@@ -224,6 +248,47 @@ namespace Restaurent.Core.Service
                 }
 
                 return result;
+            }
+            return null;
+        }
+
+        public async Task<UserDTO?> UpdatePersonalDetails(UserPersonalDetailsDTO personalDetailsDTO)
+        {
+            if (personalDetailsDTO == null)
+                throw new ArgumentNullException(nameof(personalDetailsDTO));
+            if(personalDetailsDTO.UserId==null)
+                throw new ArgumentNullException(nameof(personalDetailsDTO));
+
+            ValidationHelper.ModelValidator(personalDetailsDTO);
+
+            ApplicationUser? user =  await _userManager.FindByIdAsync(personalDetailsDTO.UserId.ToString());
+            if(user != null)
+            {
+                user.PhoneNumber = personalDetailsDTO.PhoneNumber;
+                user.UserName = personalDetailsDTO.UserName;
+                if(personalDetailsDTO.ProfileImage !=null && personalDetailsDTO.ProfileImage.Length > 0)
+                {
+                    if (user.ProfileImagePath == null)
+                    {
+                       string imagePath =  await _imageAdderService.ImageAdder(personalDetailsDTO.ProfileImage);
+                        user.ProfileImagePath = imagePath;
+                        await _userManager.UpdateAsync(user);
+                        UserDTO? userDetails = await GetUserByUserId(user.Id);
+                        return userDetails;
+                    }
+                    else
+                    {
+                        string imagePath =  await _imageUpdateService.ImageUpdater(personalDetailsDTO.ProfileImage, user.ProfileImagePath);
+                            user.ProfileImagePath = imagePath;
+                            await _userManager.UpdateAsync(user);
+                            UserDTO? userDetailsUpdate = await GetUserByUserId(user.Id);
+                            return userDetailsUpdate;
+                    }   
+                }
+                user.ProfileImagePath = null;
+                await _userManager.UpdateAsync(user);
+                UserDTO? userDTO = await GetUserByUserId(user.Id);
+                return userDTO;
             }
             return null;
         }

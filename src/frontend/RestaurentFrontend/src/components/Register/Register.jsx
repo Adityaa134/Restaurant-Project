@@ -7,8 +7,11 @@ import { useForm } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
 import { useDebounce } from 'use-debounce';
 import { GoogleLogin } from '@react-oauth/google';
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 function Register() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [emailValue, setEmailValue] = useState("");
   const [usernameValue, setUsernameValue] = useState("");
   const [error, setError] = useState("")
@@ -187,56 +190,93 @@ function Register() {
 
 
             <div>
-              <Input
-                type="password"
-                label="Password"
-                placeholder="Create a strong password"
-                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 sm:text-sm"
-                {...register("password", {
-                  required: "Password is required",
-                  validate: {
-                    minLength: (value) =>
-                      value.length >= 8 || "Password must be at least 8 characters",
-                    hasLowercase: (value) =>
-                      /[a-z]/.test(value) ||
-                      "Password must contain at least one lowercase letter",
-                    hasUppercase: (value) =>
-                      /[A-Z]/.test(value) ||
-                      "Password must contain at least one uppercase letter",
-                    hasDigit: (value) =>
-                      /\d/.test(value) || "Password must contain at least one digit",
-                    hasSpecialChar: (value) =>
-                      /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value) ||
-                      "Password must contain at least one special character",
-                  },
-                })}
-              />
-              {formErrors.password && (
+              <label className="block text-gray-700 text-sm mb-1">
+                Password
+              </label>
+
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  className="
+                  w-full px-3 py-2 pr-12
+                  border border-gray-300 rounded-md
+                  focus:outline-none focus:ring-blue-500 focus:border-blue-500
+                "
+                  {...register("password", {
+                    required: "Password is required",
+                    validate: {
+                      minLength: (value) =>
+                        value.length >= 8 || "Password must be at least 8 characters",
+                      hasLowercase: (value) =>
+                        /[a-z]/.test(value) ||
+                        "Password must contain at least one lowercase letter",
+                      hasUppercase: (value) =>
+                        /[A-Z]/.test(value) ||
+                        "Password must contain at least one uppercase letter",
+                      hasDigit: (value) =>
+                        /\d/.test(value) || "Password must contain at least one digit",
+                      hasSpecialChar: (value) =>
+                        /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value) ||
+                        "Password must contain at least one special character",
+                    },
+                  })}
+                />
+                {formErrors.password && (
                 <p className="mt-1 text-sm text-red-600">
                   {formErrors.password.message}
                 </p>
-              )}
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="
+                  absolute inset-y-0 right-3
+                  flex items-center
+                  text-gray-400 hover:text-gray-600
+                  focus:outline-none
+                "
+                >
+                  {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                </button>
+              </div>
             </div>
 
-
             <div>
-              <Input
-                type="password"
-                label="Confirm Password"
-                placeholder="Confirm your password"
-                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 sm:text-sm"
-                {...register("confirmPassword", {
+              <label className="block text-gray-700 text-sm mb-1">
+                Confirm Password
+              </label>
+
+              <div className="relative">
+                <Input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm your password"
+                  className="w-full px-3 py-2 pr-12 border border-gray-300 rounded-md"
+                  {...register("confirmPassword", {
                   required: "Please confirm your password",
                   validate: (value) =>
                     value === watch("password") || "Passwords do not match",
                 })}
-              />
-              {formErrors.confirmPassword && (
+                />
+                {formErrors.confirmPassword && (
                 <p className="mt-1 text-sm text-red-600">
                   {formErrors.confirmPassword.message}
                 </p>
-              )}
+                )}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowConfirmPassword(!showConfirmPassword)
+                  }
+                  className="absolute inset-y-0 right-3 flex items-center text-gray-400"
+                >
+                  {showConfirmPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                </button>
+              </div>
             </div>
+
 
 
             <Button

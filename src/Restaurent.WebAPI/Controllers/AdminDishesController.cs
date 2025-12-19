@@ -7,13 +7,13 @@ using Restaurent.Core.ServiceContracts;
 namespace Restaurent.WebAPI.Controllers
 {
     [Authorize(Roles = "admin")]
-    public class HomeController : CustomControllerBase
+    public class AdminDishesController : CustomControllerBase
     {
         private readonly IDishAdderService _dishAdderService;
         private readonly IDishDeleteService _dishDeleteService;
         private readonly IDishUpdateService _dishUpdateService;
 
-        public HomeController(IDishAdderService dishAdderService, IDishDeleteService dishDeleteService, IDishUpdateService dishUpdateService)
+        public AdminDishesController(IDishAdderService dishAdderService, IDishDeleteService dishDeleteService, IDishUpdateService dishUpdateService)
         {
             _dishAdderService = dishAdderService;
             _dishDeleteService = dishDeleteService;

@@ -43,6 +43,7 @@ namespace Restaurent.WebAPI.Controllers
                 }
                 AuthenticationResponse authenticationResponse = await _jwtService.CreateJwtToken(user);
                 await _authService.UpdateRefreshTokenInTable(user, authenticationResponse);
+                authenticationResponse.ProfileImage =  user.ProfileImagePath;
                 return Ok(authenticationResponse);
            }
            if (result.IsNotAllowed)
@@ -88,6 +89,7 @@ namespace Restaurent.WebAPI.Controllers
                 }
                 AuthenticationResponse authenticationResponse = await _jwtService.CreateJwtToken(user);
                 await _authService.UpdateRefreshTokenInTable(user, authenticationResponse);
+                authenticationResponse.ProfileImage = user.ProfileImagePath;
                 await _signInManager.SignInAsync(user, isPersistent: false);
                 return Ok(authenticationResponse);
             }
@@ -120,6 +122,7 @@ namespace Restaurent.WebAPI.Controllers
 
             AuthenticationResponse authenticationResponse = await _jwtService.CreateJwtToken(user);
             await _authService.UpdateRefreshTokenInTable(user, authenticationResponse);
+            authenticationResponse.ProfileImage = user.ProfileImagePath;
             return Ok(authenticationResponse);
         }
 

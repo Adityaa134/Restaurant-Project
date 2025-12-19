@@ -34,7 +34,7 @@ export class Dish {
             formData.append('CategoryId', categoryId.toString());
             formData.append('Dish_Image', dish_Image[0]);
 
-            const response = await axiosInstance.post(`/Home/add-dish`, formData, {
+            const response = await axiosInstance.post(`/AdminDishes/add-dish`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -61,7 +61,7 @@ export class Dish {
             formData.append('Dish_Image', dish_Image[0]);
         }
 
-        const response = await axiosInstance.put(`/Home`, formData, {
+        const response = await axiosInstance.put(`/AdminDishes`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -76,7 +76,7 @@ export class Dish {
 
     async DeleteDish(dishId) {
         try {
-            const response = await axiosInstance.delete(`/Home/${dishId}`);
+            const response = await axiosInstance.delete(`/AdminDishes/${dishId}`);
             return true
         } catch (error) {
             console.log("DishService :: DeleteDish :: ", error)

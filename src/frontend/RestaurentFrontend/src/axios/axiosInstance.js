@@ -46,7 +46,8 @@ axiosInstance.interceptors.request.use(
                     store.dispatch(login({
                         token:newTokens.token,
                         user: userData,
-                        role: decodedToken.role
+                        role: decodedToken.role,
+                        profileImage:newTokens.profileImage
                     }));
 
                     config.headers.Authorization = `Bearer ${newTokens.token}`;

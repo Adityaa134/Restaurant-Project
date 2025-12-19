@@ -66,6 +66,20 @@ namespace Restaurent.Core.ServiceContracts
         Task<ApplicationUser?> FindUserByUserName(string userName);
 
         /// <summary>
+        /// Search for user based on id
+        /// </summary>
+        /// <param name="userId">the user to be search</param>
+        /// <returns>Retuns user based on id</returns>
+        Task<UserDTO?> GetUserByUserId(Guid userId);
+
+        /// <summary>
+        /// Updates User detail's
+        /// </summary>
+        /// <param name="personalDetailsDTO">Updated User details</param>
+        /// <returns>Returns updated User details</returns>
+        Task<UserDTO?> UpdatePersonalDetails(UserPersonalDetailsDTO personalDetailsDTO);
+
+        /// <summary>
         /// Updates the token information in user's table
         /// </summary>
         /// <param name="user">The user information in which token information needs to be updated</param>

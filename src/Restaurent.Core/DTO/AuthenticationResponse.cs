@@ -12,5 +12,6 @@ namespace Restaurent.Core.DTO
 
         public DateTime RefershTokenExpirationDateTime { get; set; }
         public string? Role { get; set; }
+        public string? ProfileImage {  get; set; }
     }
 }

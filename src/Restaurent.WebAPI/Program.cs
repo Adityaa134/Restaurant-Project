@@ -34,7 +34,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policyBuilder =>
     {
         policyBuilder.WithOrigins(builder.Configuration["AllowedOrigins:OriginName"])
-        .WithMethods("GET", "POST", "PUT", "DELETE")
+        .WithMethods("GET", "POST", "PUT", "DELETE","OPTIONS")
         .WithHeaders("Authorization", "origin", "content-type", "accept");
     });
 });

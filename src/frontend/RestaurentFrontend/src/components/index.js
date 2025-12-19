@@ -20,6 +20,9 @@ import ForgotPassword from "./ForgotPassword/ForgotPassword";
 import ResetPassword from "./ResetPassword/ResetPassword";
 import Cart from "./Cart/Cart";
 import SearchBar from "./SearchBar/SearchBar";
+import ProfileMenu from "./ProfileMenu/ProfileMenu";
+import DefaultAvtar from "../assets/default-avtar.png"
+import Profile from "./Profile/Profile"
 
 export {
     Header,
@@ -43,5 +46,8 @@ export {
     ForgotPassword,
     ResetPassword,
     Cart,
-    SearchBar
+    SearchBar,
+    ProfileMenu,
+    DefaultAvtar,
+    Profile
 }

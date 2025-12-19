@@ -379,9 +379,9 @@ dist-ssr
 *.suo
 *.ntvs*
 *.njsproj
-*.sln
 *.sw?
 
 .env
 .env.*
+wwwroot/Images/*
 wwwroot/Images/

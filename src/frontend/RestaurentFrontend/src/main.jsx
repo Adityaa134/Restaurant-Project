@@ -5,20 +5,8 @@ import { Provider } from "react-redux"
 import { RouterProvider } from "react-router-dom"
 import store from "./store/store.js"
 import { createBrowserRouter } from 'react-router-dom'
-import Home from './pages/Home.jsx'
-import Login from './pages/Login.jsx'
-import Register from './pages/Register.jsx'
-import AddDish from './pages/AddDish.jsx'
-import ConfirmEmail from "./pages/ConfirmEmail.jsx"
-import ConfirmEmailSuccess from './pages/ConfirmEmailSuccess.jsx'
-import DishDetails from "./pages/DishDetails.jsx"
-import EditDish from "./pages/EditDish.jsx"
-import PageNotExist from "./pages/PageNotExist.jsx"
 import { Protected } from "./components/index.js"
-import Categories from "./pages/Categories.jsx"
-import ForgotPassword from "./pages/ForgotPassword.jsx"
-import ResetPassword from "./pages/ResetPassword.jsx"
-import Cart from "./pages/Cart.jsx"
+import {Home,Login,Register,AddDish,ConfirmEmail,ConfirmEmailSuccess,DishDetails,EditDish,PageNotExist,Categories,ForgotPassword,ResetPassword,Cart,Profile} from "./pages/index.js"
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 
@@ -94,7 +82,15 @@ const router = createBrowserRouter([
       {
         path: "/cart",
         element: < Cart />
-      }
+      },
+      {
+        path: "/profile",
+        element: (
+          <Protected>
+            < Profile />
+          </Protected>
+        )
+      },
     ]
   }
 ])

@@ -6,9 +6,10 @@ import { Outlet } from 'react-router-dom'
 import { Header, Footer } from "./components/index"
 import { useDispatch, useSelector } from "react-redux"
 import categoryService from "./services/categoriesService"
-import { login, logout } from "./features/auth/authSlice"
+import { login, logout,updateUserProfile } from "./features/auth/authSlice"
 import { jwtDecode } from 'jwt-decode';
 import cartService from './services/cartService'
+import userService from './services/userService'
 import { setCartItems } from "./features/cart/cartSlice"
 
 function App() {
@@ -16,7 +17,7 @@ function App() {
   const dispatch = useDispatch()
   const [loading, setLoading] = useState(true)
   const authStatus = useSelector((state) => state.auth.authStatus)
-  const userId = useSelector((state)=>state.auth.userData?.userId)
+  const userId = useSelector((state) => state.auth.userData?.userId)
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -24,20 +25,34 @@ function App() {
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
-
-        // Get user data from token claims
+        
         const userData = {
           userId: decodedToken.sub,
           userName: decodedToken.name,
           email: decodedToken.email
         };
 
-
         dispatch(login({
           token,
           user: userData,
           role: decodedToken.role
         }));
+
+        const fetchUserProfile = async () => {
+          try {
+            const userProfile = await userService.GetUserById(decodedToken.sub);
+            if (userProfile.profileImage) {
+              dispatch(updateUserProfile({
+                profileImage: userProfile.profileImage
+              }));
+            }
+          } catch (error) {
+            console.log('Failed to fetch profile:', error);
+          }
+        };
+
+        fetchUserProfile();
+
 
       } catch (error) {
         console.log('Invalid token:', error);

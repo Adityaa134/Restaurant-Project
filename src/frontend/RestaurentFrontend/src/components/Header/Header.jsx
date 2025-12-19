@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
-import { Container, LogOutBtn } from "../index"
 import { NavLink } from 'react-router-dom'
 import { ShoppingCartIcon } from "@heroicons/react/24/outline";
-import { SearchBar } from "../index"
+import { SearchBar, ProfileMenu } from "../index"
 
 function Header() {
 
   const navigate = useNavigate()
   const authStatus = useSelector((state) => state.auth.authStatus)
-  const { userData } = useSelector((state) => state.auth)
+  const profileImage = useSelector((state) => state.auth.profileImage);
   const userType = useSelector((state) => state.auth.role)
   const [cartCount, setCartCount] = useState(0)
   const cartItems = useSelector((state) => state.carts.cartItems)
@@ -106,43 +105,11 @@ function Header() {
             )}
 
             {authStatus && (
-              <>
-                <li className="flex items-center">
-                  <div className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors duration-200">
-                    <span className="text-gray-900 font-medium text-sm">
-                      {userData?.userName}
-                    </span>
-                    <svg
-                      className="w-4 h-4 text-gray-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                </li>
-
-                <li className="flex items-center h-16">
-                  <div className="flex items-center h-full">
-                    <LogOutBtn
-                      className="inline-flex items-center justify-center 
-                             px-3 py-2 
-                             text-gray-600 hover:text-blue-600 
-                             font-medium text-sm 
-                             rounded-lg transition-colors duration-200 
-                             hover:bg-gray-50
-                             border-0 bg-transparent
-                             leading-none"
-                    />
-                  </div>
-                </li>
-              </>
+              <li className="relative h-16 flex items-center justify-center">
+                <ProfileMenu
+                  profileImage={profileImage}
+                />
+              </li>
             )}
           </ul>
         </nav>

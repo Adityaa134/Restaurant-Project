@@ -100,9 +100,16 @@ function DishDetails() {
         
         <>
             {loading ? (
-                <div className="flex justify-center items-center min-h-screen">
-                    <div className="text-lg text-gray-700 animate-pulse">
-                        Loading dish details...
+               <div className="max-w-3xl mx-auto p-6 animate-pulse">
+                    <div className="flex items-center space-x-4 mb-6">
+                        <div className="w-20 h-20 bg-gray-300 rounded-full"></div>
+                        <div className="h-4 bg-gray-300 rounded w-48"></div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="h-10 bg-gray-300 rounded"></div>
+                        <div className="h-10 bg-gray-300 rounded"></div>
+                        <div className="h-10 bg-gray-300 rounded"></div>
                     </div>
                 </div>
             ) : (
