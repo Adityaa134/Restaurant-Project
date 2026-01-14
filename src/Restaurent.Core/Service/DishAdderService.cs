@@ -26,7 +26,7 @@ namespace Restaurent.Core.Service
                 throw new ArgumentException(nameof(dishAddRequest.DishName),nameof(dishAddRequest.Dish_Image));
 
             //validations
-            ValidationHelper.ModelValidator(dishAddRequest);
+            ValidationHelper.ModelValidator(dishAddRequest); 
 
             //Adding image to webroot
             var imgPath =  await _imageAdderService.ImageAdder(dishAddRequest.Dish_Image);

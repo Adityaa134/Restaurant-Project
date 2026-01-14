@@ -1,12 +1,9 @@
 ﻿using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Restaurent.Core.Domain.Identity;
 using Restaurent.Core.DTO;
-using Restaurent.Core.Service;
 using Restaurent.Core.ServiceContracts;
 
 namespace Restaurent.WebAPI.Controllers

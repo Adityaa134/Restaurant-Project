@@ -1,8 +1,10 @@
-﻿using System;
-using Restaurent.Core.Domain.Entities;
+﻿using Restaurent.Core.Domain.Entities;
 
-namespace ECommerce.Core.DTO
+namespace Restaurent.Core.DTO
 {
+    /// <summary>
+    /// Acts as a DTO to return the category details
+    /// </summary>
     public class CategoryResponse
     {
         public Guid CategoryId { get; set; }

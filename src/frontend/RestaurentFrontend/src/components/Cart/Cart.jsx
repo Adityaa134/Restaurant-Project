@@ -1,12 +1,14 @@
-import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import cartService from "../../services/cartService"
 import { updateCartItems, removeItemFromCart } from "../../features/cart/cartSlice"
+import { useNavigate } from "react-router-dom";
+import { Button } from "../index"
 
 function Cart() {
   const cartItems = useSelector((state) => state.carts.cartItems);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const updateQuantity = async (quantity, cartId) => {
     try {
@@ -50,7 +52,7 @@ function Cart() {
               key={item.cartId}
               className="flex items-center justify-between bg-white rounded-lg shadow p-4"
             >
-              
+
               <div className="flex items-center space-x-4">
                 <img
                   src={`https://localhost:7219${item.dish_Image_Path}`}
@@ -63,9 +65,9 @@ function Cart() {
                 </div>
               </div>
 
-              
+
               <div className="flex items-center space-x-6">
-                
+
                 <div className="flex items-center border rounded-lg overflow-hidden">
                   <button
                     onClick={() => updateQuantity(-1, item.cartId)}
@@ -82,7 +84,7 @@ function Cart() {
                   </button>
                 </div>
 
-                
+
                 <p className="font-bold text-gray-900 min-w-[60px] text-right">
                   ₹{item.dishPrice * item.quantity}
                 </p>
@@ -90,18 +92,40 @@ function Cart() {
             </div>
           ))}
 
-          
-          <div className="flex justify-end mt-6">
-            <div className="bg-gray-100 rounded-lg p-4 shadow text-right">
-              <h3 className="font-semibold text-lg">
-                Total: ₹
-                {cartItems?.reduce(
-                  (acc, item) => acc + item.dishPrice * item.quantity,
-                  0
-                )}
-              </h3>
+          <div className="mt-8 border-t pt-6">
+            <div className="
+              flex flex-col gap-4
+              sm:flex-row
+              sm:items-center
+              sm:justify-between
+            ">
+              <div className="text-lg font-semibold text-gray-900">
+                Total Amount:{" "}
+                <span className="text-black">
+                  ₹{cartItems?.reduce(
+                    (acc, item) => acc + item.dishPrice * item.quantity,
+                    0
+                  )}
+                </span>
+              </div>
+              <Button
+                onClick={() => navigate("/checkout")}
+                className="
+                  w-full md:w-auto
+                  px-8 py-3
+                  bg-green-600
+                  text-white
+                  font-semibold
+                  rounded-lg
+                  hover:bg-green-700
+                  transition
+                 "
+              >
+                Proceed to Checkout
+              </Button>
             </div>
           </div>
+
         </div>
       )}
     </div>

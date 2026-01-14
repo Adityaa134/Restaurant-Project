@@ -52,8 +52,6 @@ const PersonalProfile = () => {
         }
     }, [userId, reset])
 
-
-
     useEffect(() => {
         if (
             debouncedUsername &&
@@ -84,7 +82,6 @@ const PersonalProfile = () => {
         setIsUsernameTaken(false);
         return true;
     };
-
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -259,7 +256,6 @@ const PersonalProfile = () => {
                         </div>
                     </form>
                 )}
-
         </>
     );
 };

@@ -1,7 +1,7 @@
 ﻿using System;
-using ECommerce.Core.DTO;
 using Restaurent.Core.Domain.Entities;
 using Restaurent.Core.Domain.RepositoryContracts;
+using Restaurent.Core.DTO;
 using Restaurent.Core.ServiceContracts;
 
 namespace Restaurent.Core.Service
@@ -19,6 +19,12 @@ namespace Restaurent.Core.Service
         public async Task<List<CategoryResponse>> GetAllCategories()
         {
             List<Category> categories = await _categoryRepository.GetAllCategories();
+            return categories.Select(temp => temp.ToCategoryResponse()).ToList();
+        }
+
+        public async Task<List<CategoryResponse>> GetAllCategoriesAdmin()
+        {
+            List<Category> categories = await _categoryRepository.GetAllCategoriesAdmin();
             return categories.Select(temp => temp.ToCategoryResponse()).ToList();
         }
 

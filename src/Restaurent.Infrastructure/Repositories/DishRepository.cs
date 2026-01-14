@@ -21,7 +21,7 @@ namespace Restaurent.Infrastructure.Repositories
             await _dbContext.Dishes
                       .AddAsync(dish);
             await _dbContext.SaveChangesAsync();
-            return dish;
+            return await GetDishByDishId(dish.DishId);
         }
 
         public async Task<bool> DeleteDishByDishId(Guid dishId)
@@ -40,6 +40,8 @@ namespace Restaurent.Infrastructure.Repositories
         {
             return await _dbContext.Dishes
                                    .Include(t=>t.Category)
+                                   .Where(c=>c.Category.Status==true)
+                                   .AsNoTracking()
                                    .ToListAsync();
         }
 
@@ -58,6 +60,7 @@ namespace Restaurent.Infrastructure.Repositories
             return await _dbContext.Dishes
                                    .Where(temp=>temp.Category.Id == categoryId)
                                    .Include(t=>t.Category)
+                                   .AsNoTracking()
                                    .ToListAsync();
         }
 
@@ -66,6 +69,7 @@ namespace Restaurent.Infrastructure.Repositories
            return await _dbContext.Dishes
                                   .Where(dish=> EF.Functions.Like(dish.DishName.ToLower(),$"%{searchString.ToLower()}%"))
                                    .Include(t=>t.Category)
+                                   .AsNoTracking()
                                    .ToListAsync();
                                   
         }

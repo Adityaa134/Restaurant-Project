@@ -1,7 +1,8 @@
-﻿using System;
-
-namespace Restaurent.Core.DTO
+﻿namespace Restaurent.Core.DTO
 {
+    /// <summary>
+    /// Acts as a DTO for SMTP configuration settings.
+    /// </summary>
     public class SMTPConfigOptions
     {
         public string Username { get; set; }

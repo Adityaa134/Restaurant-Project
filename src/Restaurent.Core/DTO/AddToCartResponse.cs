@@ -1,8 +1,10 @@
-﻿using System;
-using Restaurent.Core.Domain.Entities;
+﻿using Restaurent.Core.Domain.Entities;
 
 namespace Restaurent.Core.DTO
 {
+    /// <summary>
+    /// Acts as a DTO to return dishes present in the user's cart  
+    /// </summary>
     public class AddToCartResponse
     {
         public Guid CartId { get; set; }

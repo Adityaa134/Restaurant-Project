@@ -2,7 +2,6 @@
 using ECommerce.Core.Enums;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
 using Restaurent.Core.Domain.Identity;
 using Restaurent.Core.DTO;
 using Restaurent.Core.Helpers;
@@ -285,7 +284,7 @@ namespace Restaurent.Core.Service
                             return userDetailsUpdate;
                     }   
                 }
-                user.ProfileImagePath = null;
+                user.ProfileImagePath = personalDetailsDTO.ProfileImagePath;
                 await _userManager.UpdateAsync(user);
                 UserDTO? userDTO = await GetUserByUserId(user.Id);
                 return userDTO;

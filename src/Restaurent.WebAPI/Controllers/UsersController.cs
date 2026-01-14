@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Client;
-using Restaurent.Core.Domain.Entities;
 using Restaurent.Core.DTO;
 using Restaurent.Core.ServiceContracts;
 

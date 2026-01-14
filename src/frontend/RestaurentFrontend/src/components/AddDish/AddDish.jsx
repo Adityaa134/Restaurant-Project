@@ -1,22 +1,21 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useForm } from "react-hook-form"
 import { Input, Button, Select } from "../index"
 import { useSelector, useDispatch } from "react-redux"
 import dishService from "../../services/dishService"
-import authService from "../../services/authService"
 import { addDish } from "../../features/dishes/dishSlice"
-import { useNavigate } from 'react-router-dom'
-import { logout } from "../../features/auth/authSlice"
 
 function AddDish() {
 
   const [successMessage, setSuccessMessage] = useState("")
   const [errors, setErrors] = useState()
   const categories = useSelector((state) => state.category.categories)
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useDispatch()
-  const navigate = useNavigate()
 
   const onSubmit = async (data) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     setErrors("")
     try {
       let response = await dishService.AddDish(data)
@@ -28,12 +27,14 @@ function AddDish() {
     } catch (error) {
       setErrors(error.message)
     }
+    finally {
+    setIsSubmitting(false);
+    }
   }
 
   const { register, handleSubmit, formState: { errors: formErrors }, reset } = useForm()
 
   return (
-
 
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -168,6 +169,7 @@ function AddDish() {
 
             <Button
               type="submit"
+              disabled={isSubmitting}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent 
                      text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 
                      focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 

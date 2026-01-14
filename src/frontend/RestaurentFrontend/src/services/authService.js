@@ -1,6 +1,5 @@
 import axiosInstance from "../axios/axiosInstance";
 
-
 export class AuthService {
 
     async Login({ userName, password }) {
@@ -9,7 +8,6 @@ export class AuthService {
                 UserName: userName.toString(),
                 Password: password.toString()
             });
-
             return response.data;
         } catch (error) {
             console.log("AuthService :: Login :: ", error);
@@ -34,15 +32,12 @@ export class AuthService {
                 UserName: userName.toString(),
                 PhoneNumber: phoneNumber.toString()
             });
-
-            console.log("authservice :: Register", response);
             return response.data;
         } catch (error) {
             console.log("AuthService :: Register :: ", error);
             return false
         }
     }
-
 
     async checkEmailExists(email) {
         try {
@@ -96,29 +91,22 @@ export class AuthService {
         if (email == null || email.trim() === "") {
             throw new Error("Email can't be null or empty");
         }
-
         try {
             const response = await axiosInstance.get(`/Account/forgot-password?email=${encodeURIComponent(email)}`);
-            console.log("axios response:", response);
-
             return {
                 success: true,
                 message: "Password reset email sent successfully"
             };
-
-        } catch (error) {
+        } 
+        catch (error) {
             console.log("ForgotPasswordEmail error:", error);
-
             if (error.response && error.response.status === 400) {
-                
                 const backendMessage = error.response.data;
                 return {
                     success: false,
                     message: backendMessage 
                 };
             }
-
-            
             return {
                 success: false,
                 message: "Email sent unsuccessfully"

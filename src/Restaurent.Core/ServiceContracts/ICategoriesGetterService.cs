@@ -1,5 +1,5 @@
 ﻿using System;
-using ECommerce.Core.DTO;
+using Restaurent.Core.DTO;
 
 namespace Restaurent.Core.ServiceContracts
 {
@@ -8,8 +8,14 @@ namespace Restaurent.Core.ServiceContracts
         /// <summary>
         /// Returns list of all categories from data store
         /// </summary>
-        /// <returns>Returns list of all categories</returns>
+        /// <returns>Returns list of all active categories</returns>
         Task<List<CategoryResponse>> GetAllCategories();
+
+        /// <summary>
+        /// Returns list of all categories from data store
+        /// </summary>
+        /// <returns>Returns list of all categories which status is both active or inactive</returns>
+        Task<List<CategoryResponse>> GetAllCategoriesAdmin();
 
 
         /// <summary>

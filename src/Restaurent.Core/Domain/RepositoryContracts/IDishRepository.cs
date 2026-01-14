@@ -1,6 +1,5 @@
 ﻿using System;
 using Restaurent.Core.Domain.Entities;
-using Restaurent.Core.DTO;
 
 namespace Restaurent.Core.Domain.RepositoryContracts
 {

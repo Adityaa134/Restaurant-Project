@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Button } from "../index"
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom';
 import authService from "../../services/authService"
 import { Link } from 'react-router-dom';
 
@@ -9,7 +8,6 @@ function ConfirmEmailSuccess() {
   const [message, setMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate()
 
   const uid = searchParams.get('uid');
   const token = searchParams.get('token');
@@ -39,11 +37,7 @@ function ConfirmEmailSuccess() {
     }
   }, [uid, token]);
 
-
- 
-
   return (
-    
     <>
       {isLoading ? (
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

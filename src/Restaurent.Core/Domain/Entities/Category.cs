@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Restaurent.Core.Domain.Entities
 {
+    [Index(nameof(CategoryName), IsUnique = true)]
     public class Category
     {
         [Key] 
@@ -13,7 +15,7 @@ namespace Restaurent.Core.Domain.Entities
         public bool Status { get; set; } 
         public string? Cat_Image { get; set; }
 
-        public IEnumerable<Dish> Dishes { get; set; } = new List<Dish>(); 
+        public ICollection<Dish> Dishes { get; set; } = new List<Dish>(); 
 
     }
 }

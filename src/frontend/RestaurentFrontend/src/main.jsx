@@ -6,9 +6,8 @@ import { RouterProvider } from "react-router-dom"
 import store from "./store/store.js"
 import { createBrowserRouter } from 'react-router-dom'
 import { Protected } from "./components/index.js"
-import {Home,Login,Register,AddDish,ConfirmEmail,ConfirmEmailSuccess,DishDetails,EditDish,PageNotExist,Categories,ForgotPassword,ResetPassword,Cart,Profile} from "./pages/index.js"
+import {Home,Login,Register,AddDish,ConfirmEmail,ConfirmEmailSuccess,DishDetails,EditDish,PageNotExist,Categories,ForgotPassword,ResetPassword,Cart,Profile,UserOrders,OrderDetails,Checkout,ManageOrders,AddCategory,ManageCategories} from "./pages/index.js"
 import { GoogleOAuthProvider } from '@react-oauth/google';
-
 
 const router = createBrowserRouter([
   {
@@ -91,6 +90,58 @@ const router = createBrowserRouter([
           </Protected>
         )
       },
+      {
+        path: "/your-orders",
+        element: (
+          <Protected>
+            < UserOrders />
+          </Protected>
+        )
+      },
+      {
+        path: "/orders/:orderId",
+        element: (
+          <Protected>
+            < OrderDetails />
+          </Protected>
+        )
+      },
+      {
+        path: "/checkout",
+        element: (
+          <Protected>
+            < Checkout />
+          </Protected>
+        )
+      },
+      {
+        path: "/manage-orders",
+        element: (
+          <Protected requiredRole="admin">
+            < ManageOrders />
+          </Protected>
+        )
+      },
+      {
+        path: "/add-category",
+        element: (
+          <Protected requiredRole="admin">
+            < AddCategory />
+          </Protected>
+        )
+      },
+      {
+        path: "/manage-categories",
+        element: (
+          <Protected requiredRole="admin">
+            < ManageCategories />
+          </Protected>
+        )
+      },
+      {
+        path: "*",
+        element: <PageNotExist />
+      }
     ]
   }
 ])

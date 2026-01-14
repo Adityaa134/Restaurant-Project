@@ -1,34 +1,22 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { DishCard } from "../index"; // ✅ Importing DishCard component
+import { DishCard } from "../index";
 
 function CategoriesPage() {
-  const navigate = useNavigate();
-
   const categories = useSelector((state) => state.category.categories);
   const allDishes = useSelector((state) => state.dishes.dishes);
-
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [dishes, setDishes] = useState([]);
 
-  useEffect(() => {
-    if (allDishes?.length > 0) {
-      setDishes(allDishes);
-    }
-  }, [allDishes]);
+  const visibleDishes =
+    selectedCategory === "All"
+      ? allDishes
+      : allDishes.filter(
+          (dish) => dish.categoryName === selectedCategory
+        );
 
   const handleCategoryClick = (categoryName) => {
     setSelectedCategory(categoryName);
-
-    if (categoryName === "All") {
-      setDishes(allDishes);
-    } else {
-      const filtered = allDishes.filter(
-        (dish) => dish.categoryName === categoryName
-      );
-      setDishes(filtered);
-    }
   };
 
   return (
@@ -39,7 +27,6 @@ function CategoriesPage() {
           Explore Our Categories
         </h1>
 
-       
         <div className="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide mb-8">
           
           <div
@@ -60,7 +47,6 @@ function CategoriesPage() {
             <h3 className="mt-3 text-sm font-medium text-gray-700">All</h3>
           </div>
 
-          
           {categories.map((category) => (
             <div
               key={category.categoryId}
@@ -89,18 +75,17 @@ function CategoriesPage() {
           ))}
         </div>
 
-    
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
           {selectedCategory === "All"
             ? "All Dishes"
             : `${selectedCategory}`}
         </h2>
 
-        {dishes.length === 0 ? (
+        {visibleDishes.length === 0 ? (
           <p className="text-gray-600 text-lg">No dishes found.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {dishes.map((dish) => (
+            {visibleDishes.map((dish) => (
               <div key={dish.dishId}>
                 <DishCard {...dish} />
               </div>

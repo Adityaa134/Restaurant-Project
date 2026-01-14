@@ -1,9 +1,11 @@
-﻿using System;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Restaurent.Core.Domain.Entities;
 
 namespace Restaurent.Core.DTO
 {
+    /// <summary>
+    /// Acts as  a DTO to return dish details 
+    /// </summary>
     public class DishResponse
     {
         public Guid? DishId { get; set; }

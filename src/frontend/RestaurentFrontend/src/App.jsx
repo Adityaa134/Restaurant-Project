@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { setDishes } from "./features/dishes/dishSlice"
 import { setCategories } from "./features/category/categorySlice"
 import dishService from "./services/dishService"
 import { Outlet } from 'react-router-dom'
-import { Header, Footer } from "./components/index"
+import { Header, Footer,ToasterProvider } from "./components/index"
 import { useDispatch, useSelector } from "react-redux"
 import categoryService from "./services/categoriesService"
-import { login, logout,updateUserProfile } from "./features/auth/authSlice"
+import { login, logout,updateUserProfile,authCheckCompleted } from "./features/auth/authSlice"
 import { jwtDecode } from 'jwt-decode';
 import cartService from './services/cartService'
 import userService from './services/userService'
@@ -53,7 +53,6 @@ function App() {
 
         fetchUserProfile();
 
-
       } catch (error) {
         console.log('Invalid token:', error);
         localStorage.removeItem('token');
@@ -61,6 +60,9 @@ function App() {
         dispatch(logout());
       }
     }
+    else {
+    dispatch(authCheckCompleted());
+  }
   }, [dispatch, authStatus]);
 
 
@@ -100,6 +102,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <ToasterProvider />
       <Header />
       <main className="flex-1">
         <Outlet />

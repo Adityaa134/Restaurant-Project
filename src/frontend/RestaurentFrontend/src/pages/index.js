@@ -12,6 +12,12 @@ import ForgotPassword from "./ForgotPassword.jsx"
 import ResetPassword from "./ResetPassword.jsx"
 import Cart from "./Cart.jsx"
 import Profile from "./Profile.jsx"
+import UserOrders from './UserOrders.jsx'
+import OrderDetails from './OrderDetails.jsx'
+import Checkout from './Checkout.jsx'
+import ManageOrders from './ManageOrders.jsx'
+import AddCategory from './AddCategory.jsx'
+import ManageCategories  from './ManageCategories.jsx'
 
 export{
     Home,
@@ -27,5 +33,11 @@ export{
     ForgotPassword,
     ResetPassword,
     Cart,
-    Profile
+    Profile,
+    UserOrders,
+    OrderDetails,
+    Checkout,
+    ManageOrders,
+    AddCategory,
+    ManageCategories
 }

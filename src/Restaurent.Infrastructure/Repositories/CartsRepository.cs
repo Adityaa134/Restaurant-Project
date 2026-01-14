@@ -27,6 +27,7 @@ namespace Restaurent.Infrastructure.Repositories
             return await _db.Carts
                 .Include(t => t.Dishes)
                 .Where(t => t.UserId == userId)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
@@ -35,6 +36,7 @@ namespace Restaurent.Infrastructure.Repositories
             return await _db.Carts
                 .Include(t => t.Dishes)
                 .Where(t => t.UserId == null)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
@@ -43,12 +45,20 @@ namespace Restaurent.Infrastructure.Repositories
             return await _db.Carts
                   .Include(t => t.Dishes)
                   .Include(t=>t.Users)
+                  .AsNoTracking()
                   .FirstOrDefaultAsync(temp => temp.Id == cartId);
         }
 
         public async Task<bool> RemoveItemFromCartByCartId(Guid cartId)
         {
             _db.Carts.RemoveRange(_db.Carts.Where(t => t.Id == cartId));
+            int rowsDeleted = await _db.SaveChangesAsync();
+            return rowsDeleted > 0;
+        }
+
+        public async Task<bool> RemoveItemsFromCartByUserId(Guid userId)
+        {
+            _db.Carts.RemoveRange(_db.Carts.Where(t => t.UserId == userId));
             int rowsDeleted = await _db.SaveChangesAsync();
             return rowsDeleted > 0;
         }
@@ -80,7 +90,9 @@ namespace Restaurent.Infrastructure.Repositories
 
         public async Task<Carts?> GetcartItemByUserIdDishId(Guid userId, Guid dishId)
         {
-            return await _db.Carts.FirstOrDefaultAsync(temp => temp.UserId == userId && temp.DishId == dishId);
+            return await _db.Carts
+                .AsNoTracking()
+                .FirstOrDefaultAsync(temp => temp.UserId == userId && temp.DishId == dishId);
 
         }
     }

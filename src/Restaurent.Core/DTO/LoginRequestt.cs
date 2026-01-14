@@ -1,8 +1,10 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Restaurent.Core.DTO
 {
+    /// <summary>
+    /// Acts as a DTO to login the user  
+    /// </summary>
     public class LoginRequestt
     {
         [Required(ErrorMessage = "UserName is required")]

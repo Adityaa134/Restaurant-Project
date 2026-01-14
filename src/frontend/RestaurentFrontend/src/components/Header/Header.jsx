@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
 import { NavLink } from 'react-router-dom'
@@ -38,11 +38,6 @@ function Header() {
       url: "/categories",
       name: "Categories",
       active: true
-    },
-    {
-      url: "/add-dish",
-      name: "AddDish",
-      active: (userType === "admin" && authStatus) ? true : false
     }
   ]
 
@@ -52,7 +47,6 @@ function Header() {
   const rightNavItems = navItems.filter(
     (item) => item.name === "Login" || item.name === "Register"
   );
-
 
   return (
 
@@ -72,6 +66,53 @@ function Header() {
                 </li>
               ) : null
             )}
+
+            {authStatus && userType === "admin" && (
+              <li className="relative group flex items-center">
+                <span className="cursor-pointer text-gray-600 hover:text-blue-600 font-medium text-sm px-3 py-2">
+                  Admin
+                </span>
+
+                <ul className="absolute top-full left-0 mt-2 w-40 bg-white border rounded-md shadow-lg opacity-0 group-hover:opacity-100 group-hover:visible invisible transition-all duration-200 z-50">
+                  <li>
+                    <NavLink
+                      to="/add-dish"
+                      className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-blue-600"
+                    >
+                      Add Dish
+                    </NavLink>
+                  </li>
+
+                  <li>
+                    <NavLink
+                      to="/manage-orders"
+                      className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-blue-600"
+                    >
+                      Manage Orders
+                    </NavLink>
+                  </li>
+
+                  <li>
+                    <NavLink
+                      to="/add-category"
+                      className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-blue-600"
+                    >
+                      Add Category
+                    </NavLink>
+                  </li>
+
+                  <li>
+                    <NavLink
+                      to="/manage-categories"
+                      className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-blue-600"
+                    >
+                      Manage Categories
+                    </NavLink>
+                  </li>
+                </ul>
+              </li>
+            )}
+
           </ul>
 
           <SearchBar />

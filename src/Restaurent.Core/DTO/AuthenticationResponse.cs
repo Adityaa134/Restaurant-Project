@@ -1,7 +1,8 @@
-﻿using System;
-
-namespace Restaurent.Core.DTO
+﻿namespace Restaurent.Core.DTO
 {
+    /// <summary>
+    /// Acts as a DTO for authentication response details.
+    /// </summary>
     public class AuthenticationResponse
     {
         public string? UserName { get; set; } = string.Empty;

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Restaurent.Core.DTO
+﻿namespace Restaurent.Core.DTO
 {
+    /// <summary>
+    /// Acts as a DTO for email content and placeholder values.
+    /// </summary>
     public class EmailPlaceHolderDTO
     {
         public string Email { get; set; }

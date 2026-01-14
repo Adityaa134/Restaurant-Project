@@ -35,13 +35,19 @@ namespace Restaurent.WebAPI.StartupExtensions
             services.AddScoped<IGetCartItemsService, GetCartItemsService>();
             services.AddScoped<IRemoveCartItemsService, RemoveCartItemsService>();
             services.AddScoped<IUpdateItemQuantityInCart, UpdateItemQuantityInCart>();
+            services.AddScoped<IOrderGetterService, OrderGetterService>();
+            services.AddScoped<IOrderCreateService, OrderCreateService>();
+            services.AddScoped<IAddressService, AddressService>();
+            services.AddScoped<IOrderUpdateService, OrderUpdateService>();
+            services.AddScoped<ICategoryAdderService, CategoryAdderService>();
+            services.AddScoped<ICategoryUpdateService, CategoryUpdateService>();
             services.Configure<SMTPConfigOptions>(configuration.GetSection("SMTPConfig"));
-
 
             services.AddScoped<IDishRepository, DishRepository>();
             services.AddScoped<ICategoryRepository, CategoriesRepository>();
             services.AddScoped<ICartsRepository, CartsRepository>();
-
+            services.AddScoped<IOrdersRepository, OrdersRepository>();
+            services.AddScoped<IAddressRepository, AddressRepository>();
 
             services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
@@ -53,7 +59,6 @@ namespace Restaurent.WebAPI.StartupExtensions
                 options.Password.RequireDigit = true;
                 options.Password.RequiredUniqueChars = 3; // a password must have 3 diff. characters eg aditya it has 5 unique characters
                 options.SignIn.RequireConfirmedEmail = true;
-                
             })
 
            .AddEntityFrameworkStores<ApplicationDBContext>()

@@ -12,5 +12,7 @@ namespace Restaurent.Core.Domain.Identity
         [StringLength(1000)]
         public string? ProfileImagePath { get; set; }
         public ICollection<Carts> Carts { get; set; } = new List<Carts>();
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
+        public ICollection<Address> Addresses { get; set; }
     }
 }

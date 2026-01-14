@@ -1,10 +1,5 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-
-namespace Restaurent.WebAPI.Middleware
+﻿namespace Restaurent.WebAPI.Middleware
 {
-    
     public class ExceptionHandlingMiddleware
     {
         private readonly RequestDelegate _next;

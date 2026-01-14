@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import { useState,useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../index";
 import cartService from "../../services/cartService";
@@ -7,10 +7,10 @@ import { addItemToCart } from "../../features/cart/cartSlice";
 
 function DishCard({ dishId, dishName, price, dish_Image_Path }) {
     const userId = useSelector((state) => state.auth.userData?.userId);
+    const[isPlacingOrder,setIsPlacingOrder] = useState(false)
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const imageUrl = `https://localhost:7219${dish_Image_Path}`;
-    
 
     const [itemAdded, setItemAdded] = useState("Order Now");
 
@@ -35,6 +35,8 @@ function DishCard({ dishId, dishName, price, dish_Image_Path }) {
     }, [userId, dishId]);
 
     const addItem = async () => {
+        if(isPlacingOrder) return;
+        setIsPlacingOrder(true)
         try {
             const response = await cartService.AddItemToCart(userId, dishId);
             if (response) {
@@ -44,6 +46,9 @@ function DishCard({ dishId, dishName, price, dish_Image_Path }) {
 
         } catch (error) {
             console.log(error);
+        }
+        finally{
+            setIsPlacingOrder(false)
         }
     };
 
@@ -74,6 +79,7 @@ function DishCard({ dishId, dishName, price, dish_Image_Path }) {
 
                 <Button
                     onClick={handleOrderButton}
+                    disabled={isPlacingOrder}
                     type="button"
                     className="mt-3 w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-colors"
                 >

@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Restaurent.Core.Domain.Entities;
 using Restaurent.Core.Domain.RepositoryContracts;
 using Restaurent.Infrastructure.DBContext;
@@ -16,9 +15,26 @@ namespace Restaurent.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
+        public async Task<Category> AddCategory(Category? category)
+        {
+            await _dbContext.Categories.AddAsync(category);
+            await _dbContext.SaveChangesAsync();
+            return category;
+        }
+
         public async Task<List<Category>> GetAllCategories()
         {
-            return await _dbContext.Categories.ToListAsync();  
+            return await _dbContext.Categories
+                                   .Where(c=>c.Status==true)
+                                   .AsNoTracking()
+                                   .ToListAsync();  
+        }
+
+        public async Task<List<Category>> GetAllCategoriesAdmin()
+        {
+            return await _dbContext.Categories
+                                   .AsNoTracking()
+                                   .ToListAsync();
         }
 
         public async Task<Category?> GetCategoryByCategoryId(Guid categoryId)
@@ -27,6 +43,16 @@ namespace Restaurent.Infrastructure.Repositories
                                                          .FirstOrDefaultAsync(temp=>temp.Id == categoryId);
             if (matchingCategory == null)
                 return null;
+            return matchingCategory;
+        }
+
+        public async Task<Category?> UpdateCategoryStatus(bool status, Guid categoryId)
+        {
+           Category? matchingCategory =  await GetCategoryByCategoryId(categoryId);
+            if(matchingCategory == null)
+                return null;
+            matchingCategory.Status = status;
+            await _dbContext.SaveChangesAsync();
             return matchingCategory;
         }
     }

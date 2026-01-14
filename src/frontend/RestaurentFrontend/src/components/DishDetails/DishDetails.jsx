@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from "react-router-dom"
 import dishService from "../../services/dishService"
 import { Button } from "../index"
@@ -6,7 +6,6 @@ import { deleteDish } from "../../features/dishes/dishSlice"
 import { useDispatch,useSelector } from "react-redux"
 import {addItemToCart} from "../../features/cart/cartSlice"
 import cartService from '../../services/cartService'
-
 
 function DishDetails() {
     const userId = useSelector((state) => state.auth.userData?.userId);
@@ -125,7 +124,6 @@ function DishDetails() {
                                     className="w-full h-full object-cover"
                                 />
                             </div>
-
                             
                             <div className="p-6">
                                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">
@@ -169,8 +167,6 @@ function DishDetails() {
                 </div>
             )}
         </>
-
-
     )
 }
 

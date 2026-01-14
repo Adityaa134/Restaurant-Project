@@ -28,5 +28,12 @@ namespace Restaurent.Core.Service
                 return true;
             return false;
         }
+
+        public async Task<bool> RemoveItemsFromCartByUserId(Guid userId)
+        {
+            if (userId == Guid.Empty)
+                throw new ArgumentNullException(nameof(userId));
+            return await _cartsRepository.RemoveItemsFromCartByUserId(userId);
+        }
     }
 }

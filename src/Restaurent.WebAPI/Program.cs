@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,17 +12,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers(options =>
 {
-
     options.Filters.Add(new ProducesAttribute("application/json"));
     options.Filters.Add(new ConsumesAttribute("application/json"));
-
 
     var policy = new AuthorizationPolicyBuilder()
     .RequireAuthenticatedUser()
     .Build();
     options.Filters.Add(new AuthorizeFilter(policy));
 
-});
+}).AddJsonOptions(options=>
+  {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+  });
 
 builder.Services.ConfigureServices(builder.Configuration);
 
@@ -77,17 +79,14 @@ else
     app.UseExceptionHandlingMiddleware();
 }
 
-
 app.UseHttpsRedirection();
 app.UseHsts();
 app.UseStaticFiles();
-
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseRouting();
-
 app.UseCors();
 
 app.UseAuthentication();

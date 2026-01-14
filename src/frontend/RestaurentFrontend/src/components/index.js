@@ -23,6 +23,13 @@ import SearchBar from "./SearchBar/SearchBar";
 import ProfileMenu from "./ProfileMenu/ProfileMenu";
 import DefaultAvtar from "../assets/default-avtar.png"
 import Profile from "./Profile/Profile"
+import UserOrders from "./UserOrders/UserOrders";
+import OrderDetails from "./OrderDetails/OrderDetails";
+import Checkout from "./Checkout/Checkout";
+import ToasterProvider from "./ToasterProvider/ToasterProvider" 
+import ManageOrders from "./ManageOrders/ManageOrders";
+import AddCategory from "./AddCategory/AddCategory";
+import ManageCategories from "./ManageCategories/ManageCategories";
 
 export {
     Header,
@@ -49,5 +56,12 @@ export {
     SearchBar,
     ProfileMenu,
     DefaultAvtar,
-    Profile
+    Profile,
+    UserOrders,
+    OrderDetails,
+    Checkout,
+    ToasterProvider,
+    ManageOrders,
+    AddCategory,
+    ManageCategories
 }

@@ -1,9 +1,11 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Restaurent.Core.Domain.Identity;
 
 namespace Restaurent.Core.DTO
 {
+    /// <summary>
+    /// Acts as a DTO to register a user
+    /// </summary>
     public class RegisterRequestt
     {
         [Required(ErrorMessage = "UserName is required")]

@@ -3,6 +3,9 @@ using Restaurent.Core.Domain.Entities;
 
 namespace Restaurent.Core.DTO
 {
+    /// <summary>
+    /// Acts as a DTO to add Dishes in the cart  
+    /// </summary>
     public class AddToCartRequest
     {
         public Guid? UserId { get; set; }

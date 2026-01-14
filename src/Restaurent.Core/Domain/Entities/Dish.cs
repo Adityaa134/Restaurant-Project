@@ -25,5 +25,6 @@ namespace Restaurent.Core.Domain.Entities
         public Category Category { get; set; }
 
         public ICollection<Carts> CartItems { get; set; } = new List<Carts>();
+        public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }
 }

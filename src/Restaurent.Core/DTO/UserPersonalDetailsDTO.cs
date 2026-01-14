@@ -4,6 +4,9 @@ using Restaurent.Core.CustomValidators;
 
 namespace Restaurent.Core.DTO
 {
+    /// <summary>
+    /// Represents user personal details used for adding or updating profile information.
+    /// </summary>
     public class UserPersonalDetailsDTO
     {
         [Required(ErrorMessage = "User Id is required")]

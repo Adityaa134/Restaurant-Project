@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { useParams, useNavigate } from "react-router-dom"
+import { useEffect, useState } from 'react'
+import { useParams} from "react-router-dom"
 import dishService from "../../services/dishService"
 import { useForm } from "react-hook-form"
 import { Input, Button, Select } from "../index"
@@ -12,6 +12,7 @@ function EditDish() {
     const [successMessage, setSuccessMessage] = useState("")
     const { dishId } = useParams()
     const [loading, setLoading] = useState(true)
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const dispatch = useDispatch()
     const { register, handleSubmit, formState: { errors: formErrors }, reset } = useForm({
         defaultValues: {
@@ -47,6 +48,8 @@ function EditDish() {
     }, [dishId, reset])
 
     const onSubmit = async (data) => {
+        if(isSubmitting) return;
+        setIsSubmitting(true)
         setErrors("")
         try {
             let response = await dishService.EditDish({
@@ -74,6 +77,9 @@ function EditDish() {
         } catch (error) {
             setErrors(error.message)
             console.log(error)
+        }
+        finally{
+            setIsSubmitting(false)
         }
     }
 
@@ -199,6 +205,7 @@ function EditDish() {
 
                                 <Button
                                     type="submit"
+                                    disabled={isSubmitting}
                                     className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300"
                                 >
                                     Edit Dish
@@ -209,7 +216,6 @@ function EditDish() {
                     </div>
             }
         </>
-
     )
 }
 

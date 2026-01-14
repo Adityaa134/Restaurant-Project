@@ -1,5 +1,8 @@
 ﻿namespace Restaurent.Core.DTO
 {
+    /// <summary>
+    /// Acts as a DTO for user details
+    /// </summary>
     public class UserDTO
     {
         public Guid UserId { get; set; }

@@ -20,6 +20,13 @@ namespace Restaurent.Core.Domain.RepositoryContracts
         /// <returns>Returns true if deleted otherwise false</returns>
         public Task<bool> RemoveItemFromCartByCartId(Guid cartId);
 
+        /// <summary>
+        /// Deletes cart items for the user 
+        /// </summary>
+        /// <param name="userId">User cart items to remove</param>
+        /// <returns>Returns true if deleted otherwise false</returns>
+        Task<bool> RemoveItemsFromCartByUserId(Guid userId);
+
 
         /// <summary>
         /// Searches for the cart item in the data store

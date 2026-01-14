@@ -1,8 +1,10 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Restaurent.Core.DTO
 {
+    /// <summary>
+    /// Acts as a DTO to reset the account password of a user
+    /// </summary>
     public class ResetPasswordDTO
     {
         [Required]

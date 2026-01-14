@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 using Restaurent.Core.Domain.Identity;
 
 namespace Restaurent.Core.Domain.Entities
 {
+    [Index(nameof(UserId), nameof(DishId), IsUnique = true)]
     public class Carts
     {
         [Key]

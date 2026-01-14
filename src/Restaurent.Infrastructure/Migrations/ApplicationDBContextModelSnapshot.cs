@@ -125,6 +125,37 @@ namespace Restaurent.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Restaurent.Core.Domain.Entities.Address", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AddressLine")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Area")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Landmark")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Address", (string)null);
+                });
+
             modelBuilder.Entity("Restaurent.Core.Domain.Entities.Carts", b =>
                 {
                     b.Property<Guid>("Id")
@@ -144,7 +175,9 @@ namespace Restaurent.Infrastructure.Migrations
 
                     b.HasIndex("DishId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "DishId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Carts", (string)null);
                 });
@@ -167,6 +200,9 @@ namespace Restaurent.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryName")
+                        .IsUnique();
 
                     b.ToTable("Categories", (string)null);
                 });
@@ -203,6 +239,65 @@ namespace Restaurent.Infrastructure.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Dishes", (string)null);
+                });
+
+            modelBuilder.Entity("Restaurent.Core.Domain.Entities.Order", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DeliveryAddressId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalBill")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeliveryAddressId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Orders", (string)null);
+                });
+
+            modelBuilder.Entity("Restaurent.Core.Domain.Entities.OrderItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DishId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DishId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("Restaurent.Core.Domain.Identity.ApplicationRole", b =>
@@ -360,6 +455,17 @@ namespace Restaurent.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Restaurent.Core.Domain.Entities.Address", b =>
+                {
+                    b.HasOne("Restaurent.Core.Domain.Identity.ApplicationUser", "User")
+                        .WithMany("Addresses")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Restaurent.Core.Domain.Entities.Carts", b =>
                 {
                     b.HasOne("Restaurent.Core.Domain.Entities.Dish", "Dishes")
@@ -388,6 +494,44 @@ namespace Restaurent.Infrastructure.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("Restaurent.Core.Domain.Entities.Order", b =>
+                {
+                    b.HasOne("Restaurent.Core.Domain.Entities.Address", "DeliveryAddress")
+                        .WithMany()
+                        .HasForeignKey("DeliveryAddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Restaurent.Core.Domain.Identity.ApplicationUser", "User")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DeliveryAddress");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Restaurent.Core.Domain.Entities.OrderItem", b =>
+                {
+                    b.HasOne("Restaurent.Core.Domain.Entities.Dish", "Dish")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("DishId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Restaurent.Core.Domain.Entities.Order", "Order")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Dish");
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("Restaurent.Core.Domain.Entities.Category", b =>
                 {
                     b.Navigation("Dishes");
@@ -396,11 +540,22 @@ namespace Restaurent.Infrastructure.Migrations
             modelBuilder.Entity("Restaurent.Core.Domain.Entities.Dish", b =>
                 {
                     b.Navigation("CartItems");
+
+                    b.Navigation("OrderItems");
+                });
+
+            modelBuilder.Entity("Restaurent.Core.Domain.Entities.Order", b =>
+                {
+                    b.Navigation("OrderItems");
                 });
 
             modelBuilder.Entity("Restaurent.Core.Domain.Identity.ApplicationUser", b =>
                 {
+                    b.Navigation("Addresses");
+
                     b.Navigation("Carts");
+
+                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 using Restaurent.Core.CustomValidators;
 using Restaurent.Core.Domain.Entities;
@@ -7,7 +6,7 @@ using Restaurent.Core.Domain.Entities;
 namespace Restaurent.Core.DTO
 {
     /// <summary>
-    /// Acts as DTO to add a Dish 
+    /// Acts as a DTO to add a Dish 
     /// </summary>
     public class DishAddRequest
     {

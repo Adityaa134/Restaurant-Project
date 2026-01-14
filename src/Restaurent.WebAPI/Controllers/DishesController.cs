@@ -1,5 +1,4 @@
-﻿using ECommerce.Core.DTO;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Restaurent.Core.DTO;
 using Restaurent.Core.ServiceContracts;

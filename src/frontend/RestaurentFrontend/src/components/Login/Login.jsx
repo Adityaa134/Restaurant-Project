@@ -1,5 +1,4 @@
 import { useState } from "react"
-import React from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, Link } from 'react-router-dom'
 import authService from "../../services/authService"
@@ -12,11 +11,14 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 function Login() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { register, handleSubmit, formState: { errors: formErrors } } = useForm()
 
   const login = async (data) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true)
     setError("")
     try {
       const response = await authService.Login(data);
@@ -32,6 +34,9 @@ function Login() {
 
     } catch (error) {
       setError(error.message)
+    }
+    finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -51,13 +56,10 @@ function Login() {
   }
 
   return (
-
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">
-            Welcome back
-          </h2>
+          <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
           <p className="mt-2 text-sm text-gray-600">
             Sign in to your account
           </p>
@@ -67,7 +69,6 @@ function Login() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow-sm sm:rounded-lg sm:px-10 border border-gray-200">
           <form onSubmit={handleSubmit(login)} className="space-y-6">
-
             <div>
               <Input
                 type="text"
@@ -97,69 +98,73 @@ function Login() {
                 </p>
               )}
             </div>
-
             <div className="w-full">
-              <label className="block text-gray-700 text-sm mb-1">
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-gray-700 text-sm">
+                  Password
+                </label>
+
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-blue-600 hover:text-blue-500 hover:underline transition"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
+
               <div className="relative">
                 <Input
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
-                  className="
-                  appearance-none w-full
-                  px-3 py-2 pr-12
-                  border border-gray-300 rounded-md
-                  focus:outline-none focus:ring-blue-500 focus:border-blue-500
-                "
+                  className="appearance-none w-full px-3 py-2 pr-12 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   {...register("password", {
-                  required: "Password is required",
-                  validate: {
-                    minLength: (value) =>
-                      value.length >= 8 || "Password must be at least 8 characters",
-                    hasLowercase: (value) =>
-                      /[a-z]/.test(value) ||
-                      "Password must contain at least one lowercase letter",
-                    hasUppercase: (value) =>
-                      /[A-Z]/.test(value) ||
-                      "Password must contain at least one uppercase letter",
-                    hasDigit: (value) =>
-                      /\d/.test(value) || "Password must contain at least one digit",
-                    hasSpecialChar: (value) =>
-                      /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value) ||
-                      "Password must contain at least one special character",
-                  },
-                })}
+                    required: "Password is required",
+                    validate: {
+                      minLength: (value) =>
+                        value.length >= 8 || "Password must be at least 8 characters",
+                      hasLowercase: (value) =>
+                        /[a-z]/.test(value) ||
+                        "Password must contain at least one lowercase letter",
+                      hasUppercase: (value) =>
+                        /[A-Z]/.test(value) ||
+                        "Password must contain at least one uppercase letter",
+                      hasDigit: (value) =>
+                        /\d/.test(value) || "Password must contain at least one digit",
+                      hasSpecialChar: (value) =>
+                        /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value) ||
+                        "Password must contain at least one special character",
+                    },
+                  })}
                 />
-                 {formErrors.password && (
-                <p className="mt-1 text-sm text-red-600">
-                  {formErrors.password.message}
-                </p>
-                )}
 
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="
-                    absolute inset-y-0 right-3
-                    flex items-center
-                    text-gray-400 hover:text-gray-600
-                    focus:outline-none
-                  "
+                  className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                  {showPassword ? (
+                    <FiEyeOff size={18} />
+                  ) : (
+                    <FiEye size={18} />
+                  )}
                 </button>
               </div>
+
+              {formErrors.password && (
+                <p className="mt-1 text-sm text-red-600">
+                  {formErrors.password.message}
+                </p>
+              )}
             </div>
 
             <Button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+              disabled={isSubmitting}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition"
             >
               Sign in
             </Button>
           </form>
-
 
           {error && (
             <div className="mt-6 rounded-md bg-red-50 p-4 border border-red-200">
@@ -177,38 +182,21 @@ function Login() {
 
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
-            onError={() => console.log('Login Failed')}
-            theme="outline"
-            size="large"
-            text="continue_with"
-            shape="rectangular"
+            onError={() => console.log("Login Failed")}
           />
 
-
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">New to our platform?</span>
-              </div>
-            </div>
-
-            <div className="mt-6 text-center">
-              <Link
-                to="/register"
-                className="text-blue-600 hover:text-blue-500 font-medium transition-colors duration-200"
-              >
-                Create your account
-              </Link>
-            </div>
+          <div className="mt-6 text-center">
+            <Link
+              to="/register"
+              className="text-blue-600 hover:text-blue-500 font-medium"
+            >
+              Create your account
+            </Link>
           </div>
         </div>
       </div>
     </div>
-
-  )
+  );
 }
 
 export default Login
