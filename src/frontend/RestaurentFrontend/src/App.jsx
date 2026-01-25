@@ -1,15 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { setDishes } from "./features/dishes/dishSlice"
 import { setCategories } from "./features/category/categorySlice"
 import dishService from "./services/dishService"
+import authService from './services/authService'
 import { Outlet } from 'react-router-dom'
-import { Header, Footer,ToasterProvider } from "./components/index"
+import { Header, Footer, ToasterProvider } from "./components/index"
 import { useDispatch, useSelector } from "react-redux"
 import categoryService from "./services/categoriesService"
-import { login, logout,updateUserProfile,authCheckCompleted } from "./features/auth/authSlice"
-import { jwtDecode } from 'jwt-decode';
+import { login, logout, authCheckCompleted } from "./features/auth/authSlice"
 import cartService from './services/cartService'
-import userService from './services/userService'
 import { setCartItems } from "./features/cart/cartSlice"
 
 function App() {
@@ -19,51 +18,48 @@ function App() {
   const authStatus = useSelector((state) => state.auth.authStatus)
   const userId = useSelector((state) => state.auth.userData?.userId)
 
+  const authCheckInProgress = useRef(false);
+  const restoreAttempted = useRef(false);
+
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    if (restoreAttempted.current) return;
+    restoreAttempted.current = true; // 👈 move here
+    const checkAuth = async () => {
+      if (authCheckInProgress.current) return;
+      authCheckInProgress.current = true;
 
-    if (token) {
       try {
-        const decodedToken = jwtDecode(token);
-        
-        const userData = {
-          userId: decodedToken.sub,
-          userName: decodedToken.name,
-          email: decodedToken.email
-        };
+        const response = await authService.RestoreSession();
 
-        dispatch(login({
-          token,
-          user: userData,
-          role: decodedToken.role
-        }));
-
-        const fetchUserProfile = async () => {
-          try {
-            const userProfile = await userService.GetUserById(decodedToken.sub);
-            if (userProfile.profileImage) {
-              dispatch(updateUserProfile({
-                profileImage: userProfile.profileImage
-              }));
-            }
-          } catch (error) {
-            console.log('Failed to fetch profile:', error);
-          }
-        };
-
-        fetchUserProfile();
-
+        if (response?.userId) {
+          dispatch(login({
+            user: {
+              userId: response.userId,
+              userName: response.userName,
+              email: response.email
+            },
+            role: response.role,
+            profileImage: response.profileImage
+          }));
+        } else {
+          await authService.Logout()
+          dispatch(logout());
+        }
       } catch (error) {
-        console.log('Invalid token:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        dispatch(logout());
+        if (error?.response?.status === 401 || error?.response?.status === 403) {
+          await authService.Logout()
+          dispatch(logout());
+        } else {
+          console.error("Auth check error:", error);
+        }
+      } finally {
+        dispatch(authCheckCompleted());
+        authCheckInProgress.current = false;
       }
-    }
-    else {
-    dispatch(authCheckCompleted());
-  }
-  }, [dispatch, authStatus]);
+    };
+
+    checkAuth();
+  }, [dispatch]);
 
 
   useEffect(() => {
@@ -99,6 +95,14 @@ function App() {
         console.log(error)
       })
   }, [userId])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

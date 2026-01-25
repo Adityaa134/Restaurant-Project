@@ -35,10 +35,15 @@ function ManageOrders() {
 
   const fetchOrders = async () => {
     setLoading(true);
-    const response = await orderService.GetOrders(page);
-    setOrders(response.items);
-    setPagination(response);
-    setLoading(false);
+    try {
+      const response = await orderService.GetOrders(page);
+      setOrders(response.items);
+      setPagination(response);
+    } catch (error) {
+      console.log("Error in fetching orders", error)
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -71,6 +76,14 @@ function ManageOrders() {
       toast.error("Failed to update order status");
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -183,11 +196,10 @@ function ManageOrders() {
             <button
               key={p}
               onClick={() => setPage(p)}
-              className={`px-3 py-2 rounded border ${
-                p === page
+              className={`px-3 py-2 rounded border ${p === page
                   ? "bg-blue-600 text-white"
                   : "hover:bg-gray-100"
-              }`}
+                }`}
             >
               {p}
             </button>

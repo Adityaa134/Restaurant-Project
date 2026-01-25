@@ -12,7 +12,7 @@ using Restaurent.Infrastructure.DBContext;
 namespace Restaurent.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20251222131049_AddedOrdersTables")]
+    [Migration("20260121090828_AddedOrdersTables")]
     partial class AddedOrdersTables
     {
         /// <inheritdoc />

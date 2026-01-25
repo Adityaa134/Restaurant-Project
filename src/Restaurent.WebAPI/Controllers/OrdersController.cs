@@ -21,6 +21,7 @@ namespace Restaurent.WebAPI.Controllers
         }
 
         [HttpGet()]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult> GetOrders([FromQuery] PaginationRequest request)
         {
             PaginationResponse<OrderResponse>? orderResponse =  await _orderGetterService.GetOrders(request);

@@ -30,7 +30,8 @@ namespace Restaurent.Infrastructure.DBContext
                 .HasOne(o=>o.User)
                 .WithMany(o=>o.Orders)
                 .HasForeignKey(o=>o.UserId)
-                .OnDelete(DeleteBehavior.Restrict); //if a user is deleted then his orders should still exist   
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);// a user can't be deleted if his orders exist in orders table
 
             modelBuilder.Entity<OrderItem>().ToTable("OrderItems");
             modelBuilder.Entity<Address>().ToTable("Address");

@@ -5,7 +5,7 @@ using Restaurent.Core.ServiceContracts;
 
 namespace Restaurent.WebAPI.Controllers
 {
-    [AllowAnonymous]
+    [Authorize(Roles = "admin")]
     public class CategoriesController : CustomControllerBase
     {
 
@@ -20,6 +20,7 @@ namespace Restaurent.WebAPI.Controllers
             _categoryUpdateService = categoryUpdateService;
         }
 
+        [AllowAnonymous]
         [HttpGet()]
         public async Task<ActionResult> GetAllCategories()
         {
@@ -27,6 +28,7 @@ namespace Restaurent.WebAPI.Controllers
             return Ok(categories);
         }
 
+        [AllowAnonymous]
         [HttpGet("{categoryId:guid}")]
         public async Task<ActionResult> GetCategoryById(Guid categoryId)
         {
@@ -35,8 +37,7 @@ namespace Restaurent.WebAPI.Controllers
                 return Problem(detail: "Invalid Category Id", statusCode: 400, title: "Category Search");
             return Ok(category);
         }
-
-        [Authorize(Roles = "admin")]
+      
         [HttpPost("add-category")]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult> AddCategory(CategoryAddRequest categoryAddRequest)
@@ -44,8 +45,7 @@ namespace Restaurent.WebAPI.Controllers
            CategoryResponse categoryResponse =  await _categoryAdderService.AddCategory(categoryAddRequest);
             return CreatedAtAction("GetCategoryById", "Categories", new { categoryId = categoryResponse.CategoryId }, categoryResponse);
         }
-
-        [Authorize(Roles = "admin")]
+        
         [HttpPut()]
         public async Task<ActionResult> UpdateCategoryStatus(CategoryStatusUpdateRequest categoryStatusUpdateRequest)
         {
@@ -55,7 +55,6 @@ namespace Restaurent.WebAPI.Controllers
             return Ok(categoryResponse);
         }
 
-        [Authorize(Roles = "admin")]
         [HttpGet("admin/categories")]
         public async Task<ActionResult> GetAllCategoriesAdmin()
         {

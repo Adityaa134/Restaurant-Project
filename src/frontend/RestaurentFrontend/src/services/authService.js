@@ -137,6 +137,15 @@ export class AuthService {
          console.log("AuthService :: GoogleLogin :: ", error)
        }
     }
+
+    async RestoreSession(){
+        try {
+            const response = await axiosInstance.get("/Account/restore-session")
+            return response.data;
+        } catch (error) {
+            console.log("AuthService :: RestoreSession :: ", error);
+        }
+    }
 }
 
 const authService = new AuthService();

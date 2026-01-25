@@ -15,7 +15,7 @@ namespace Restaurent.Infrastructure.Migrations
                 name: "RefershTokenExpirationDateTime",
                 table: "AspNetUsers",
                 type: "datetime2",
-                nullable: false,
+                nullable: true,
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.AddColumn<string>(

@@ -1,7 +1,6 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Restaurent.Core.Domain.Identity;
 using Restaurent.Core.DTO;
@@ -41,9 +40,19 @@ namespace Restaurent.WebAPI.Controllers
                 {
                     return Problem("Invalid Email Id");
                 }
-                AuthenticationResponse authenticationResponse = await _jwtService.CreateJwtToken(user);
-                await _authService.UpdateRefreshTokenInTable(user, authenticationResponse);
-                authenticationResponse.ProfileImage =  user.ProfileImagePath;
+                TokenModel tokenModel = await _jwtService.CreateJwtToken(user);
+                await _authService.UpdateRefreshTokenInTable(user, tokenModel);
+
+                AuthenticationResponse authenticationResponse = new AuthenticationResponse()
+                {
+                    UserId = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    Role = await _authService.GetUserRole(user),
+                    ProfileImage = user.ProfileImagePath
+                };
+
+                await _authService.SetTokensInsideCookie(tokenModel, HttpContext);
                 return Ok(authenticationResponse);
            }
            if (result.IsNotAllowed)
@@ -52,7 +61,7 @@ namespace Restaurent.WebAPI.Controllers
            }
            else
            {
-                return Problem("Invalid email id or password");
+                return Problem("Invalid Username or password");
            }
         }
 
@@ -60,7 +69,7 @@ namespace Restaurent.WebAPI.Controllers
 
         public async Task<ActionResult> Logout()
         {
-            await _authService.Logout();
+            await _authService.Logout(HttpContext);
             return NoContent();
         }
 
@@ -87,9 +96,18 @@ namespace Restaurent.WebAPI.Controllers
                 {
                     return Problem("Please verify your emailId to login");
                 }
-                AuthenticationResponse authenticationResponse = await _jwtService.CreateJwtToken(user);
-                await _authService.UpdateRefreshTokenInTable(user, authenticationResponse);
-                authenticationResponse.ProfileImage = user.ProfileImagePath;
+                TokenModel tokenModel = await _jwtService.CreateJwtToken(user);
+                await _authService.UpdateRefreshTokenInTable(user, tokenModel);
+
+                AuthenticationResponse authenticationResponse = new AuthenticationResponse()
+                {
+                    UserId = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    Role = await _authService.GetUserRole(user),
+                    ProfileImage = user.ProfileImagePath
+                };
+                await _authService.SetTokensInsideCookie(tokenModel, HttpContext);
                 await _signInManager.SignInAsync(user, isPersistent: false);
                 return Ok(authenticationResponse);
             }
@@ -100,29 +118,31 @@ namespace Restaurent.WebAPI.Controllers
             }
         }
 
-        [Authorize]
         [HttpPost("refresh-token")]
-        public async Task<ActionResult> GetNewJwtAndRefreshToken(TokenModel tokenModel)
+        public async Task<ActionResult> GetNewJwtAndRefreshToken()
         {
-            if (tokenModel == null)
-                return BadRequest("Invalid client request");
+            HttpContext.Request.Cookies.TryGetValue("refreshToken", out var refreshToken);
 
-           ClaimsPrincipal? claimsPrincipal =  _jwtService.GetPrincipalFromJwtToken(tokenModel.JwtToken);
-
-            if (claimsPrincipal == null)
-                return BadRequest("Invalid Jwt token");
-
-           string? email = claimsPrincipal.FindFirstValue(ClaimTypes.Email);
-           ApplicationUser? user = await _authService.FindUserByEmail(email);
+            if (refreshToken == null)
+                return Unauthorized();
+            var user  = await _authService.GetUserByRefreshToken(refreshToken);
 
             
             //if user is null or refreshToken does not match with the refreshToken stored in db or the refreshTokenExpireTime is completed it means user has to login again. 
-            if(user==null || user.RefreshToken!=tokenModel.RefreshToken || user.RefershTokenExpirationDateTime <= DateTime.Now)
+            if(user==null || user.RefreshToken!=refreshToken || user.RefershTokenExpirationDateTime <= DateTime.UtcNow)
                 return Unauthorized("Invlaid refersh token");
 
-            AuthenticationResponse authenticationResponse = await _jwtService.CreateJwtToken(user);
-            await _authService.UpdateRefreshTokenInTable(user, authenticationResponse);
-            authenticationResponse.ProfileImage = user.ProfileImagePath;
+            TokenModel token = await _jwtService.CreateJwtToken(user);
+            await _authService.UpdateRefreshTokenInTable(user, token);
+            AuthenticationResponse authenticationResponse = new AuthenticationResponse()
+            {
+                UserId = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                Role = await _authService.GetUserRole(user),
+                ProfileImage = user.ProfileImagePath
+            };
+            await _authService.SetTokensInsideCookie(token, HttpContext);
             return Ok(authenticationResponse);
         }
 
@@ -223,6 +243,29 @@ namespace Restaurent.WebAPI.Controllers
             }
 
             return BadRequest(resetPasswordDTO);
+        }
+
+        [Authorize]
+        [HttpGet("restore-session")]
+        public async Task<ActionResult> RestoreSession() 
+        {
+            var userIdClaim =  User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(userIdClaim, out Guid userId))
+                return Unauthorized();
+
+            UserDTO? user =  await _authService.GetUserByUserId(userId);
+            if(user == null)
+                return Unauthorized();
+            AuthenticationResponse authenticationResponse = new AuthenticationResponse()
+            {
+                UserId = user.UserId,
+                UserName = user.UserName,
+                Email = user.Email,
+                Role = user.Role,
+                ProfileImage = user.ProfileImage,
+            };
+            return Ok(authenticationResponse);
         }
     }
 }

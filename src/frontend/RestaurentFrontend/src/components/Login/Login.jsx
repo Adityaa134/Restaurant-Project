@@ -22,10 +22,16 @@ function Login() {
     setError("")
     try {
       const response = await authService.Login(data);
-      if (response.email) {
-        dispatch(authLogin(response))
-        localStorage.setItem("token", response.token)
-        localStorage.setItem("refreshToken", response.refreshToken)
+      if (response.userId) {
+        dispatch(authLogin({
+          user: {
+            userId: response.userId,
+            userName: response.userName,
+            email: response.email
+          },
+          role: response.role,
+          profileImage: response.profileImage
+        }));
         navigate("/")
       }
       else {
@@ -44,10 +50,16 @@ function Login() {
     setError("")
     try {
       const response = await authService.GoogleLogin(credentialResponse.credential)
-      if (response.token) {
-        dispatch(authLogin(response))
-        localStorage.setItem("token", response.token)
-        localStorage.setItem("refreshToken", response.refreshToken)
+      if (response.userId) {
+        dispatch(authLogin({
+          user: {
+            userId: response.userId,
+            userName: response.userName,
+            email: response.email
+          },
+          role: response.role,
+          profileImage: response.profileImage
+        }));
         navigate("/")
       }
     } catch (error) {

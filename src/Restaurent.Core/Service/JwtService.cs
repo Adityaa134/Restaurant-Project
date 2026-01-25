@@ -1,9 +1,7 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Restaurent.Core.Domain.Identity;
@@ -23,10 +21,10 @@ namespace Restaurent.Core.Service
             _authService = authService;
         }
 
-        public async Task<AuthenticationResponse> CreateJwtToken(ApplicationUser user)
+        public async Task<TokenModel> CreateJwtToken(ApplicationUser user)
         {
             //ExpirtaionTime of Jwt 
-            DateTime expiration = DateTime.Now.AddMinutes(Convert.ToDouble(_configuration["Jwt:EXPIRATION_MINUTES"]));
+            DateTime expiration = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:EXPIRATION_MINUTES"]));
             string userRole = await _authService.GetUserRole(user);
 
             //Claims
@@ -73,53 +71,13 @@ namespace Restaurent.Core.Service
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             string token = tokenHandler.WriteToken(tokenGenerator);
 
-            return new AuthenticationResponse()
+            return new TokenModel()
             {
-                Email = user.Email,
-                Token = token,
-                UserName = user.UserName,
-                Expiration = expiration,
+                AccessToken = token,
                 RefreshToken = GenerateRefreshToken(),
-                RefershTokenExpirationDateTime = DateTime.Now.AddMinutes(Convert.ToInt32(_configuration["RefreshToken:EXPIRATION_MINUTES"])),
-                Role = await _authService.GetUserRole(user)
+                RefershTokenExpirationDateTime = DateTime.UtcNow.AddMinutes(Convert.ToInt32(_configuration["RefreshToken:EXPIRATION_MINUTES"]))
             };
-
         }
-
-        //this method is used to check whether the expired Jwt token is valid or not 
-        public ClaimsPrincipal? GetPrincipalFromJwtToken(string? token)
-        {
-            
-            TokenValidationParameters validationParameters = new TokenValidationParameters()
-            {
-                ValidateIssuer = true,
-                ValidIssuer = _configuration["Jwt:Issuer"],
-                ValidateAudience = true,
-                ValidAudience = _configuration["Jwt:Audience"],
-
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])),
-
-                ValidateLifetime = false, // it should be false as we have to check the expired Jwt Token 
-            };
-
-            //For extarcting the payload from the token and for validating the token
-            JwtSecurityTokenHandler jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
-
-            
-            ClaimsPrincipal principal = jwtSecurityTokenHandler.ValidateToken(token, validationParameters, out SecurityToken securityToken);
-
-            
-            if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new SecurityTokenException("Invalid token ");
-            }
-
-            
-            return principal;
-        }
-
-
         private string GenerateRefreshToken()
         {
             byte[] bytes = new byte[64];

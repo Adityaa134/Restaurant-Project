@@ -37,7 +37,8 @@ builder.Services.AddCors(options =>
     {
         policyBuilder.WithOrigins(builder.Configuration["AllowedOrigins:OriginName"])
         .WithMethods("GET", "POST", "PUT", "DELETE","OPTIONS")
-        .WithHeaders("Authorization", "origin", "content-type", "accept");
+        .WithHeaders("Authorization", "origin", "content-type", "accept")
+        .AllowCredentials();
     });
 });
 
@@ -60,6 +61,16 @@ builder.Services.AddAuthentication(options =>
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
 
             ClockSkew = TimeSpan.Zero
+        };
+        options.Events = new JwtBearerEvents()
+        {
+            OnMessageReceived = ctx => 
+            {
+                ctx.Request.Cookies.TryGetValue("accessToken", out var accessToken);
+                if (!string.IsNullOrEmpty(accessToken))
+                    ctx.Token = accessToken;
+                return Task.CompletedTask;
+            }
         };
     });
 

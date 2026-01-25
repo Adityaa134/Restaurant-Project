@@ -1,7 +1,8 @@
-﻿using System;
-using ECommerce.Core.Enums;
+﻿using ECommerce.Core.Enums;
 using Google.Apis.Auth;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Restaurent.Core.Domain.Identity;
 using Restaurent.Core.DTO;
 using Restaurent.Core.Helpers;
@@ -82,9 +83,29 @@ namespace Restaurent.Core.Service
             return result;
         }
 
-        public async Task Logout()
+        public async Task Logout(HttpContext context)
         {
             await _signInManager.SignOutAsync();
+            context.Request.Cookies.TryGetValue("refreshToken", out var refreshToken);
+            if (refreshToken != null)
+            {
+                var user = await GetUserByRefreshToken(refreshToken);
+                if (user != null)
+                {
+                    user.RefreshToken = null;
+                    user.RefershTokenExpirationDateTime = null;
+                    await _userManager.UpdateAsync(user);
+                }
+            }
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/"
+            };
+            context.Response.Cookies.Delete("accessToken", cookieOptions);
+            context.Response.Cookies.Delete("refreshToken", cookieOptions);
         }
 
         public async Task<IdentityResult> Register(RegisterRequestt registerRequest)
@@ -179,15 +200,16 @@ namespace Restaurent.Core.Service
                 UserName = user.UserName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
-                ProfileImage = user.ProfileImagePath
+                ProfileImage = user.ProfileImagePath,
+                Role = await GetUserRole(user)
             };
             return userDTO;
         }
 
-        public async Task UpdateRefreshTokenInTable(ApplicationUser user ,AuthenticationResponse authenticationResponse)
+        public async Task UpdateRefreshTokenInTable(ApplicationUser user ,TokenModel token)
         {
-            user.RefreshToken = authenticationResponse.RefreshToken;
-            user.RefershTokenExpirationDateTime = authenticationResponse.RefershTokenExpirationDateTime;
+            user.RefreshToken = token.RefreshToken;
+            user.RefershTokenExpirationDateTime = token.RefershTokenExpirationDateTime;
             await _userManager.UpdateAsync(user);
         }
 
@@ -290,6 +312,37 @@ namespace Restaurent.Core.Service
                 return userDTO;
             }
             return null;
+        }
+
+        public async Task SetTokensInsideCookie(TokenModel tokenModel,HttpContext context)
+        {
+            context.Response.Cookies.Append("accessToken", tokenModel.AccessToken,
+                new CookieOptions()
+                {
+                    HttpOnly = true,
+                    IsEssential = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(5),
+                    Path = "/"
+                });
+
+            context.Response.Cookies.Append("refreshToken", tokenModel.RefreshToken,
+                new CookieOptions()
+                {
+                    HttpOnly = true,
+                    IsEssential = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(20),
+                    Path = "/"
+                });
+        }
+
+        public async Task<ApplicationUser?> GetUserByRefreshToken(string refreshToken)
+        {
+           return await _userManager.Users
+                          .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
         }
 
     }

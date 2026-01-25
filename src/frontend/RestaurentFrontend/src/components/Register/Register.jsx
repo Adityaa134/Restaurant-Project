@@ -28,15 +28,21 @@ function Register() {
   const [debouncedUsername] = useDebounce(usernameValue, 500);
 
   const createAccount = async (data) => {
-    if(isSubmitting) return;
+    if (isSubmitting) return;
     setIsSubmitting(true)
     setError("")
     try {
       const response = await authService.Register(data)
-      if (response.token) {
-        dispatch(login(response))
-        localStorage.setItem("token", response.token)
-        localStorage.setItem("refreshToken", response.refreshToken)
+      if (response.userId) {
+        dispatch(login({
+          user: {
+            userId: response.userId,
+            userName: response.userName,
+            email: response.email
+          },
+          role: response.role,
+          profileImage: response.profileImage
+        }));
         navigate("/")
       }
       else {
@@ -46,7 +52,7 @@ function Register() {
     } catch (error) {
       setError(error.message)
     }
-    finally{
+    finally {
       setIsSubmitting(false)
     }
   }
@@ -77,10 +83,16 @@ function Register() {
     setError("")
     try {
       const response = await authService.GoogleLogin(credentialResponse.credential)
-      if (response.token) {
-        dispatch(login(response))
-        localStorage.setItem("token", response.token)
-        localStorage.setItem("refreshToken", response.refreshToken)
+      if (response.userId) {
+        dispatch(login({
+          user: {
+            userId: response.userId,
+            userName: response.userName,
+            email: response.email
+          },
+          role: response.role,
+          profileImage: response.profileImage
+        }));
         navigate("/")
       }
     } catch (error) {
@@ -224,9 +236,9 @@ function Register() {
                   })}
                 />
                 {formErrors.password && (
-                <p className="mt-1 text-sm text-red-600">
-                  {formErrors.password.message}
-                </p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {formErrors.password.message}
+                  </p>
                 )}
 
                 <button
@@ -255,15 +267,15 @@ function Register() {
                   placeholder="Confirm your password"
                   className="w-full px-3 py-2 pr-12 border border-gray-300 rounded-md"
                   {...register("confirmPassword", {
-                  required: "Please confirm your password",
-                  validate: (value) =>
-                    value === watch("password") || "Passwords do not match",
-                })}
+                    required: "Please confirm your password",
+                    validate: (value) =>
+                      value === watch("password") || "Passwords do not match",
+                  })}
                 />
                 {formErrors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600">
-                  {formErrors.confirmPassword.message}
-                </p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {formErrors.confirmPassword.message}
+                  </p>
                 )}
 
                 <button

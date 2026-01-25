@@ -40,8 +40,17 @@ namespace Restaurent.WebAPI.Controllers
                 {
                     return Problem("Please verify your emailId to login");
                 }
-                AuthenticationResponse authenticationResponse = await _jwtService.CreateJwtToken(user);
-                await _authService.UpdateRefreshTokenInTable(user, authenticationResponse);
+                TokenModel tokenModel = await _jwtService.CreateJwtToken(user);
+                await _authService.UpdateRefreshTokenInTable(user, tokenModel);
+                AuthenticationResponse authenticationResponse = new AuthenticationResponse()
+                {
+                    UserId = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    Role = await _authService.GetUserRole(user),
+                    ProfileImage = user.ProfileImagePath
+                };
+                await _authService.SetTokensInsideCookie(tokenModel, HttpContext);
                 await _signInManager.SignInAsync(user, isPersistent: false);
                 return Ok(authenticationResponse);
             }
@@ -57,8 +66,17 @@ namespace Restaurent.WebAPI.Controllers
                 {
                     return Problem("Please verify your emailId to login");
                 }
-                AuthenticationResponse authenticationResponse = await _jwtService.CreateJwtToken(user);
-                await _authService.UpdateRefreshTokenInTable(user, authenticationResponse);
+                TokenModel tokenModel = await _jwtService.CreateJwtToken(user);
+                await _authService.UpdateRefreshTokenInTable(user, tokenModel);
+                AuthenticationResponse authenticationResponse = new AuthenticationResponse()
+                {
+                    UserId = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    Role = await _authService.GetUserRole(user),
+                    ProfileImage = user.ProfileImagePath
+                };
+                await _authService.SetTokensInsideCookie(tokenModel, HttpContext);
                 await _signInManager.SignInAsync(user, isPersistent: false);
                 return Ok(authenticationResponse);
             }

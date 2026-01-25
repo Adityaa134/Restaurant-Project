@@ -4,7 +4,6 @@ const initialState = {
     authStatus: false, //user is logged in or not
     authChecked: false, // app finished checking auth token
     userData: null,
-    token: null,
     role: null,
     profileImage: null
 }
@@ -17,15 +16,13 @@ const authSlice = createSlice({
             state.authStatus = true;
             state.authChecked = true;
             state.userData = action.payload.user
-            state.token = action.payload.token;
             state.role = action.payload.role
             state.profileImage = action.payload.profileImage
         },
         logout: (state, action) => {
             state.authStatus = false,
             state.authChecked = true;
-            state.userData = action.payload
-            state.token = action.payload;
+            state.userData = null
             state.role = null
             state.profileImage = null
         },
@@ -41,6 +38,6 @@ const authSlice = createSlice({
     }
 })
 
-export const { login, logout, updateUserProfile, authCheckCompleted} = authSlice.actions
+export const { login, logout,updateUserProfile, authCheckCompleted} = authSlice.actions
 
 export default authSlice.reducer

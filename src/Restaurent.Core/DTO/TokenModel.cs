@@ -5,7 +5,8 @@
     /// </summary>
     public class TokenModel
     {
-        public string? JwtToken { get; set; }
+        public string? AccessToken { get; set; }
         public string? RefreshToken { get; set; }
+        public DateTime RefershTokenExpirationDateTime { get; set; }
     }
 }

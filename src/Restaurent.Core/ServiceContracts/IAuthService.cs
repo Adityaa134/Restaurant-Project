@@ -1,5 +1,5 @@
-﻿using System;
-using Google.Apis.Auth;
+﻿using Google.Apis.Auth;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Restaurent.Core.Domain.Identity;
 using Restaurent.Core.DTO;
@@ -26,8 +26,9 @@ namespace Restaurent.Core.ServiceContracts
         /// <summary>
         /// Log out the user 
         /// </summary>
+        /// <param name="context">Http Context</param>
         /// <returns></returns>
-        Task Logout();
+        Task Logout(HttpContext context);
 
         /// <summary>
         /// Checks if the email alerady exist or not 
@@ -83,9 +84,9 @@ namespace Restaurent.Core.ServiceContracts
         /// Updates the token information in user's table
         /// </summary>
         /// <param name="user">The user information in which token information needs to be updated</param>
-        /// <param name="authenticationResponse">The token information</param>
+        /// <param name="tokenModel">The token information</param>
         /// <returns></returns>
-        Task UpdateRefreshTokenInTable(ApplicationUser user, AuthenticationResponse authenticationResponse);
+        Task UpdateRefreshTokenInTable(ApplicationUser user,TokenModel tokenModel);
 
         /// <summary>
         /// Confirms the user's email address
@@ -122,5 +123,19 @@ namespace Restaurent.Core.ServiceContracts
         /// <returns>IdentityResult indicating success/failure, or null if user's account is alerady created.</returns>
         Task<IdentityResult?> Register(GoogleJsonWebSignature.Payload payload);
 
+        /// <summary>
+        /// Set tokens in the HttpOnly Cookie
+        /// </summary>
+        /// <param name="tokenModel">The tokens to add</param>
+        /// <param name="context">HttpContext</param>
+        /// <returns></returns>
+        Task SetTokensInsideCookie(TokenModel tokenModel, HttpContext context);
+
+        /// <summary>
+        /// Search for user based on token
+        /// </summary>
+        /// <param name="refreshToken">the token on which to search user</param>
+        /// <returns>Retuns user details</returns>
+        Task<ApplicationUser?> GetUserByRefreshToken(string refreshToken);
     }
 }
