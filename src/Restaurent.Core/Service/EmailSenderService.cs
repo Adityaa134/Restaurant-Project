@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Mail;
 using System.Text;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Restaurent.Core.Domain.Identity;
@@ -12,14 +13,15 @@ namespace Restaurent.Core.Service
 {
     public class EmailSenderService : IEmailSenderService
     {
-        private const string templatePath = @"Template";
         private readonly SMTPConfigOptions _smtpConfigOptions;
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _environment;
 
-        public EmailSenderService(IOptions<SMTPConfigOptions> smtpConfigOptions, IConfiguration configuration)
+        public EmailSenderService(IOptions<SMTPConfigOptions> smtpConfigOptions, IConfiguration configuration,IWebHostEnvironment environment)
         {
             _smtpConfigOptions = smtpConfigOptions.Value;
             _configuration = configuration;
+            _environment = environment;
         }
 
         private async Task EmailSender(EmailPlaceHolderDTO emailPlaceHolderDTO)
@@ -68,16 +70,14 @@ namespace Restaurent.Core.Service
 
         private async Task<string> GetEmailTemplate(string templateName)
         {
-            //getting root directroy path (Restaurent.WebAPI)
-            var contentRoot = Directory.GetCurrentDirectory();
-            var path = Path.Combine(contentRoot, templatePath, $"{templateName}.html");
+            var templatePath = Path.Combine(_environment.ContentRootPath, "Template",
+        $"{templateName}.html");
 
-            if (!File.Exists(path))
+            if (!File.Exists(templatePath))
             {
-                throw new FileNotFoundException($"Template not found: {path}");
+                throw new FileNotFoundException($"Email template '{templateName}.html' not found at: {templatePath}");
             }
-
-            return await File.ReadAllTextAsync(path);
+            return await File.ReadAllTextAsync(templatePath);
         }
 
         public async Task SendEmailConfirmation(ApplicationUser user, string token)

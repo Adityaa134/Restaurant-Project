@@ -1,0 +1,47 @@
+services:
+ sqlserver:
+  image: mcr.microsoft.com/mssql/server:2019-latest
+  container_name: sqlserver
+  environment:
+  - ACCEPT_EULA=Y
+  - SA_PASSWORD=${SA_PASSWORD}
+  ports:
+  - 1433:1433
+  volumes:
+  - sqlserver_data:/var/opt/mssql
+  networks:
+  - restaurent-network
+
+
+ restaurent-api:
+  image: restaurent-api:1
+  container_name: restaurant-api
+  build:
+   context: .
+   dockerfile: src/Restaurent.WebAPI/Dockerfile
+  environment:
+  - ASPNETCORE_ENVIRONMENT=Development
+  - ConnectionStrings__DefaultConnection=${CONNECTIONSTRINGS__DEFAULTCONNECTION}
+  - Jwt__Key=${JWT__KEY}
+  - Jwt__Issuer=${JWT__ISSUER}
+  - Jwt__Audience=${JWT__AUDIENCE}
+  - SMTPConfig__Username=${SMTPCONFIG__USERNAME}
+  - SMTPConfig__SenderDisplayName=${SMTPCONFIG__SENDERDISPLAYNAME}
+  - SMTPConfig__SenderAddress=${SMTPCONFIG__SENDERADDRESS}
+  - SMTPConfig__Port=${SMTPCONFIG__PORT}
+  - SMTPConfig__Password=${SMTPCONFIG__PASSWORD}
+  - SMTPConfig__Host=${SMTPCONFIG__HOST}
+  - AllowedOrigins__OriginName=${ALLOWEDORIGINS__ORIGINNAME}
+  ports:
+   - 8080:8080
+  networks:
+  - restaurent-network
+  depends_on:
+  - sqlserver
+
+networks:
+  restaurent-network:
+   driver: bridge
+
+volumes:
+  sqlserver_data:
