@@ -1,6 +1,6 @@
-# 🍽️ Restaurant Management System
+# 🍽️ Online Food Ordering System
 
-A full-stack restaurant management application built with React, ASP.NET Core, and SQLServer. Features include dishes and category management, user authentication, shopping cart, order management.
+A full-stack online food ordering application built with React, ASP.NET Core, and SQLServer. Features include dishes and category management, user authentication, shopping cart, order management.
 
 ## Features
 
@@ -19,6 +19,27 @@ A full-stack restaurant management application built with React, ASP.NET Core, a
 - 🍔 **Dish Management** - Create, update, and delete dishes 
 - 📑 **Category Management** - Create and soft-delete categories
 - 📋 **Order Management** - View and manage all customer orders
+
+## Testing
+
+This project includes comprehensive test coverage for both the service layer and API endpoints.
+
+### Test Suite
+- **Unit Tests**: 63 tests covering service logic, edge cases, and business rules
+- **Integration Tests**: 57 tests verifying API endpoints and real request/response flows
+
+### What's Tested
+- User authentication and authorization flows
+- Role-based access c
+ontrol (Admin vs User permissions)
+- Input validation and error handling
+- CRUD operations for all major features
+
+### Test Infrastructure
+- Custom authentication handler for testing protected endpoints
+- Isolated in-memory database per test run
+- Mock email service to avoid external dependencies
+
 
 ## Tech Stack
 
@@ -48,6 +69,12 @@ A full-stack restaurant management application built with React, ASP.NET Core, a
 ### DevOps
 - **Docker** - Containerization
 - **Docker Compose** - Multi-container orchestration
+
+### Testing
+- **xUnit** – Unit & integration testing framework
+- **FluentAssertions** – Readable assertions
+- **Moq** – Used to mock dependencies in unit tests
+- **AutoFixture** – Automatic test data generation
 
 ## Prerequisites
 
@@ -362,6 +389,16 @@ RestaurantSolution/
 │           ├── package.json        # NPM dependencies
 │           ├── package-lock.json   # NPM lock file
 │
+├── tests/
+│   ├── RestaurantSolution.IntegrationTests/   # API integration tests
+│   │   ├── *ControllerIntegrationTests.cs     # API endpoint integration tests
+│   │   ├── CustomWebApplicationFactory.cs     # Configures in-memory test server for integration testing
+│   │   ├── IntegrationTestBase.cs             # Base class for integration tests
+│   │   └── TestAuthHandler.cs                 # Custom authentication handler for tests
+│   │
+│   └── RestaurantSolution.UnitTests/          # Service unit tests
+│       └── *ServiceTests.cs                   # Service layer test classes
+│
 ├── docker-compose.yml              # Docker compose configuration
 ├── .gitignore
 └── README.md
@@ -411,11 +448,6 @@ The backend API is organized into the following functional modules:
 - `GET /api/Address/{id}`
 - `POST /api/Orders`
 
-Full request/response details are available via Swagger.
-
-`https://localhost:7219/swagger`
-or 
-`http://localhost:8080/swagger` (with docker)
 
 ## Author
 

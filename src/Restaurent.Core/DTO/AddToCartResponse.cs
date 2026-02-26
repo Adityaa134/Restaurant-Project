@@ -27,8 +27,8 @@ namespace Restaurent.Core.DTO
                 DishId = cart.Dishes.DishId,
                 Quantity = cart.Quantity,
                 DishPrice = cart.Dishes.Price,
-                Dish_Image_Path = cart.Dishes.Image_Path,
-                DishName = cart.Dishes.DishName,
+                Dish_Image_Path = cart?.Dishes?.Image_Path,
+                DishName = cart?.Dishes?.DishName,
             };
         }
     }

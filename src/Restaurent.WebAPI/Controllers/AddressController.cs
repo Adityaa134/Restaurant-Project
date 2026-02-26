@@ -19,14 +19,15 @@ namespace Restaurent.WebAPI.Controllers
             if (ModelState.IsValid == false)
             {
                 string errorMessage = string.Join("|", ModelState.Values.SelectMany(value => value.Errors).Select(e => e.ErrorMessage));
-                return Problem(errorMessage);
+                return ValidationProblem(detail: errorMessage,
+                    statusCode: StatusCodes.Status400BadRequest);
             }
 
             AddressResponse addressResponse = await _addressService.CreateAddress(addressCreateRequest);
 
             if (addressResponse == null)
             {
-                return Problem("Error in creating address");
+                return Problem(detail:"Error in creating address",statusCode:StatusCodes.Status500InternalServerError);
             }
             return CreatedAtAction("GetAddressById", "Address", new { addressId = addressResponse.AddressId }, addressResponse);
         }
@@ -37,11 +38,12 @@ namespace Restaurent.WebAPI.Controllers
             if (ModelState.IsValid == false)
             {
                 string errorMessage = string.Join("|", ModelState.Values.SelectMany(value => value.Errors).Select(e => e.ErrorMessage));
-                return Problem(errorMessage);
+                return ValidationProblem(detail: errorMessage,
+                    statusCode: StatusCodes.Status400BadRequest);
             }
             AddressResponse addressResponse = await _addressService.UpdateAddress(addressUpdateRequest);
             if (addressResponse == null)
-                return Problem("Error in updating address");
+                return Problem(detail:"Error in updating address", statusCode: StatusCodes.Status500InternalServerError);
             return Ok(addressResponse);
         }
 
@@ -51,10 +53,13 @@ namespace Restaurent.WebAPI.Controllers
             List<AddressResponse>? addressResponses = await _addressService.GetAddressesByUserId(userId);
             return Ok(addressResponses);
         }
+
         [HttpGet("{addressId:guid}")]
         public async Task<ActionResult> GetAddressById(Guid addressId)
         {
            AddressResponse? addressResponse =  await _addressService.GetAddressByAddressId(addressId);
+            if (addressResponse==null)
+                return Problem(detail:"Address Id Not Found",statusCode: StatusCodes.Status404NotFound);
             return Ok(addressResponse);
         }
     }

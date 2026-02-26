@@ -23,6 +23,9 @@ namespace Restaurent.Core.Service
 
         public async Task<TokenModel> CreateJwtToken(ApplicationUser user)
         {
+            if(user==null)
+                throw new ArgumentNullException(nameof(user));
+
             //ExpirtaionTime of Jwt 
             DateTime expiration = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:EXPIRATION_MINUTES"]));
             string userRole = await _authService.GetUserRole(user);
@@ -39,26 +42,20 @@ namespace Restaurent.Core.Service
                 //Token Issued At Time
                 new Claim(JwtRegisteredClaimNames.Iat,DateTimeOffset.Now.ToUnixTimeSeconds().ToString()),
 
-
-                //unique name identifier for the user
                 new Claim(JwtRegisteredClaimNames.Email,user.Email),
 
-                //Name of the user
                 new Claim(JwtRegisteredClaimNames.Name,user.UserName),
 
-                //User Role
                 new Claim("role", userRole.ToString()),
             };
 
-            //passing secret key 
             SymmetricSecurityKey securityKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
 
 
             //Hashing Algorithm
             SigningCredentials signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-            //Creates a JwtSecurityToken obejct with the given issuer,audience,claims,expires and signinCredentials 
+ 
             JwtSecurityToken tokenGenerator = new JwtSecurityToken(
                 _configuration["Jwt:Issuer"],
                 _configuration["Jwt:Audience"],

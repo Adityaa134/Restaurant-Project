@@ -13,12 +13,15 @@ namespace Restaurent.WebAPI.StartupExtensions
 {
     public static class ConfigureServiceExtensions
     {
-        public static void ConfigureServices(this IServiceCollection services,IConfiguration configuration)
+        public static void ConfigureServices(this IServiceCollection services,IConfiguration configuration,IWebHostEnvironment env)
         {
-            services.AddDbContext<ApplicationDBContext>(options =>
+            if (!env.IsEnvironment("Test"))
             {
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
-            });
+                services.AddDbContext<ApplicationDBContext>(options =>
+                {
+                    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+                });
+            }
 
             services.AddScoped<IDishAdderService, DishAdderService>();
             services.AddScoped<IDishGetterService, DishGetterService>();

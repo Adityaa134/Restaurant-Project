@@ -25,7 +25,6 @@ namespace Restaurent.Core.Service
             if (matchingDish == null)
                 return false;
 
-            //Delete image of dish from the wwwroot folder
             bool isImageDeleted = await _imageDeleteService.ImageDeleter(matchingDish.Image_Path);
 
             if(!isImageDeleted) 

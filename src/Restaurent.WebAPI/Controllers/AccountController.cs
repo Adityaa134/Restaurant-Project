@@ -29,7 +29,8 @@ namespace Restaurent.WebAPI.Controllers
             if (ModelState.IsValid == false)
             {
                 string errorMessage = string.Join("|", ModelState.Values.SelectMany(value => value.Errors).Select(e => e.ErrorMessage));
-                return Problem(errorMessage);
+                return ValidationProblem(detail:errorMessage,
+                    statusCode:StatusCodes.Status400BadRequest);
             }
 
            var result =  await _authService.Login(loginRequest);
@@ -38,7 +39,8 @@ namespace Restaurent.WebAPI.Controllers
                 var user = await _authService.FindUserByUserName(loginRequest.UserName);
                 if (user == null)
                 {
-                    return Problem("Invalid Email Id");
+                    return Problem(detail: "Internal Server Error",
+                        statusCode: StatusCodes.Status500InternalServerError);
                 }
                 TokenModel tokenModel = await _jwtService.CreateJwtToken(user);
                 await _authService.UpdateRefreshTokenInTable(user, tokenModel);
@@ -56,17 +58,17 @@ namespace Restaurent.WebAPI.Controllers
                 return Ok(authenticationResponse);
            }
            if (result.IsNotAllowed)
-           { 
-                return Problem("Please verify your emailId to login");
+           {
+                return Problem(detail: "Please verify your emailId to login", statusCode: StatusCodes.Status403Forbidden);
            }
            else
            {
-                return Problem("Invalid Username or password");
+                return Problem(detail:"Invalid Username or password",
+                    statusCode: StatusCodes.Status401Unauthorized);
            }
         }
 
         [HttpGet("logout")]
-
         public async Task<ActionResult> Logout()
         {
             await _authService.Logout(HttpContext);
@@ -79,7 +81,8 @@ namespace Restaurent.WebAPI.Controllers
             if (ModelState.IsValid == false)
             {
                 string errorMessage = string.Join("|", ModelState.Values.SelectMany(value => value.Errors).Select(e => e.ErrorMessage));
-                return Problem(errorMessage);
+                return ValidationProblem(detail: errorMessage,
+                    statusCode: StatusCodes.Status400BadRequest);
             }
 
            
@@ -89,12 +92,13 @@ namespace Restaurent.WebAPI.Controllers
                 ApplicationUser? user = await _authService.FindUserByEmail(registerRequest.Email);
                 if (user==null)
                 {
-                    return Problem("Invalid Email Id");
+                    return Problem(detail: "User registration succeeded but user not found",
+                        statusCode: StatusCodes.Status500InternalServerError);
                 }
 
                 if (!user.EmailConfirmed)
                 {
-                    return Problem("Please verify your emailId to login");
+                    return Problem(detail:"Please verify your emailId to login",statusCode:StatusCodes.Status403Forbidden);
                 }
                 TokenModel tokenModel = await _jwtService.CreateJwtToken(user);
                 await _authService.UpdateRefreshTokenInTable(user, tokenModel);
@@ -114,7 +118,8 @@ namespace Restaurent.WebAPI.Controllers
             else
             {
                 string errorMesasage = string.Join("|", result.Errors.Select(err => err.Description));
-                return Problem(errorMesasage);
+                return Problem(detail:errorMesasage,
+                    statusCode:StatusCodes.Status500InternalServerError);
             }
         }
 
@@ -124,13 +129,12 @@ namespace Restaurent.WebAPI.Controllers
             HttpContext.Request.Cookies.TryGetValue("refreshToken", out var refreshToken);
 
             if (refreshToken == null)
-                return Unauthorized();
+                return Problem(statusCode: StatusCodes.Status401Unauthorized);
             var user  = await _authService.GetUserByRefreshToken(refreshToken);
 
-            
-            //if user is null or refreshToken does not match with the refreshToken stored in db or the refreshTokenExpireTime is completed it means user has to login again. 
             if(user==null || user.RefreshToken!=refreshToken || user.RefershTokenExpirationDateTime <= DateTime.UtcNow)
-                return Unauthorized("Invlaid refersh token");
+                return Problem(detail:"Invlaid refersh token",
+                    statusCode:StatusCodes.Status401Unauthorized);
 
             TokenModel token = await _jwtService.CreateJwtToken(user);
             await _authService.UpdateRefreshTokenInTable(user, token);
@@ -186,7 +190,8 @@ namespace Restaurent.WebAPI.Controllers
             }
             else
             {
-                return Problem("Something Went Wrong Try Again");
+                return Problem(detail: "Email does not exist",
+                    statusCode: StatusCodes.Status400BadRequest);
             }
            
         }
@@ -202,19 +207,21 @@ namespace Restaurent.WebAPI.Controllers
                 {
                     return Ok("Email Verified");
                 }
-                return BadRequest("Toke or Uid is not valid");
+                return Problem(detail: "Token or Uid can't be null ", statusCode: StatusCodes.Status400BadRequest);
             }
-            return BadRequest("Token or Uid can't be null ");
+            return Problem(detail:"Token or Uid can't be null ",statusCode:StatusCodes.Status400BadRequest);
         }
 
         [HttpGet("forgot-password")]
         public async Task<ActionResult> ForgotPasswordEmail(string email)
         {
             if (email == null)
-                return BadRequest("Email can't be null");
+                return Problem(detail:"Email can't be null",statusCode:StatusCodes.Status400BadRequest);
+
             ApplicationUser? user =  await _authService.FindUserByEmail(email);
             if (user == null)
-                return BadRequest("Email Id is not linked with any acccount");
+                return Problem(detail:"Email Id is not linked with any acccount", statusCode: StatusCodes.Status400BadRequest);
+
             await _authService.GenerateForgotPasswordToken(user);
             return Ok(true);
         }
@@ -225,7 +232,8 @@ namespace Restaurent.WebAPI.Controllers
             if (ModelState.IsValid == false)
             {
                 string errorMessage = string.Join("|", ModelState.Values.SelectMany(value => value.Errors).Select(e => e.ErrorMessage));
-                return Problem(errorMessage);
+                return ValidationProblem(detail: errorMessage,
+                    statusCode: StatusCodes.Status400BadRequest);
             }
 
             resetPasswordDTO.Token = resetPasswordDTO.Token.Replace(' ', '+');
@@ -252,11 +260,11 @@ namespace Restaurent.WebAPI.Controllers
             var userIdClaim =  User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (!Guid.TryParse(userIdClaim, out Guid userId))
-                return Unauthorized();
+                return Problem(statusCode:StatusCodes.Status401Unauthorized);
 
             UserDTO? user =  await _authService.GetUserByUserId(userId);
             if(user == null)
-                return Unauthorized();
+                return Problem(statusCode: StatusCodes.Status401Unauthorized);
             AuthenticationResponse authenticationResponse = new AuthenticationResponse()
             {
                 UserId = user.UserId,

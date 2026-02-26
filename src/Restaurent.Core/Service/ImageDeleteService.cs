@@ -33,7 +33,6 @@ namespace Restaurent.Core.Service
             fullPath = fullPath.Replace('/', Path.DirectorySeparatorChar)
                               .Replace('\\', Path.DirectorySeparatorChar);
 
-            // Checking if file exists
             if (File.Exists(fullPath))
             {
                 File.Delete(fullPath);

@@ -19,7 +19,7 @@ namespace Restaurent.WebAPI.Controllers
         {
             UserDTO? userDTO =  await _authService.GetUserByUserId(userId);
             if (userDTO == null)
-                return Problem(detail: "Invalid User Id", statusCode: 400, title: "User Search");
+                return Problem(detail: "Invalid User Id", statusCode: StatusCodes.Status400BadRequest, title: "User Search");
             return Ok(userDTO);
         }
 
@@ -30,11 +30,12 @@ namespace Restaurent.WebAPI.Controllers
             if (ModelState.IsValid == false)
             {
                 string errorMessage = string.Join("|", ModelState.Values.SelectMany(value => value.Errors).Select(e => e.ErrorMessage));
-                return Problem(errorMessage);
+                return ValidationProblem(detail: errorMessage,
+                    statusCode: StatusCodes.Status400BadRequest);
             }
             UserDTO? userDTO = await _authService.UpdatePersonalDetails(personalDetailsDTO);
             if (userDTO == null)
-                return BadRequest();
+                return Problem(statusCode: StatusCodes.Status400BadRequest);
             return Ok(userDTO);
         }
     }

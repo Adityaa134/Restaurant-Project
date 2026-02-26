@@ -34,13 +34,15 @@ namespace Restaurent.WebAPI.Controllers
             if (ModelState.IsValid == false)
             {
                 string errorMessage = string.Join("|", ModelState.Values.SelectMany(value => value.Errors).Select(e => e.ErrorMessage));
-                return Problem(errorMessage);
+                return ValidationProblem(detail: errorMessage,
+                    statusCode: StatusCodes.Status400BadRequest);
             }
 
             OrderResponse orderResponse  = await _orderCreateService.CreateOrder(orderAddRequest);
             if (orderResponse == null)
             {
-                return Problem("Error in creating order");
+                return Problem(detail:"Error in creating order",
+                    statusCode:StatusCodes.Status500InternalServerError);
             }
 
             return CreatedAtAction("GetOrderByOrderId", "Orders", new { orderId = orderResponse.OrderId }, orderResponse);
@@ -58,7 +60,7 @@ namespace Restaurent.WebAPI.Controllers
         {
            OrderResponse? orderResponse =  await _orderGetterService.GetOrderByOrderId(orderId);
             if (orderResponse == null)
-                return Problem(detail: "Invalid Order Id", statusCode: 400, title: "Order Search");
+                return Problem(detail: "Order Id Not Found", statusCode: StatusCodes.Status404NotFound, title: "Order Search");
             return Ok(orderResponse);
         }
 
@@ -69,12 +71,13 @@ namespace Restaurent.WebAPI.Controllers
             if (ModelState.IsValid == false)
             {
                 string errorMessage = string.Join("|", ModelState.Values.SelectMany(value => value.Errors).Select(e => e.ErrorMessage));
-                return Problem(errorMessage);
+                return ValidationProblem(detail: errorMessage,
+                    statusCode: StatusCodes.Status400BadRequest);
             }
 
             OrderResponse? orderResponse = await _orderUpdateService.UpdateOrderStatus(request);
             if(orderResponse == null)
-                return Problem(detail:"Order Status Updation failed", statusCode: 400, title: "Update Orders Status");
+                return Problem(detail:"Order Status Updation failed", statusCode: StatusCodes.Status500InternalServerError, title: "Update Orders Status");
             return Ok(orderResponse);
         }
 
@@ -82,7 +85,7 @@ namespace Restaurent.WebAPI.Controllers
         public async Task<IActionResult> CancelOrder(UpdateOrderStatusRequest request)
         {
             if (request.OrderStatus != OrderStatus.Cancelled)
-                return BadRequest("Only cancellation is allowed");
+                return Problem(detail:"Only cancellation is allowed",statusCode: StatusCodes.Status400BadRequest);
 
             var result = await _orderUpdateService.UpdateOrderStatusToCancel(request);
             return Ok(result);

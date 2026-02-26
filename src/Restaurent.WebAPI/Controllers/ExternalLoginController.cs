@@ -33,12 +33,14 @@ namespace Restaurent.WebAPI.Controllers
                 ApplicationUser? user = await _authService.FindUserByEmail(payload.Email);
                 if (user == null)
                 {
-                    return Problem("Invalid Email Id");
+                    return Problem(detail:"Invalid Email Id",
+                        statusCode:StatusCodes.Status400BadRequest);
                 }
 
                 if (!user.EmailConfirmed)
                 {
-                    return Problem("Please verify your emailId to login");
+                    return Problem(detail:"Please verify your emailId to login",
+                        statusCode:StatusCodes.Status403Forbidden);
                 }
                 TokenModel tokenModel = await _jwtService.CreateJwtToken(user);
                 await _authService.UpdateRefreshTokenInTable(user, tokenModel);
@@ -59,12 +61,14 @@ namespace Restaurent.WebAPI.Controllers
                 ApplicationUser? user = await _authService.FindUserByEmail(payload.Email);
                 if (user == null)
                 {
-                    return Problem("Invalid Email Id");
+                    return Problem(detail: "Invalid Email Id",
+                        statusCode: StatusCodes.Status401Unauthorized);
                 }
 
                 if (!user.EmailConfirmed)
                 {
-                    return Problem("Please verify your emailId to login");
+                    return Problem(detail: "Please verify your emailId to login",
+                        statusCode: StatusCodes.Status403Forbidden);
                 }
                 TokenModel tokenModel = await _jwtService.CreateJwtToken(user);
                 await _authService.UpdateRefreshTokenInTable(user, tokenModel);
@@ -80,7 +84,7 @@ namespace Restaurent.WebAPI.Controllers
                 await _signInManager.SignInAsync(user, isPersistent: false);
                 return Ok(authenticationResponse);
             }
-            return Problem("Invalid credentials");
+            return Problem(detail:"Invalid credentials",statusCode:StatusCodes.Status401Unauthorized);
         }
     }
 }

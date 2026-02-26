@@ -21,7 +21,6 @@ namespace Restaurent.Core.Service
                 throw new ArgumentNullException(nameof(imageFile), "Image file cannot be null or empty");
             }
 
-            // Getting wwwroot path by combining ContentRootPath with wwwroot
             var wwwrootPath = Path.Combine(_hostEnvironment.ContentRootPath, "wwwroot");
 
             
@@ -35,7 +34,6 @@ namespace Restaurent.Core.Service
             var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(imageFile.FileName)}";
             var filePath = Path.Combine(targetFolder, uniqueFileName);
 
-            // Saving the file
             using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
                 await imageFile.CopyToAsync(fileStream);

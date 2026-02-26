@@ -1,5 +1,4 @@
-﻿using System;
-using Restaurent.Core.Domain.Entities;
+﻿using Restaurent.Core.Domain.Entities;
 using Restaurent.Core.Domain.RepositoryContracts;
 using Restaurent.Core.DTO;
 using Restaurent.Core.Helpers;
@@ -10,9 +9,11 @@ namespace Restaurent.Core.Service
     public class AddCartItemsService : IAddCartItemsService
     {
         private readonly ICartsRepository _cartsRepository;
-        public AddCartItemsService(ICartsRepository cartsRepository)
+        private readonly IDishGetterService _dishGetterService;
+        public AddCartItemsService(ICartsRepository cartsRepository, IDishGetterService dishGetterService)
         {
             _cartsRepository = cartsRepository;
+            _dishGetterService = dishGetterService;
         }
 
         public async Task<AddToCartResponse> AddItemToCart(AddToCartRequest addToCart)
@@ -21,6 +22,11 @@ namespace Restaurent.Core.Service
                 throw new ArgumentNullException(nameof(addToCart));
 
             ValidationHelper.ModelValidator(addToCart);
+
+            DishResponse? dishResponse  = await _dishGetterService.GetDishByDishId(addToCart.DishId);
+
+            if (dishResponse == null)
+                throw new ArgumentException("Invalid Dish Id");
 
             Carts cart = addToCart.ToCart();
             cart.Id = Guid.NewGuid();

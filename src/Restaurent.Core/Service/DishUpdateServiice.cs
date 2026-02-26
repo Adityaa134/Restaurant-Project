@@ -26,11 +26,8 @@ namespace Restaurent.Core.Service
             if(dishUpdateRequest.DishName == null)
                 throw new ArgumentException(nameof(dishUpdateRequest.DishName));
 
-
-            //Validations 
             ValidationHelper.ModelValidator(dishUpdateRequest);
 
-            //checking DishId does it exist in db or not
             Dish? matchingDish = await _dishRepository.GetDishByDishId(dishUpdateRequest.DishId.Value);
             if (matchingDish == null)
                 throw new ArgumentException("Dish Id does not exist");

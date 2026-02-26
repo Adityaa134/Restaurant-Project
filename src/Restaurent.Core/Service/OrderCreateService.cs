@@ -40,7 +40,7 @@ namespace Restaurent.Core.Service
             UserDTO? userDTO =   await _authService.GetUserByUserId(orderAddRequest.UserId.Value);
             if (userDTO == null)
                 throw new ArgumentException("Invalid User Id");
-            AddressResponse addressResponse = await _addressService.GetAddressByAddressId(orderAddRequest.DeliveryAddressId);
+            AddressResponse? addressResponse = await _addressService.GetAddressByAddressId(orderAddRequest.DeliveryAddressId);
             if (addressResponse == null)
                 throw new ArgumentException("Invalid address id ");
 

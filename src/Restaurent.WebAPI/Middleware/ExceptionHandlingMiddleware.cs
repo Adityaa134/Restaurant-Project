@@ -15,17 +15,23 @@
         {
             try
             {
-                await _next(httpContext); // calling next or subsequent middleware
+                await _next(httpContext); 
             }
             catch (Exception ex)
             {
-                if (ex.InnerException != null)
+                if (ex is ArgumentException)
+                {
+                    httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                }
+                else if (ex.InnerException != null)
                 {
                     _logger.LogError("{ExceptionType} {ExceptionMeassage}", ex.InnerException.GetType().ToString(), ex.InnerException.Message);
+                    httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 }
                 else
                 {
                     _logger.LogError("{ExceptionType} {ExceptionMeassage}", ex.GetType().ToString(), ex.Message);
+                    httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 }
 
                 await httpContext.Response.WriteAsync("OOPS! and error occured please refresh");

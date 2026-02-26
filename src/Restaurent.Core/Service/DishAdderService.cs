@@ -25,17 +25,14 @@ namespace Restaurent.Core.Service
             if (dishAddRequest.DishName == null || dishAddRequest.Dish_Image == null)
                 throw new ArgumentException(nameof(dishAddRequest.DishName),nameof(dishAddRequest.Dish_Image));
 
-            //validations
             ValidationHelper.ModelValidator(dishAddRequest); 
-
-            //Adding image to webroot
+            
             var imgPath =  await _imageAdderService.ImageAdder(dishAddRequest.Dish_Image);
             dishAddRequest.ImagePath_url = imgPath;
 
             Dish dish = dishAddRequest.ToDish();
             dish.DishId = Guid.NewGuid();
-
-            //calling repository method to add the dish in db
+            
             await _dishRepository.AddDish(dish);
 
             return dish.ToDishResponse();

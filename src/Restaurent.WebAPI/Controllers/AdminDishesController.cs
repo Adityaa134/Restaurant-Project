@@ -24,7 +24,7 @@ namespace Restaurent.WebAPI.Controllers
         public async Task<ActionResult> AddDish([FromForm] DishAddRequest dishAddRequest)
         {
             DishResponse dishResponse = await _dishAdderService.AddDish(dishAddRequest);
-            return CreatedAtAction("GetDishByDishId","Dishes", new { dishId = dishResponse.DishId }, dishResponse); //status code 201(means created)
+            return CreatedAtAction("GetDishByDishId","Dishes", new { dishId = dishResponse.DishId }, dishResponse);
         }
 
         [HttpPut]
@@ -40,7 +40,7 @@ namespace Restaurent.WebAPI.Controllers
         {
             bool isDishDeleted = await _dishDeleteService.DeleteDish(dishId);
             if (!isDishDeleted)
-                return Problem(detail: "Invalid DishId", statusCode: 400, title: "Delete Dish");
+                return Problem(detail: "Dish Not Found", statusCode: StatusCodes.Status404NotFound, title: "Delete Dish");
             return NoContent();
         }
 

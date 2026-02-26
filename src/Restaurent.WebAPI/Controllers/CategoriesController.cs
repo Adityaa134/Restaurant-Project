@@ -34,7 +34,7 @@ namespace Restaurent.WebAPI.Controllers
         {
             CategoryResponse? category = await _categoriesGetterService.GetCategoryByCategoryId(categoryId);
             if (category == null)
-                return Problem(detail: "Invalid Category Id", statusCode: 400, title: "Category Search");
+                return Problem(detail: "Category Id Not Found", statusCode: StatusCodes.Status404NotFound, title: "Category Search");
             return Ok(category);
         }
       
@@ -51,7 +51,7 @@ namespace Restaurent.WebAPI.Controllers
         {
             CategoryResponse? categoryResponse = await _categoryUpdateService.UpdateCategoryStatus(categoryStatusUpdateRequest);
             if (categoryResponse == null)
-                return Problem(detail: "Category Status Updation failed", statusCode: 400, title: "Update Category Status");
+                return Problem(detail: "Category Status Updation failed", statusCode: StatusCodes.Status500InternalServerError, title: "Update Category Status");
             return Ok(categoryResponse);
         }
 
