@@ -1,19 +1,34 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- main
+ branches:
+  include:
+    - main
+    - dev
 
-pool:
-  vmImage: ubuntu-latest
+variables:
+  - name: linuxImageName 
+    value: 'ubuntu-latest'
+  - name: widowImageName
+    value: 'windows-latest'
+  - name: dockerfilePath
+    value: 'src/Restaurent.WebAPI/Dockerfile'
+  - name: tag
+    value: $(Build.BuildId)
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+stages:
+ - stage: Build
+   displayName: Build and push stage
+   jobs:
+    - job: Build
+      displayName: Docker Build
+      pool:
+       vmImage: $(linuxImageName)
+      steps:
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'dockerhub-service-connection'
+          repository: 'adityadocker02/restaurantapi'
+          command: 'buildAndPush'
+          Dockerfile: $(dockerfilePath)
+          tags: |
+            $(tag)
+           buildContext: '.'
