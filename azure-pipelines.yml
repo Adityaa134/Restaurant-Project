@@ -31,4 +31,45 @@ stages:
           Dockerfile: $(dockerfilePath)
           tags: |
             $(tag)
+            latest
           buildContext: '.'
+
+ - stage: Test
+   displayName: Test and publish result stage
+   jobs:
+   - job: RunTest
+     displayName: Run Tests
+     pool:
+      vmImage: $(widowImageName)
+     steps:
+       - checkout: self
+         displayName: Checkout source code
+      
+       - task: NuGetToolInstaller@1
+         displayName: Install NugetTool
+
+       - task: NuGetCommand@2
+         displayName: Restore Nuget Packages
+         inputs:
+           command: 'restore'
+           restoreSolution: '**/*.sln'
+
+       - task: MSBuild@1
+         displayName: Build solution
+         inputs:
+           solution: '**/*.sln'
+           msbuildArchitecture: 'x64'
+           platform: 'Any CPU'
+           configuration: 'Debug'
+
+       - task: VSTest@3
+         displayName: Test solution
+         inputs:
+           testSelector: 'testAssemblies'
+           testAssemblyVer2: |
+             **\bin\**\*Tests.dll
+             !**\*TestAdapter.dll
+             !**\obj\**
+           searchFolder: '$(System.DefaultWorkingDirectory)'
+           runTestsInIsolation: true
+           codeCoverageEnabled: true
