@@ -14,7 +14,7 @@ services:
 
 
  restaurent-api:
-  image: restaurent-api:1
+  image: restaurantapi
   container_name: restaurant-api
   build:
    context: .
