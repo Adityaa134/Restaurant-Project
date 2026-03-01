@@ -31,10 +31,6 @@
     <ProjectReference Include="..\Restaurent.Infrastructure\Restaurent.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\Images\" />
-  </ItemGroup>
-
 	<ItemGroup>
 		<Content Include="Template\**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -42,7 +38,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<InternalsVisibleTo Include="RestaurentSolution.IntegrationTests"/>
+		<InternalsVisibleTo Include="RestaurentSolution.IntegrationTests" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="wwwroot\" />
 	</ItemGroup>
 
 </Project>

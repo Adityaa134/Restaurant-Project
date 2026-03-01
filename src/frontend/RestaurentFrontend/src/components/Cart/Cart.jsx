@@ -55,7 +55,7 @@ function Cart() {
 
               <div className="flex items-center space-x-4">
                 <img
-                  src={`https://localhost:7219${item.dish_Image_Path}`}
+                  src={item.dish_Image_Path}
                   alt={item.dishName}
                   className="w-16 h-16 rounded object-cover"
                 />

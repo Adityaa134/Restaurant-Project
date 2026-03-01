@@ -194,7 +194,7 @@ namespace RestaurentSolution.UnitTests
             _categoryRepositoryMock.Setup(temp=>temp.AddCategory(It.IsAny<Category>()))
                 .ReturnsAsync(category);
 
-            _imageAdderServiceMock.Setup(temp => temp.ImageAdder(It.IsAny<IFormFile>(), It.IsAny<string>()))
+            _imageAdderServiceMock.Setup(temp => temp.ImageAdder(It.IsAny<IFormFile>()))
                 .ReturnsAsync("dummy_path.jpg");
 
             CategoryResponse categoryResponseActual =  await _categoryAdderService.AddCategory(categoryAddRequest);

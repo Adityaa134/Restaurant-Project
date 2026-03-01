@@ -10,7 +10,7 @@ function DishCard({ dishId, dishName, price, dish_Image_Path }) {
     const[isPlacingOrder,setIsPlacingOrder] = useState(false)
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const imageUrl = `https://localhost:7219${dish_Image_Path}`;
+    const imageUrl = `${dish_Image_Path}`;
 
     const [itemAdded, setItemAdded] = useState("Order Now");
 

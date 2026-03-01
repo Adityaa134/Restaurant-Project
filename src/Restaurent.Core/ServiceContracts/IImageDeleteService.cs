@@ -5,7 +5,7 @@ namespace Restaurent.Core.ServiceContracts
     public interface IImageDeleteService
     {
         /// <summary>
-        /// Delete image from web folder
+        /// Deletes image from Azure Blob Storage
         /// </summary>
         /// <param name="imagePath">the image path to delete</param>
         /// <returns>Returns true if deleted; otherwise false</returns>

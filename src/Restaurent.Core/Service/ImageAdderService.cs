@@ -1,46 +1,42 @@
 ﻿using System;
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 using Restaurent.Core.ServiceContracts;
 
 namespace Restaurent.Core.Service
 {
     public class ImageAdderService : IImageAdderService
     {
-        private readonly IHostEnvironment _hostEnvironment;
+        private readonly IConfiguration _configuration;
 
-        public ImageAdderService(IHostEnvironment hostEnvironment)
+        public ImageAdderService(IConfiguration configuration)
         {
-            _hostEnvironment = hostEnvironment;
+            _configuration = configuration;
         }
 
-        public async Task<string> ImageAdder(IFormFile imageFile, string subFolder="Images")
+        public async Task<string> ImageAdder(IFormFile imageFile)
         {
-            if (imageFile == null || imageFile.Length == 0)
-            {
-                throw new ArgumentNullException(nameof(imageFile), "Image file cannot be null or empty");
-            }
+            if(imageFile==null || imageFile.Length ==0)
+                throw new ArgumentNullException("Image file cannot be null or empty");
 
-            var wwwrootPath = Path.Combine(_hostEnvironment.ContentRootPath, "wwwroot");
-
-            
-            var targetFolder = Path.Combine(wwwrootPath, subFolder);
-            if (!Directory.Exists(targetFolder))
-            {
-                Directory.CreateDirectory(targetFolder);
-            }
-
-           
-            var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(imageFile.FileName)}";
-            var filePath = Path.Combine(targetFolder, uniqueFileName);
-
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                await imageFile.CopyToAsync(fileStream);
-            }
+            string containerName = _configuration["BlobStorage:ContainerName"]!;
+            string connectionString = _configuration["BlobStorage:ConnectionString"]!;
 
 
-            return $"/{subFolder}/{uniqueFileName}";
+            BlobContainerClient blobContainerClient = new BlobContainerClient(connectionString, containerName);
+            await blobContainerClient.CreateIfNotExistsAsync();
+            await blobContainerClient.SetAccessPolicyAsync(Azure.Storage.Blobs.Models.PublicAccessType.Blob);
+
+            string extension = Path.GetExtension(imageFile.FileName);
+            string uniqueFileName = $"{Guid.NewGuid()}{extension}";
+
+            BlobClient blobClient = blobContainerClient.GetBlobClient(uniqueFileName);
+
+            using var stream = imageFile.OpenReadStream();
+            await blobClient.UploadAsync(stream, true);
+
+            return blobClient.Uri.AbsoluteUri;
         }
     } 
 }

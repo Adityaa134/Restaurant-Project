@@ -383,4 +383,3 @@ dist-ssr
 
 .env
 .env.*
-src/Restaurent.WebAPI/wwwroot/Images

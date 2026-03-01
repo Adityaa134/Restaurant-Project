@@ -312,7 +312,7 @@ namespace RestaurentSolution.UnitTests
               _dishRepositoryMock.Setup(temp => temp.AddDish(It.IsAny<Dish>()))
                   .ReturnsAsync(dish);
 
-              _imageAdderServiceMock.Setup(temp => temp.ImageAdder(It.IsAny<IFormFile>(), It.IsAny<string>()))
+              _imageAdderServiceMock.Setup(temp => temp.ImageAdder(It.IsAny<IFormFile>()))
                   .ReturnsAsync("dummy_path.jpg");
 
               DishResponse dishResponseActual = await _dishAdderService.AddDish(dishAddRequest);
@@ -380,7 +380,7 @@ namespace RestaurentSolution.UnitTests
               _dishRepositoryMock.Setup(temp => temp.UpdateDish(It.IsAny<Dish>()))
                   .ReturnsAsync(dish);
 
-              _imageUpdateServiceMock.Setup(temp => temp.ImageUpdater(It.IsAny<IFormFile>(), It.IsAny<string>(),It.IsAny<string>()))
+              _imageUpdateServiceMock.Setup(temp => temp.ImageUpdater(It.IsAny<IFormFile>(), It.IsAny<string>()))
                   .ReturnsAsync("dummy_path.jpg");
 
               DishResponse? dishResponseActual = await _dishUpdateService.UpdateDish(dishUpdateRequest);

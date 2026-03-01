@@ -37,7 +37,7 @@ function EditDish() {
                     dishId: data.dishId || ''
                 });
                 setDishPath(data.dish_Image_Path)
-                setDishImage(`https://localhost:7219${data.dish_Image_Path}`)
+                setDishImage(data.dish_Image_Path)
                 setLoading(false)
             }
             getDishDetails()
@@ -71,7 +71,7 @@ function EditDish() {
                     description: updatedDish.description,
                     categoryId: updatedDish.categoryId
                 });
-                setDishImage(`https://localhost:7219${updatedDish.dish_Image_Path}`)
+                setDishImage(updatedDish.dish_Image_Path)
                 setSuccessMessage("Dish edited successfully!");
             }
         } catch (error) {

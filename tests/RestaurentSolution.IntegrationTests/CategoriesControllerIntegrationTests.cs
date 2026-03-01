@@ -1,9 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
-using Restaurent.Core.Domain.Entities;
 using Restaurent.Core.DTO;
-using Restaurent.Infrastructure.DBContext;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;

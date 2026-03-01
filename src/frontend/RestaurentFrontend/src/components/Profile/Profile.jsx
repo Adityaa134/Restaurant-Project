@@ -36,7 +36,7 @@ const PersonalProfile = () => {
             const fetchData = async () => {
                 const data = await userService.GetUserById(userId);
                 setUser(data);
-                setPreview(data.profileImage?`https://localhost:7219${data.profileImage}`:DefaultAvtar);
+                setPreview(data.profileImage? data.profileImage : DefaultAvtar);
                 setProfileImage(data.profileImage)
                 originalUsernameRef.current = data.userName;
                 reset({

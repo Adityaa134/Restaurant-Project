@@ -16,7 +16,7 @@ const ProfileMenu = ({profileImage}) => {
         <img
           src={
             profileImage
-              ? `https://localhost:7219${profileImage}`
+              ? profileImage
               : DefaultAvtar
           }
           alt="profile"

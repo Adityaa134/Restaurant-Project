@@ -62,7 +62,7 @@ export default function SearchBar() {
                                 className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100 transition"
                             >
                                 <img
-                                    src={`https://localhost:7219${dish.dish_Image_Path}`}
+                                    src={dish.dish_Image_Path}
                                     alt={dish.dishName}
                                     className="w-10 h-10 rounded-md object-cover mr-3"
                                 />
