@@ -32,6 +32,8 @@ services:
   - SMTPConfig__Password=${SMTPCONFIG__PASSWORD}
   - SMTPConfig__Host=${SMTPCONFIG__HOST}
   - AllowedOrigins__OriginName=${ALLOWEDORIGINS__ORIGINNAME}
+  - BlobStorage__ContainerName=${BLOBSTORAGE__CONTAINERNAME}
+  - BlobStorage__ConnectionString=${BLOBSTORAGE__CONNECTIONSTRING}
   ports:
    - 8080:8080
   networks:

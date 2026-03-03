@@ -1,60 +1,47 @@
 ﻿using System;
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 using Restaurent.Core.ServiceContracts;
 
 namespace Restaurent.Core.Service
 {
     public class ImageUpdateService : IImageUpdateService
     {
-        private readonly IHostEnvironment _hostEnvironment;
+        private readonly IConfiguration _configuration;
         private readonly IImageDeleteService _imageDeleteService;
 
-        public ImageUpdateService(IHostEnvironment hostEnvironment, IImageDeleteService imageDeleteService)
+        public ImageUpdateService(IConfiguration configuration, IImageDeleteService imageDeleteService)
         {
-            _hostEnvironment = hostEnvironment;
+            _configuration = configuration;
             _imageDeleteService = imageDeleteService;
         }
 
-        public async Task<string> ImageUpdater(IFormFile imageFile, string existingUrl, string subFolder = "Images")
+        public async Task<string> ImageUpdater(IFormFile imageFile, string existingUrl)
         {
-
             if (string.IsNullOrWhiteSpace(existingUrl))
                 throw new ArgumentException("Existing image URL cannot be null or empty");
 
             if (imageFile == null || imageFile.Length == 0)
                 throw new ArgumentException("New image file is required");
 
-            
-            var webRootPath = Path.Combine(_hostEnvironment.ContentRootPath, "wwwroot");
+            string containerName = _configuration["BlobStorage:ContainerName"]!;
+            string connectionString = _configuration["BlobStorage:ConnectionString"]!;
 
-            
-            var imagesDirectory = Path.Combine(webRootPath, subFolder);
-            if (!Directory.Exists(imagesDirectory))
-            {
-                Directory.CreateDirectory(imagesDirectory);
-            }
+            BlobContainerClient blobContainerClient = new BlobContainerClient(connectionString, containerName);
+            await blobContainerClient.CreateIfNotExistsAsync();
 
-            
-            var newFileName = $"{Guid.NewGuid()}_{Path.GetFileName(imageFile.FileName)}";
-            var newRelativePath = Path.Combine(subFolder, newFileName);
-            var newAbsolutePath = Path.Combine(webRootPath, newRelativePath);
+            string extension = Path.GetExtension(imageFile.FileName);
+            string uniqueFileName = $"{Guid.NewGuid()}{extension}";
 
-            
-            using (var stream = new FileStream(newAbsolutePath, FileMode.Create))
-            {
-                await imageFile.CopyToAsync(stream);
-            }
+            BlobClient blobClient = blobContainerClient.GetBlobClient(uniqueFileName);
 
-            // Deleting old image if it exists
-            if (!string.IsNullOrWhiteSpace(existingUrl))
-            {
-                await _imageDeleteService.ImageDeleter(existingUrl);
-            }
+            using var stream = imageFile.OpenReadStream();
+            await blobClient.UploadAsync(stream, true);
 
-            
-            return $"/{newRelativePath.Replace("\\", "/")}";
+            await _imageDeleteService.ImageDeleter(existingUrl); 
 
+            return blobClient.Uri.AbsoluteUri;
         }
     }
 }

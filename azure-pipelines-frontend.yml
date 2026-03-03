@@ -1,0 +1,58 @@
+trigger:
+ branches:
+  include:
+   - dev
+   - main
+
+pool:
+ vmImage: 'ubuntu-latest'
+
+variables:
+ - group: frontend-secrets
+ - name: workingDirectory
+   value: 'src/frontend/RestaurentFrontend'
+
+stages:
+ - stage: Build
+   displayName: Build stage 
+   jobs:
+   - job: Build
+     steps:
+     - checkout: self
+
+     - task: NodeTool@0
+       displayName: 'Install Node.js'
+       inputs:
+        versionSpec: '18.x'
+
+     - script: npm install
+       displayName: 'Install Dependencies'
+       workingDirectory: $(workingDirectory)
+
+     - script: npm run build
+       displayName: 'Build React App'
+       workingDirectory: $(workingDirectory)
+
+     - task: PublishBuildArtifacts@1
+       displayName: 'Publish Build Artifact'
+       inputs:
+        pathToPublish: '$(workingDirectory)/dist'
+        artifactName: 'frontend-dist'
+
+ - stage: Deploy
+   displayName: Deploy Frontend
+   dependsOn: Build
+   condition: and(succeeded('Build'), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+   jobs:
+   - job: DeployJob
+     steps:
+
+     - download: current
+       artifact: frontend-dist
+
+     - task: AzureStaticWebApp@0
+       displayName: 'Deploy to Azure Static Web App'
+       inputs:
+        azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APP_TOKEN)
+        skip_app_build: true
+        workingDirectory: '$(Pipeline.Workspace)/frontend-dist'

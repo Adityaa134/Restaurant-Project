@@ -119,7 +119,7 @@ function DishDetails() {
                             
                             <div className="w-full h-80 sm:h-96">
                                 <img
-                                    src={`https://localhost:7219${dish.dish_Image_Path}`}
+                                    src={dish.dish_Image_Path}
                                     alt={dish.dishName}
                                     className="w-full h-full object-cover"
                                 />

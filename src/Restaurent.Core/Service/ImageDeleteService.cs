@@ -1,16 +1,17 @@
 ﻿using System;
-using Microsoft.Extensions.Hosting;
+using Azure.Storage.Blobs;
+using Microsoft.Extensions.Configuration;
 using Restaurent.Core.ServiceContracts;
 
 namespace Restaurent.Core.Service
 {
     public class ImageDeleteService : IImageDeleteService
     {
-        private readonly IHostEnvironment _hostEnvironment;
+        private readonly IConfiguration _configuration;
 
-        public ImageDeleteService(IHostEnvironment hostEnvironment)
+        public ImageDeleteService(IConfiguration configuration)
         {
-            _hostEnvironment = hostEnvironment;
+            _configuration = configuration;
         }
 
        
@@ -19,27 +20,16 @@ namespace Restaurent.Core.Service
             if (string.IsNullOrEmpty(imagePath))
                 return false;
 
+            string containerName = _configuration["BlobStorage:ContainerName"]!;
+            string connectionString = _configuration["BlobStorage:ConnectionString"]!;
 
-          
-            var cleanPath = imagePath.TrimStart('/', '\\');
 
-            
-            var fullPath = Path.Combine(
-                _hostEnvironment.ContentRootPath,
-                "wwwroot",
-                cleanPath);
+            BlobContainerClient blobContainerClient = new BlobContainerClient(connectionString, containerName);
+            Uri oldUri = new Uri(imagePath);
+            string oldFileName = Path.GetFileName(oldUri.LocalPath);
+            BlobClient blobClient = blobContainerClient.GetBlobClient(oldFileName);
 
-            
-            fullPath = fullPath.Replace('/', Path.DirectorySeparatorChar)
-                              .Replace('\\', Path.DirectorySeparatorChar);
-
-            if (File.Exists(fullPath))
-            {
-                File.Delete(fullPath);
-                return true;
-            }
-
-            return false;
+            return await blobClient.DeleteIfExistsAsync();
          }
     }
 }

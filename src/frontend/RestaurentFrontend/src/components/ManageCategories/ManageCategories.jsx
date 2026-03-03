@@ -59,7 +59,7 @@ function ManageCategories() {
 
           <div className="flex items-center gap-4">
             <img
-              src={`https://localhost:7219${category.cat_Image}`}
+              src={category.cat_Image}
               alt={category.cat_Name}
               className="w-14 h-14 rounded-lg object-cover border"
             />

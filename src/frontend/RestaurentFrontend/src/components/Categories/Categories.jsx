@@ -63,7 +63,7 @@ function CategoriesPage() {
                 }`}
               >
                 <img
-                  src={`https://localhost:7219${category.cat_Image}`}
+                  src={category.cat_Image}
                   alt={category.cat_Name}
                   className="h-full w-full object-cover"
                 />
