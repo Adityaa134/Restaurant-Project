@@ -7,7 +7,7 @@ trigger:
 variables:
   - name: linuxImageName 
     value: 'ubuntu-latest'
-  - name: widowImageName
+  - name: windowImageName
     value: 'windows-latest'
   - name: dockerfilePath
     value: 'src/Restaurent.WebAPI/Dockerfile'
@@ -24,13 +24,27 @@ stages:
        vmImage: $(linuxImageName)
       steps:
       - task: Docker@2
+        displayName: Build and push dev image
+        condition: eq(variables['Build.SourceBranch'], 'refs/heads/dev')
         inputs:
           containerRegistry: 'dockerhub-service-connection'
           repository: 'adityadocker02/restaurantapi'
           command: 'buildAndPush'
           Dockerfile: $(dockerfilePath)
           tags: |
-            $(tag)
+            dev-$(tag)
+          buildContext: '.'
+
+      - task: Docker@2
+        displayName: Build and push prod image
+        condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+        inputs:
+          containerRegistry: 'dockerhub-service-connection'
+          repository: 'adityadocker02/restaurantapi'
+          command: 'buildAndPush'
+          Dockerfile: $(dockerfilePath)
+          tags: |
+            prod-$(tag)
             latest
           buildContext: '.'
 
@@ -40,7 +54,7 @@ stages:
    - job: RunTest
      displayName: Run Tests
      pool:
-      vmImage: $(widowImageName)
+      vmImage: $(windowImageName)
      steps:
        - checkout: self
          displayName: Checkout source code
@@ -73,3 +87,22 @@ stages:
            searchFolder: '$(System.DefaultWorkingDirectory)'
            runTestsInIsolation: true
            codeCoverageEnabled: true
+
+ - stage: Deploy
+   displayName: Deploy To Production
+   dependsOn: Test
+   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+   jobs:
+    - deployment: DeployToAppService
+      displayName: Deploy API Container
+      environment: production
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: AzureWebAppContainer@1
+                displayName: Deploy Docker Image To App Service
+                inputs:
+                  azureSubscription: 'app-service-connection'
+                  appName: 'restaurantproject'
+                  containers: 'adityadocker02/restaurantapi:latest'
