@@ -31,7 +31,7 @@ axiosInstance.interceptors.response.use(
 
       try {
         await axiosInstance.post(
-          "/Account/refresh-token",
+          "/api/Account/refresh-token",
           {},
           { skipAuthRefresh: true }
         );

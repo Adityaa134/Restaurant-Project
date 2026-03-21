@@ -4,7 +4,7 @@ export class Address {
 
     async GetAddressesOfUser(userId) {
         try {
-            let response = await axiosInstance.get(`/Address/user-address/${userId}`)
+            let response = await axiosInstance.get(`/api/Address/user-address/${userId}`)
             return response.data
         }
         catch (error) {
@@ -15,7 +15,7 @@ export class Address {
 
     async GetAddressById(addressId) {
         try {
-            let response = await axiosInstance.get(`/Address/${addressId}`)
+            let response = await axiosInstance.get(`/api/Address/${addressId}`)
             return response.data
         } catch (error) {
             console.log("AddressService :: GetAddressById :: ", error)
@@ -25,7 +25,7 @@ export class Address {
 
     async CreateAddress({userId, addressLine, city, landmark, area}) {
         try {
-            const response = await axiosInstance.post(`/Address`,
+            const response = await axiosInstance.post(`/api/Address`,
                 {
                     UserId:userId,
                     AddressLine:addressLine,
@@ -42,7 +42,7 @@ export class Address {
 
     async UpdateAddress({addressId, userId, addressLine, city, landmark, area}) {
         try {
-            const response = await axiosInstance.put(`/Address`,{
+            const response = await axiosInstance.put(`/api/Address`,{
                     AddressId:addressId,   
                     UserId:userId,
                     AddressLine:addressLine,

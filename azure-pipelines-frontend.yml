@@ -30,7 +30,7 @@ stages:
        workingDirectory: $(workingDirectory)
 
      - script: |
-        echo "VITE_API_BASE_URL=https://restaurantproject-cphxbxhhfmg4bzfp.centralindia-01.azurewebsites.net/api" > $(workingDirectory)/.env.production
+        echo "VITE_API_BASE_URL=https://restaurantproject-cphxbxhhfmg4bzfp.centralindia-01.azurewebsites.net" > $(workingDirectory)/.env.production
        displayName: 'Create production env'
 
      - script: npm run build
