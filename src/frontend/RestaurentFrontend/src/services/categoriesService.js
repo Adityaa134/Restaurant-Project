@@ -3,7 +3,7 @@ import axiosInstance from "../axios/axiosInstance"
 export class CategoryService{
     async GetCategories(){
         try {
-            let response = await axiosInstance.get("/Categories")
+            let response = await axiosInstance.get("/api/Categories")
             return response.data
 
         } catch (error) {
@@ -14,7 +14,7 @@ export class CategoryService{
 
     async GetategoryById(categoryId){
         try {
-            let response = await axiosInstance.get(`/Categories/${categoryId}`)
+            let response = await axiosInstance.get(`/api/Categories/${categoryId}`)
             return response.data
         
         } catch (error) {
@@ -30,7 +30,7 @@ export class CategoryService{
             formData.append('Status', status);
             formData.append('Cat_Image', cat_Image[0]);
 
-            const response = await axiosInstance.post(`/Categories/add-category`, formData, {
+            const response = await axiosInstance.post(`/api/Categories/add-category`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -45,7 +45,7 @@ export class CategoryService{
 
     async GetAllCategoriesForAdmin() {
     try {
-            const response = await axiosInstance.get("/Categories/admin/categories");
+            const response = await axiosInstance.get("/api/Categories/admin/categories");
             return response.data;
         } catch (error) {
             console.log("CategorService :: GetAllCategoriesForAdmin :: ",error)
@@ -55,7 +55,7 @@ export class CategoryService{
 
     async UpdateCategoryStatus(status,categoryId){
         try {
-            let response = await axiosInstance.put(`/Categories`,{
+            let response = await axiosInstance.put(`/api/Categories`,{
                 CategoryId:categoryId,
                 Status:status
             })

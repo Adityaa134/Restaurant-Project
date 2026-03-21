@@ -3,7 +3,7 @@ import axiosInstance from "../axios/axiosInstance";
 export class CartService{
     async AddItemToCart(userId,dishId){
         try {
-            const response = await axiosInstance.post(`/Carts/add-to-cart`,{
+            const response = await axiosInstance.post(`/api/Carts/add-to-cart`,{
                 UserId:userId,
                 DishId:dishId
             })
@@ -16,10 +16,10 @@ export class CartService{
     async GetCartItems(userId){
         try {
             if(userId==undefined){
-               let response = await axiosInstance.get(`/Carts/GetCartItems`);
+               let response = await axiosInstance.get(`/api/Carts/GetCartItems`);
                return response.data
             }
-            let response = await axiosInstance.get(`/Carts/GetCartItems?userId=${userId}`);
+            let response = await axiosInstance.get(`/api/Carts/GetCartItems?userId=${userId}`);
             return response.data
         } catch (error) {
             console.log("CartService :: GetCartItems :: ",error)
@@ -28,7 +28,7 @@ export class CartService{
 
     async UpdateQuantity(quantity,cartId){
         try {
-            let response = await axiosInstance.put(`/Carts/update-quantity`,{
+            let response = await axiosInstance.put(`/api/Carts/update-quantity`,{
                 Quantity:quantity,
                 CartId:cartId
             })
@@ -41,10 +41,10 @@ export class CartService{
     async CheckCartItemExist(userId,dishId){
         try {
             if(userId==undefined){
-                let response = await axiosInstance.get(`/Carts/CheckCartItemExist?&dishId=${dishId}`)
+                let response = await axiosInstance.get(`/api/Carts/CheckCartItemExist?&dishId=${dishId}`)
                 return response.data
             }
-            let response = await axiosInstance.get(`/Carts/CheckCartItemExist?userId=${userId}&dishId=${dishId}`)
+            let response = await axiosInstance.get(`/api/Carts/CheckCartItemExist?userId=${userId}&dishId=${dishId}`)
             return response.data
         } catch (error) {
             console.log(error)

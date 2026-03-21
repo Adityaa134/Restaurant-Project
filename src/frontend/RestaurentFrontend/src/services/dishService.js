@@ -4,7 +4,7 @@ export class Dish {
 
     async GetDishes() {
         try {
-            let response = await axiosInstance.get("/Dishes")
+            let response = await axiosInstance.get("/api/Dishes")
             return response.data
         }
         catch (error) {
@@ -16,7 +16,7 @@ export class Dish {
 
     async GetDishById(dishId) {
         try {
-            let response = await axiosInstance.get(`/Dishes/${dishId}`)
+            let response = await axiosInstance.get(`/api/Dishes/${dishId}`)
             return response.data
         } catch (error) {
             console.log("Dish :: GetDishById :: ", error)
@@ -33,7 +33,7 @@ export class Dish {
             formData.append('CategoryId', categoryId.toString());
             formData.append('Dish_Image', dish_Image[0]);
 
-            const response = await axiosInstance.post(`/AdminDishes/add-dish`, formData, {
+            const response = await axiosInstance.post(`/api/AdminDishes/add-dish`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -60,7 +60,7 @@ export class Dish {
             formData.append('Dish_Image', dish_Image[0]);
         }
 
-        const response = await axiosInstance.put(`/AdminDishes`, formData, {
+        const response = await axiosInstance.put(`/api/AdminDishes`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -71,11 +71,11 @@ export class Dish {
         console.log("Dish :: EditDish :: ", error);
         throw error;
     }
-}
+    }
 
     async DeleteDish(dishId) {
         try {
-            const response = await axiosInstance.delete(`/AdminDishes/${dishId}`);
+            const response = await axiosInstance.delete(`/api/AdminDishes/${dishId}`);
             return true
         } catch (error) {
             console.log("DishService :: DeleteDish :: ", error)
@@ -84,7 +84,7 @@ export class Dish {
     }
     async SearchDish(searchString){
         try {
-            let response = await axiosInstance.get(`/Dishes/${searchString}`);
+            let response = await axiosInstance.get(`/api/Dishes/${searchString}`);
             return response.data
         } catch (error) {
             console.log("DishService :: SearchDish :: ", error)

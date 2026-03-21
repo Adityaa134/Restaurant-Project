@@ -4,7 +4,7 @@ export class Order {
 
     async GetOrders(page) {
         try {
-            let response = await axiosInstance.get(`/Orders?page=${page}`)
+            let response = await axiosInstance.get(`/api/Orders?page=${page}`)
             return response.data
         }
         catch (error) {
@@ -14,7 +14,7 @@ export class Order {
 
     async GetOrderById(orderId) {
         try {
-            let response = await axiosInstance.get(`/Orders/${orderId}`)
+            let response = await axiosInstance.get(`/api/Orders/${orderId}`)
             return response.data
         } catch (error) {
             console.log("Order :: GetOrderById :: ", error)
@@ -24,7 +24,7 @@ export class Order {
 
     async CreateOrder(orderData) {
         try {
-            const response = await axiosInstance.post(`/Orders`,orderData);
+            const response = await axiosInstance.post(`/api/Orders`,orderData);
             return response.data;
         } catch (error) {
             console.log("Order :: CreateOrder :: ", error);
@@ -33,7 +33,7 @@ export class Order {
 
     async GetOrdersByUserId(userId) {
         try {
-            const response = await axiosInstance.get(`/Orders/user-orders/${userId}`);
+            const response = await axiosInstance.get(`/api/Orders/user-orders/${userId}`);
             return response.data
         } catch (error) {
             console.log("Order :: GetOrdersByUserId :: ", error)
@@ -43,7 +43,7 @@ export class Order {
 
     async CancelOrder(orderId,orderStatus){
         try {
-            let response = await axiosInstance.put(`/Orders/cancel-order`,{
+            let response = await axiosInstance.put(`/api/Orders/cancel-order`,{
                 OrderId:orderId,
                 OrderStatus:orderStatus
             });
@@ -55,7 +55,7 @@ export class Order {
 
     async UpdateOrderStatus(orderId,orderStatus){
         try {
-            let response = await axiosInstance.put(`/Orders`,{
+            let response = await axiosInstance.put(`/api/Orders`,{
                 OrderId:orderId,
                 OrderStatus:orderStatus
             });

@@ -4,7 +4,7 @@ export class AuthService {
 
     async Login({ userName, password }) {
         try {
-            const response = await axiosInstance.post('/Account/login', {
+            const response = await axiosInstance.post('/api/Account/login', {
                 UserName: userName.toString(),
                 Password: password.toString()
             });
@@ -17,7 +17,7 @@ export class AuthService {
 
     async Logout() {
         try {
-            let response = await axiosInstance.get(`/Account/logout`)
+            let response = await axiosInstance.get(`/api/Account/logout`)
         } catch (error) {
             console.log("AuthService :: Logout :: ", error)
         }
@@ -25,7 +25,7 @@ export class AuthService {
 
     async Register({ email, password, confirmPassword, userName, phoneNumber }) {
         try {
-            const response = await axiosInstance.post('/Account/register', {
+            const response = await axiosInstance.post('/api/Account/register', {
                 Email: email.toString(),
                 Password: password.toString(),
                 ConfirmPassword: confirmPassword.toString(),
@@ -41,7 +41,7 @@ export class AuthService {
 
     async checkEmailExists(email) {
         try {
-            const response = await axiosInstance.get(`/Account/EmailExist?email=${email}`);
+            const response = await axiosInstance.get(`/api/Account/EmailExist?email=${email}`);
             return response.data;
         } catch (error) {
             console.error("Check email error:", error);
@@ -51,7 +51,7 @@ export class AuthService {
 
     async checkUsernameExists(userName) {
         try {
-            const response = await axiosInstance.get(`/Account/UserNameExist?username=${userName}`);
+            const response = await axiosInstance.get(`/api/Account/UserNameExist?username=${userName}`);
             return response.data;
         } catch (error) {
             console.error("Check username error:", error);
@@ -63,7 +63,7 @@ export class AuthService {
         if (email == null)
             throw Error("Email can't be null")
         try {
-            const response = await axiosInstance.get(`/Account/confirm-email?email=${email}`);
+            const response = await axiosInstance.get(`/api/Account/confirm-email?email=${email}`);
             return response.data;
         } catch (error) {
             return "Email Resend Unsuccessfull"
@@ -74,7 +74,7 @@ export class AuthService {
         if (token == null || uid == null)
             throw Error("Uid or token can't be null")
         try {
-            const response = await axiosInstance.post(`/Account/confirm-email-success?uid=${uid}&token=${token}`, {
+            const response = await axiosInstance.post(`/api/Account/confirm-email-success?uid=${uid}&token=${token}`, {
                 uid: uid,
                 token: token
             });
@@ -92,7 +92,7 @@ export class AuthService {
             throw new Error("Email can't be null or empty");
         }
         try {
-            const response = await axiosInstance.get(`/Account/forgot-password?email=${encodeURIComponent(email)}`);
+            const response = await axiosInstance.get(`/api/Account/forgot-password?email=${encodeURIComponent(email)}`);
             return {
                 success: true,
                 message: "Password reset email sent successfully"
@@ -116,7 +116,7 @@ export class AuthService {
 
     async ResetPassword(uid,token,password,confirmPassword){
         try {
-            const response = axiosInstance.post(`/Account/reset-password`,{
+            const response = axiosInstance.post(`/api/Account/reset-password`,{
                 Uid : uid.toString(),
                 Token:token.toString(),
                 Password:password.toString(),
@@ -131,7 +131,7 @@ export class AuthService {
 
     async GoogleLogin(credentials){
        try {
-         const response =await axiosInstance.post(`/ExternalLogin/signin-google?credential=${credentials}`)
+         const response =await axiosInstance.post(`/api/ExternalLogin/signin-google?credential=${credentials}`)
          return response.data
        } catch (error) {
          console.log("AuthService :: GoogleLogin :: ", error)
@@ -140,7 +140,7 @@ export class AuthService {
 
     async RestoreSession(){
         try {
-            const response = await axiosInstance.get("/Account/restore-session")
+            const response = await axiosInstance.get("/api/Account/restore-session")
             return response.data;
         } catch (error) {
             console.log("AuthService :: RestoreSession :: ", error);

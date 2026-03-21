@@ -3,7 +3,7 @@ import axiosInstance from "../axios/axiosInstance"
 export class User{
     async GetUserById(userId) {
         try {
-            let response = await axiosInstance.get(`/Users/${userId}`)
+            let response = await axiosInstance.get(`/api/Users/${userId}`)
             return response.data
         }
         catch (error) {
@@ -22,7 +22,7 @@ export class User{
             formData.append('UserName', userName);
             formData.append('Phonenumber', phonenumber.toString());
 
-            const response = await axiosInstance.post(`/users`, formData, {
+            const response = await axiosInstance.post(`/api/users`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
