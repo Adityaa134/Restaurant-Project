@@ -41,9 +41,9 @@ function ResetPassword() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md relative">
-        
-        
+      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md relative">  
+
+
         {message && (
           <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-full max-w-sm">
             <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative shadow">
@@ -58,7 +58,7 @@ function ResetPassword() {
           </div>
         )}
 
-        
+
         {error && (
           <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-full max-w-sm">
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative shadow">
@@ -73,7 +73,7 @@ function ResetPassword() {
           </div>
         )}
 
-       
+        
         <h2 className="text-2xl font-bold text-gray-800 text-center">
           Reset Password
         </h2>
@@ -81,7 +81,7 @@ function ResetPassword() {
           Enter your new password below.
         </p>
 
-        
+
         <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
           <div>
 

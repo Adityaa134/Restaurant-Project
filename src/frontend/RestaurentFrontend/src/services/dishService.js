@@ -8,7 +8,10 @@ export class Dish {
             return response.data
         }
         catch (error) {
-            console.log("Dish :: GetDishes :: ", error)
+            logger.log("DishService :: GetDishes :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return false
         }
 
@@ -19,7 +22,10 @@ export class Dish {
             let response = await axiosInstance.get(`/api/Dishes/${dishId}`)
             return response.data
         } catch (error) {
-            console.log("Dish :: GetDishById :: ", error)
+            logger.log("DishService :: GetDishById :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return false
         }
     }
@@ -41,7 +47,10 @@ export class Dish {
 
             return response.data;
         } catch (error) {
-            console.log("DishService :: AddDish :: ", error);
+            logger.error("DishService :: AddDish :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             throw error;
         }
     }
@@ -68,7 +77,10 @@ export class Dish {
 
         return response.data;
     } catch (error) {
-        console.log("Dish :: EditDish :: ", error);
+        logger.error("DishService :: EditDish :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+        });
         throw error;
     }
     }
@@ -78,16 +90,23 @@ export class Dish {
             const response = await axiosInstance.delete(`/api/AdminDishes/${dishId}`);
             return true
         } catch (error) {
-            console.log("DishService :: DeleteDish :: ", error)
+            logger.error("DishService :: DeleteDish :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return false
         }
     }
+    
     async SearchDish(searchString){
         try {
             let response = await axiosInstance.get(`/api/Dishes/${searchString}`);
             return response.data
         } catch (error) {
-            console.log("DishService :: SearchDish :: ", error)
+            logger.log("DishService :: SearchDish :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
         }
     }
 }
