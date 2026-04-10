@@ -1,4 +1,5 @@
 import axiosInstance from "../axios/axiosInstance";
+import { logger } from "../utils/logger";
 
 export class AuthService {
 
@@ -10,8 +11,17 @@ export class AuthService {
             });
             return response.data;
         } catch (error) {
-            console.log("AuthService :: Login :: ", error);
-            throw new Error(error.response?.data?.detail || error.message || 'Login failed');
+            logger.error("AuthService :: Login :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
+
+            if(error.response?.status == 401){
+                throw new Error("Invalid Username or password");
+            }
+            else{
+                throw new Error(error.response?.data?.detail || error.message || "Login Failed");
+            }
         }
     }
 
@@ -19,7 +29,10 @@ export class AuthService {
         try {
             let response = await axiosInstance.get(`/api/Account/logout`)
         } catch (error) {
-            console.log("AuthService :: Logout :: ", error)
+             logger.error("AuthService :: Logout :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
         }
     }
 
@@ -34,7 +47,10 @@ export class AuthService {
             });
             return response.data;
         } catch (error) {
-            console.log("AuthService :: Register :: ", error);
+            logger.error("AuthService :: Register :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return false
         }
     }
@@ -44,7 +60,10 @@ export class AuthService {
             const response = await axiosInstance.get(`/api/Account/EmailExist?email=${email}`);
             return response.data;
         } catch (error) {
-            console.error("Check email error:", error);
+            logger.log("AuthService :: checkEmailExists :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return { exists: false };
         }
     }
@@ -54,7 +73,10 @@ export class AuthService {
             const response = await axiosInstance.get(`/api/Account/UserNameExist?username=${userName}`);
             return response.data;
         } catch (error) {
-            console.error("Check username error:", error);
+            logger.log("AuthService :: checkUsernameExists :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return { exists: false };
         }
     }
@@ -66,6 +88,10 @@ export class AuthService {
             const response = await axiosInstance.get(`/api/Account/confirm-email?email=${email}`);
             return response.data;
         } catch (error) {
+            logger.log("AuthService :: ResendConfirmEmail :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return "Email Resend Unsuccessfull"
         }
     }
@@ -83,6 +109,10 @@ export class AuthService {
             }
             return response.data;
         } catch (error) {
+            logger.error("AuthService :: ConfirmEmail :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return "Email confirmation failed"
         }
     }
@@ -99,9 +129,13 @@ export class AuthService {
             };
         } 
         catch (error) {
-            console.log("ForgotPasswordEmail error:", error);
-            if (error.response && error.response.status === 400) {
-                const backendMessage = error.response.data;
+            logger.error("AuthService :: ForgotPasswordEmail :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
+
+            if (error.response){
+                const backendMessage = error.response.data?.detail || error.response.data || "Something went wrong";
                 return {
                     success: false,
                     message: backendMessage 
@@ -124,7 +158,10 @@ export class AuthService {
             })
             return true
         } catch (error) {
-            console.log("AuthService :: ResetPassword :: ", error);
+            logger.error("AuthService :: ResetPassword :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return false
         }
     }
@@ -134,7 +171,10 @@ export class AuthService {
          const response =await axiosInstance.post(`/api/ExternalLogin/signin-google?credential=${credentials}`)
          return response.data
        } catch (error) {
-         console.log("AuthService :: GoogleLogin :: ", error)
+         logger.error("AuthService :: GoogleLogin :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
        }
     }
 
@@ -143,7 +183,10 @@ export class AuthService {
             const response = await axiosInstance.get("/api/Account/restore-session")
             return response.data;
         } catch (error) {
-            console.log("AuthService :: RestoreSession :: ", error);
+            logger.error("AuthService :: RestoreSession :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
         }
     }
 }

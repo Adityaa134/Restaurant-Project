@@ -7,18 +7,24 @@ export class CategoryService{
             return response.data
 
         } catch (error) {
-            console.log("CategorService :: GetCategories :: ",error)
+            logger.log("CategoryService :: GetCategories :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return false
         }
     }
 
-    async GetategoryById(categoryId){
+    async GetCategoryById(categoryId){
         try {
             let response = await axiosInstance.get(`/api/Categories/${categoryId}`)
             return response.data
         
         } catch (error) {
-            console.log("CategorService :: GetCategoryById :: ",error)
+            logger.log("CategoryService :: GetCategoryById :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return false
         }
     }
@@ -38,7 +44,10 @@ export class CategoryService{
 
             return response.data;
         } catch (error) {
-            console.log("CategoryService :: AddCategory :: ", error);
+            logger.error("CategoryService :: AddCategory :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             throw error;
         }
     }
@@ -48,7 +57,10 @@ export class CategoryService{
             const response = await axiosInstance.get("/api/Categories/admin/categories");
             return response.data;
         } catch (error) {
-            console.log("CategorService :: GetAllCategoriesForAdmin :: ",error)
+            logger.log("CategoryService :: GetAllCategoriesForAdmin :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return false
         }
     }
@@ -61,7 +73,10 @@ export class CategoryService{
             })
             return response.data;
         } catch (error) {
-            console.log("CategoryService :: UpdateCategoryStatus :: ", error)
+            logger.error("CategoryService :: UpdateCategoryStatus :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
         }
     }
 }

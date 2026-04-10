@@ -126,7 +126,7 @@ namespace Restaurent.WebAPI.Controllers
         [HttpPost("refresh-token")]
         public async Task<ActionResult> GetNewJwtAndRefreshToken()
         {
-            HttpContext.Request.Cookies.TryGetValue("refreshToken", out var refreshToken);
+            HttpContext.Request.Cookies.TryGetValue("__Host-refreshToken", out var refreshToken);
 
             if (refreshToken == null)
                 return Problem(statusCode: StatusCodes.Status401Unauthorized);

@@ -8,7 +8,10 @@ export class Address {
             return response.data
         }
         catch (error) {
-            console.log("AddressService :: GetAddressesOfUser :: ", error)
+            logger.log("AddressService :: GetAddressesOfUser :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return false
         }
     }
@@ -18,7 +21,10 @@ export class Address {
             let response = await axiosInstance.get(`/api/Address/${addressId}`)
             return response.data
         } catch (error) {
-            console.log("AddressService :: GetAddressById :: ", error)
+            logger.log("AddressService :: GetAddressById :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return false
         }
     }
@@ -36,7 +42,10 @@ export class Address {
             );
             return response.data;
         } catch (error) {
-            console.log("AddressService :: CreateAddress :: ", error);
+            logger.log("AddressService :: CreateAddress :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
         }
     }
 
@@ -53,7 +62,10 @@ export class Address {
 
             return response.data;
         } catch (error) {
-            console.log("AddressService :: UpdateAddress :: ", error);
+            logger.log("AddressService :: UpdateAddress :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
         }
     }
 }

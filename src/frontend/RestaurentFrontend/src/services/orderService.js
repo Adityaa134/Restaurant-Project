@@ -8,7 +8,10 @@ export class Order {
             return response.data
         }
         catch (error) {
-            console.log("Order :: GetOrders :: ", error)
+            logger.log("Order :: GetOrders :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
         }
     }
 
@@ -17,7 +20,10 @@ export class Order {
             let response = await axiosInstance.get(`/api/Orders/${orderId}`)
             return response.data
         } catch (error) {
-            console.log("Order :: GetOrderById :: ", error)
+            logger.log("Order :: GetOrderById :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return false
         }
     }
@@ -27,7 +33,10 @@ export class Order {
             const response = await axiosInstance.post(`/api/Orders`,orderData);
             return response.data;
         } catch (error) {
-            console.log("Order :: CreateOrder :: ", error);
+            logger.error("DishService :: CreateOrder :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
         }
     }
 
@@ -36,7 +45,10 @@ export class Order {
             const response = await axiosInstance.get(`/api/Orders/user-orders/${userId}`);
             return response.data
         } catch (error) {
-            console.log("Order :: GetOrdersByUserId :: ", error)
+            logger.log("Order :: GetOrdersByUserId :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return false
         }
     }
@@ -49,7 +61,10 @@ export class Order {
             });
             return response.data
         } catch (error) {
-            console.log("Order :: CancelOrder :: ", error)
+            logger.log("Order :: CancelOrder :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
         }
     }
 
@@ -61,7 +76,10 @@ export class Order {
             });
             return response.data
         } catch (error) {
-            console.log("Order :: UpdateOrderStatus :: ", error)
+            logger.error("Order :: UpdateOrderStatus :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
         }
     }
 }

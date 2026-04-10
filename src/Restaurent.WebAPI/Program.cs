@@ -68,7 +68,7 @@ builder.Services.AddAuthentication(options =>
         {
             OnMessageReceived = ctx => 
             {
-                ctx.Request.Cookies.TryGetValue("accessToken", out var accessToken);
+                ctx.Request.Cookies.TryGetValue("__Host-accessToken", out var accessToken);
                 if (!string.IsNullOrEmpty(accessToken))
                     ctx.Token = accessToken;
                 return Task.CompletedTask;

@@ -7,7 +7,10 @@ export class User{
             return response.data
         }
         catch (error) {
-            console.log("User :: GetUserById :: ", error)
+            logger.log("UserService :: GetUserById :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return false
         }
 
@@ -30,7 +33,10 @@ export class User{
 
             return response.data;
         } catch (error) {
-            console.log("UserService :: AddProfileImage :: ", error);
+            logger.log("UserService :: AddProfileImage :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             throw error;
         }
     }

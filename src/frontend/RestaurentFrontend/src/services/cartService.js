@@ -9,7 +9,10 @@ export class CartService{
             })
             return response.data
         } catch (error) {
-            console.log("CartService :: AddItemToCart :: ",error)
+            logger.error("CartService :: AddItemToCart :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
         }
     }
 
@@ -22,7 +25,10 @@ export class CartService{
             let response = await axiosInstance.get(`/api/Carts/GetCartItems?userId=${userId}`);
             return response.data
         } catch (error) {
-            console.log("CartService :: GetCartItems :: ",error)
+            logger.log("CartService :: GetCartItems :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
         }
     }
 
@@ -34,7 +40,10 @@ export class CartService{
             })
             return response.data
         } catch (error) {
-            console.log("CartService :: UpdateQuantity :: ",error)
+            logger.log("CartService :: UpdateQuantity :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
         }
     }
 
@@ -47,7 +56,10 @@ export class CartService{
             let response = await axiosInstance.get(`/api/Carts/CheckCartItemExist?userId=${userId}&dishId=${dishId}`)
             return response.data
         } catch (error) {
-            console.log(error)
+            logger.log("CartService :: CheckCartItemExist :: ",{
+                status: error.response?.status,
+                detail:error.response?.data?.detail || error.message
+            });
             return false;
         }
     }
