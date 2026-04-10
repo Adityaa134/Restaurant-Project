@@ -71,6 +71,12 @@ namespace Restaurent.WebAPI.StartupExtensions
            .AddUserStore<UserStore<ApplicationUser, ApplicationRole, ApplicationDBContext, Guid>>()
 
            .AddRoleStore<RoleStore<ApplicationRole, ApplicationDBContext, Guid>>();
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            });
         }
     }
 }

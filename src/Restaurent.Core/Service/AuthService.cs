@@ -86,7 +86,7 @@ namespace Restaurent.Core.Service
         public async Task Logout(HttpContext context)
         {
             await _signInManager.SignOutAsync();
-            context.Request.Cookies.TryGetValue("refreshToken", out var refreshToken);
+            context.Request.Cookies.TryGetValue("__Host-refreshToken", out var refreshToken);
             if (refreshToken != null)
             {
                 var user = await GetUserByRefreshToken(refreshToken);
@@ -104,8 +104,8 @@ namespace Restaurent.Core.Service
                 SameSite = SameSiteMode.None,
                 Path = "/"
             };
-            context.Response.Cookies.Delete("accessToken", cookieOptions);
-            context.Response.Cookies.Delete("refreshToken", cookieOptions);
+            context.Response.Cookies.Delete("__Host-accessToken", cookieOptions);
+            context.Response.Cookies.Delete("__Host-refreshToken", cookieOptions);
         }
 
         public async Task<IdentityResult> Register(RegisterRequestt registerRequest)
@@ -316,7 +316,7 @@ namespace Restaurent.Core.Service
 
         public async Task SetTokensInsideCookie(TokenModel tokenModel,HttpContext context)
         {
-            context.Response.Cookies.Append("accessToken", tokenModel.AccessToken,
+            context.Response.Cookies.Append("__Host-accessToken", tokenModel.AccessToken,
                 new CookieOptions()
                 {
                     HttpOnly = true,
@@ -327,7 +327,7 @@ namespace Restaurent.Core.Service
                     Path = "/"
                 });
 
-            context.Response.Cookies.Append("refreshToken", tokenModel.RefreshToken,
+            context.Response.Cookies.Append("__Host-refreshToken", tokenModel.RefreshToken,
                 new CookieOptions()
                 {
                     HttpOnly = true,
