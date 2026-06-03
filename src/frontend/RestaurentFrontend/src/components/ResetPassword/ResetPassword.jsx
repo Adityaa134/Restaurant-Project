@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
-import { Button,Input } from "../index";
+import { Button, Input } from "../index";
 import authService from "../../services/authService";
 
 function ResetPassword() {
@@ -11,39 +11,48 @@ function ResetPassword() {
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [isResetting, setIsResetting] = useState(false);
 
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors: formErrors },
-    reset
+    reset,
   } = useForm();
 
   const password = watch("password");
 
   const onSubmit = async (data) => {
     try {
-      const response = await authService.ResetPassword(uid, token, data.password,data.confirmPassword);
-      if (response === true) {
+      setIsResetting(true);
+
+      const response = await authService.ResetPassword(
+        uid,
+        token,
+        data.password,
+        data.confirmPassword,
+      );
+
+      if (response.isPasswordChangedSuccessfully || response === true) {
         setMessage("Password changed successfully!");
         setError("");
-        reset()
+        reset();
       } else {
-        setError("Failed to reset password. Please try again.");
+        setError(response.message || "Failed to reset password.");
         setMessage("");
       }
     } catch (err) {
       setError("Something went wrong. Try again later.");
       setMessage("");
+    } finally {
+      setIsResetting(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md relative">  
-
-
+    <div className="min-h-[68vh] sm:min-h-[78vh] flex items-center justify-center bg-gray-100 px-4 py-6 sm:py-8">
+      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md relative">
         {message && (
           <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-full max-w-sm">
             <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative shadow">
@@ -57,7 +66,6 @@ function ResetPassword() {
             </div>
           </div>
         )}
-
 
         {error && (
           <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-full max-w-sm">
@@ -73,7 +81,6 @@ function ResetPassword() {
           </div>
         )}
 
-        
         <h2 className="text-2xl font-bold text-gray-800 text-center">
           Reset Password
         </h2>
@@ -81,10 +88,8 @@ function ResetPassword() {
           Enter your new password below.
         </p>
 
-
         <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
           <div>
-
             <Input
               type="password"
               label="Password"
@@ -93,19 +98,32 @@ function ResetPassword() {
               {...register("password", {
                 required: "Password is required",
                 validate: {
-                  minLength: (value) => value.length >= 8 || "Password must be at least 8 characters",
-                  hasLowercase: (value) => /[a-z]/.test(value) || "Password must contain at least one lowercase letter",
-                  hasUppercase: (value) => /[A-Z]/.test(value) || "Password must contain at least one uppercase letter",
-                  hasDigit: (value) => /\d/.test(value) || "Password must contain at least one digit",
-                  hasSpecialChar: (value) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value) || "Password must contain at least one special character"
-                }
+                  minLength: (value) =>
+                    value.length >= 8 ||
+                    "Password must be at least 8 characters",
+                  hasLowercase: (value) =>
+                    /[a-z]/.test(value) ||
+                    "Password must contain at least one lowercase letter",
+                  hasUppercase: (value) =>
+                    /[A-Z]/.test(value) ||
+                    "Password must contain at least one uppercase letter",
+                  hasDigit: (value) =>
+                    /\d/.test(value) ||
+                    "Password must contain at least one digit",
+                  hasSpecialChar: (value) =>
+                    /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value) ||
+                    "Password must contain at least one special character",
+                },
               })}
             />
-            {formErrors.password && <p className="text-red-500 text-sm mt-1">{formErrors.password.message}</p>}
+            {formErrors.password && (
+              <p className="text-red-500 text-sm mt-1">
+                {formErrors.password.message}
+              </p>
+            )}
           </div>
 
           <div>
-
             <Input
               type="password"
               label="Confirm Password"
@@ -113,17 +131,43 @@ function ResetPassword() {
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               {...register("confirmPassword", {
                 required: "Confirm Password is required",
-                validate: value => value === password || "Password and Confirm Password do not match"
+                validate: (value) =>
+                  value === password ||
+                  "Password and Confirm Password do not match",
               })}
             />
-            {formErrors.confirmPassword && <p className="text-red-500 text-sm mt-1">{formErrors.confirmPassword.message}</p>}
+            {formErrors.confirmPassword && (
+              <p className="text-red-500 text-sm mt-1">
+                {formErrors.confirmPassword.message}
+              </p>
+            )}
           </div>
 
           <Button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            disabled={isResetting}
+            className={`
+    w-full
+    bg-blue-600
+    py-3
+    rounded-2xl
+    font-medium
+    flex
+    items-center
+    justify-center
+    transition
+    ${
+      isResetting
+        ? "bg-blue-400 cursor-not-allowed opacity-80"
+        : "hover:bg-blue-700"
+    }
+  `}
           >
-            Reset Password
+            {isResetting ? (
+              <span className="w-5 h-5 border-[3px] border-white border-t-transparent rounded-full animate-spin"></span>
+            ) : (
+              <span className="text-white">Reset Password</span>
+            )}
           </Button>
         </form>
       </div>

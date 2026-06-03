@@ -1,4 +1,4 @@
-import { useState} from "react";
+import { useState } from "react";
 import AddressSection from "./AddressSection";
 import OrderSummary from "./OrderSummary";
 
@@ -16,8 +16,8 @@ const Checkout = () => {
         />
 
         <OrderSummary
-        selectedAddress={selectedAddress}
-        isAddressSelected={!!selectedAddress}
+          selectedAddress={selectedAddress}
+          isAddressSelected={!!selectedAddress}
         />
       </div>
     </div>

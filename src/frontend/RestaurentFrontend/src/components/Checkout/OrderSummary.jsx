@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../index";
 
 const OrderSummary = ({ selectedAddress, isAddressSelected }) => {
-  const cartItems = useSelector(state => state.carts.cartItems);
+  const cartItems = useSelector((state) => state.carts.cartItems);
   const [placingOrder, setPlacingOrder] = useState(false);
   const userId = useSelector((state) => state.auth.userData?.userId);
   const dispatch = useDispatch();
@@ -16,7 +16,7 @@ const OrderSummary = ({ selectedAddress, isAddressSelected }) => {
 
   const total = cartItems.reduce(
     (acc, item) => acc + item.dishPrice * item.quantity,
-    0
+    0,
   );
 
   const handlePlaceOrder = async () => {
@@ -25,17 +25,17 @@ const OrderSummary = ({ selectedAddress, isAddressSelected }) => {
     try {
       setPlacingOrder(true);
 
-      const orderItems = cartItems.map(item => ({
+      const orderItems = cartItems.map((item) => ({
         dishId: item.dishId,
         unitPrice: item.dishPrice,
-        quantity: item.quantity
+        quantity: item.quantity,
       }));
 
       const payload = {
         userId,
         orderDate: new Date().toISOString(),
         orderItems,
-        deliveryAddressId: selectedAddress.addressId
+        deliveryAddressId: selectedAddress.addressId,
       };
 
       const response = await orderService.CreateOrder(payload);
@@ -74,9 +74,11 @@ const OrderSummary = ({ selectedAddress, isAddressSelected }) => {
       >
         <h2 className="text-lg font-semibold">Order Summary</h2>
 
-        {cartItems.map(item => (
+        {cartItems.map((item) => (
           <div key={item.cartId} className="flex justify-between text-sm">
-            <span>{item.quantity} × {item.dishName}</span>
+            <span>
+              {item.quantity} × {item.dishName}
+            </span>
             <span>₹{item.dishPrice * item.quantity}</span>
           </div>
         ))}
@@ -94,9 +96,11 @@ const OrderSummary = ({ selectedAddress, isAddressSelected }) => {
           onClick={handlePlaceOrder}
           className={`
             w-full mt-6 py-3 rounded-lg font-semibold transition
-            ${selectedAddress
-              ? "bg-green-600 text-white hover:bg-green-700"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"}
+            ${
+              selectedAddress
+                ? "bg-green-600 text-white hover:bg-green-700"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }
           `}
         >
           {placingOrder ? "Placing Order..." : "Place Order"}

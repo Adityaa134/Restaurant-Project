@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Input, Button } from "../index";
 import categoryService from "../../services/categoriesService";
-import {addCategory} from "../../features/category/categorySlice"
+import { addCategory } from "../../features/category/categorySlice";
 import { useDispatch } from "react-redux";
 
 function AddCategory() {
@@ -15,7 +15,7 @@ function AddCategory() {
     register,
     handleSubmit,
     reset,
-    formState: { errors }
+    formState: { errors },
   } = useForm();
 
   const onSubmit = async (data) => {
@@ -29,17 +29,16 @@ function AddCategory() {
       const response = await categoryService.AddCategory({
         categoryName: data.categoryName,
         status: data.status,
-        cat_Image: data.cat_Image
+        cat_Image: data.cat_Image,
       });
 
-      if(!response) return;
+      if (!response) return;
       reset();
       setSuccessMessage("Category added successfully!");
 
-      if (response.status===true) {
-        dispatch(addCategory(response))
+      if (response.status === true) {
+        dispatch(addCategory(response));
       }
-
     } catch (err) {
       setError(err.message || "Failed to add category");
     } finally {
@@ -48,7 +47,7 @@ function AddCategory() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="bg-gray-50 px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900">
@@ -60,9 +59,8 @@ function AddCategory() {
         </div>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow-sm sm:rounded-lg sm:px-10 border border-gray-200">
-
+      <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-6 px-5 shadow-sm rounded-2xl sm:px-8 border border-gray-200">
           {successMessage && (
             <p className="text-green-600 mb-4 text-center font-medium">
               {successMessage}
@@ -70,7 +68,6 @@ function AddCategory() {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-
             <div>
               <Input
                 type="text"
@@ -83,8 +80,8 @@ function AddCategory() {
                   required: "Category name is required",
                   maxLength: {
                     value: 200,
-                    message: "Maximum 200 characters allowed"
-                  }
+                    message: "Maximum 200 characters allowed",
+                  },
                 })}
               />
               {errors.categoryName && (
@@ -102,7 +99,7 @@ function AddCategory() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md 
                            focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 {...register("status", {
-                  required: "Status is required"
+                  required: "Status is required",
                 })}
               >
                 <option value="">Select status</option>
@@ -125,7 +122,7 @@ function AddCategory() {
                            bg-gray-50 focus:outline-none focus:ring-blue-500 focus:border-blue-500 
                            transition-colors duration-200 sm:text-sm"
                 {...register("cat_Image", {
-                  required: "Category image is required"
+                  required: "Category image is required",
                 })}
               />
               {errors.cat_Image && (
@@ -138,19 +135,32 @@ function AddCategory() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-2 px-4 text-sm font-medium rounded-md text-white 
-                         bg-blue-600 hover:bg-blue-700 focus:outline-none 
-                         focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 
-                         transition-colors duration-200 disabled:opacity-50"
+              className={`
+            w-full
+            py-3
+            rounded-xl
+            text-white
+            flex
+            items-center
+            justify-center
+            transition
+            ${
+              isSubmitting
+                ? "bg-blue-400 cursor-not-allowed opacity-80"
+                : "bg-blue-600 hover:bg-blue-700"
+            }
+          `}
             >
-              {isSubmitting ? "Adding..." : "Add Category"}
+              {isSubmitting ? (
+                <span className="w-5 h-5 border-[3px] border-white border-t-transparent rounded-full animate-spin"></span>
+              ) : (
+                "Add Category"
+              )}
             </Button>
           </form>
 
           {error && (
-            <p className="mt-6 text-center text-red-600 text-sm">
-              {error}
-            </p>
+            <p className="mt-6 text-center text-red-600 text-sm">{error}</p>
           )}
         </div>
       </div>

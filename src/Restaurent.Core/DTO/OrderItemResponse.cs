@@ -12,6 +12,7 @@ namespace Restaurent.Core.DTO
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }
+        public string? DishImagePath { get; set; }
     }
 
     public static class OrderItemExtension
@@ -24,9 +25,9 @@ namespace Restaurent.Core.DTO
                 UnitPrice = orderItem.UnitPrice,
                 Quantity = orderItem.Quantity,
                 DishName = orderItem.Dish?.DishName,
-                TotalPrice = orderItem.Quantity * orderItem.UnitPrice
+                TotalPrice = orderItem.Quantity * orderItem.UnitPrice,
+                DishImagePath = orderItem.Dish?.Image_Path
             };
-
         }
     }
 }

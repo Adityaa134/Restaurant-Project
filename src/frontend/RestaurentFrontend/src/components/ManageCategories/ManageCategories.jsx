@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import categoryService from "../../services/categoriesService";
-import {addCategory,deleteCategory} from "../../features/category/categorySlice"
-import dishService from "../../services/dishService"
-import {setDishes} from "../../features/dishes/dishSlice"
+import {
+  addCategory,
+  deleteCategory,
+} from "../../features/category/categorySlice";
+import dishService from "../../services/dishService";
+import { setDishes } from "../../features/dishes/dishSlice";
 import { useDispatch } from "react-redux";
 
 function ManageCategories() {
@@ -13,7 +16,7 @@ function ManageCategories() {
   useEffect(() => {
     const fetchCategories = async () => {
       const data = await categoryService.GetAllCategoriesForAdmin();
-      setCategories(Array.isArray(data) ? data : data.items ?? []);
+      setCategories(Array.isArray(data) ? data : (data.items ?? []));
     };
     fetchCategories();
   }, []);
@@ -24,19 +27,18 @@ function ManageCategories() {
       setLoadingId(categoryId);
       const updated = await categoryService.UpdateCategoryStatus(
         !currentStatus,
-        categoryId
+        categoryId,
       );
 
-      setCategories(prev =>
-        prev.map(cat =>
-          cat.categoryId === updated.categoryId ? updated : cat
-        )
+      setCategories((prev) =>
+        prev.map((cat) =>
+          cat.categoryId === updated.categoryId ? updated : cat,
+        ),
       );
-      if(updated.status===false){
-        dispatch(deleteCategory(updated.categoryId))
-      }
-      else{
-        dispatch(addCategory(updated))
+      if (updated.status === false) {
+        dispatch(deleteCategory(updated.categoryId));
+      } else {
+        dispatch(addCategory(updated));
       }
       const dishes = await dishService.GetDishes();
       dispatch(setDishes(dishes));
@@ -51,12 +53,11 @@ function ManageCategories() {
     <div className="max-w-5xl mx-auto p-6 space-y-6">
       <h2 className="text-2xl font-bold">Manage Categories</h2>
 
-      {categories.map(category => (
+      {categories.map((category) => (
         <div
           key={category.categoryId}
-          className="flex items-center justify-between bg-white p-4 rounded-xl border shadow-sm"
+          className="flex items-center justify-between bg-white p-4 rounded-xl border shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
         >
-
           <div className="flex items-center gap-4">
             <img
               src={category.cat_Image}
@@ -65,9 +66,7 @@ function ManageCategories() {
             />
 
             <div>
-              <p className="font-semibold text-gray-900">
-                {category.cat_Name}
-              </p>
+              <p className="font-semibold text-gray-900">{category.cat_Name}</p>
 
               <span
                 className={`inline-block mt-1 px-3 py-1 text-xs rounded-full font-medium
@@ -84,9 +83,7 @@ function ManageCategories() {
 
           <button
             disabled={loadingId === category.categoryId}
-            onClick={() =>
-              toggleStatus(category.categoryId, category.status)
-            }
+            onClick={() => toggleStatus(category.categoryId, category.status)}
             className={`
               relative w-12 h-6 rounded-full transition
               ${category.status ? "bg-green-500" : "bg-gray-300"}

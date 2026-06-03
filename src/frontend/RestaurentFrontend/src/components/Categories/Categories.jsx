@@ -11,52 +11,52 @@ function CategoriesPage() {
   const visibleDishes =
     selectedCategory === "All"
       ? allDishes
-      : allDishes.filter(
-          (dish) => dish.categoryName === selectedCategory
-        );
+      : allDishes.filter((dish) => dish.categoryName === selectedCategory);
 
   const handleCategoryClick = (categoryName) => {
     setSelectedCategory(categoryName);
   };
 
   return (
-    <div className="bg-white min-h-screen pb-10">
+    <div className="bg-gray-50 min-h-screen pb-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <h1 className="text-3xl font-bold text-gray-800 text-center my-6">
-          Explore Our Categories
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 text-center my-5 md:my-6">
+          Browse Categories
         </h1>
 
-        <div className="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide mb-8">
-          
+        <div className="flex space-x-4 md:space-x-6 overflow-x-auto pb-4 scrollbar-hide mb-8">
           <div
-            className={`flex-shrink-0 w-28 text-center cursor-pointer transition-transform transform hover:scale-105 ${
-              selectedCategory === "All" ? "scale-110" : ""
+            className={`flex-shrink-0 w-20 md:w-28 text-center cursor-pointer transition-transform transform hover:scale-105 ${
+              selectedCategory === "All" ? "scale-105" : ""
             }`}
             onClick={() => handleCategoryClick("All")}
           >
             <div
-              className={`rounded-full h-24 w-24 mx-auto bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg ${
+              className={`rounded-full h-16 w-16 md:h-24 md:w-24 mx-auto bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center shadow-md ${
                 selectedCategory === "All"
                   ? "ring-4 ring-indigo-500"
                   : "ring-2 ring-gray-200"
               }`}
             >
-              <span className="text-white font-semibold text-lg">All</span>
+              <span className="text-white font-semibold text-sm md:text-lg">
+                All
+              </span>
             </div>
-            <h3 className="mt-3 text-sm font-medium text-gray-700">All</h3>
+            <h3 className="mt-2 text-xs md:text-sm font-medium text-gray-700 line-clamp-1">
+              All
+            </h3>
           </div>
 
           {categories.map((category) => (
             <div
               key={category.categoryId}
-              className={`flex-shrink-0 w-28 text-center cursor-pointer transition-transform transform hover:scale-105 ${
+              className={`flex-shrink-0 w-20 md:w-28 text-center cursor-pointer transition-transform transform hover:scale-105 ${
                 selectedCategory === category.cat_Name ? "scale-110" : ""
               }`}
               onClick={() => handleCategoryClick(category.cat_Name)}
             >
               <div
-                className={`rounded-full h-24 w-24 mx-auto overflow-hidden shadow-lg border-2 ${
+                className={`rounded-full h-16 w-16 md:h-24 md:w-24 mx-auto overflow-hidden shadow-md border-2 ${
                   selectedCategory === category.cat_Name
                     ? "border-indigo-500"
                     : "border-gray-200"
@@ -68,7 +68,7 @@ function CategoriesPage() {
                   className="h-full w-full object-cover"
                 />
               </div>
-              <h3 className="mt-3 text-sm font-medium text-gray-700">
+              <h3 className="mt-2 text-xs md:text-sm font-medium text-gray-700 line-clamp-1">
                 {category.cat_Name}
               </h3>
             </div>
@@ -76,9 +76,7 @@ function CategoriesPage() {
         </div>
 
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-          {selectedCategory === "All"
-            ? "All Dishes"
-            : `${selectedCategory}`}
+          {selectedCategory === "All" ? "All Dishes" : `${selectedCategory}`}
         </h2>
 
         {visibleDishes.length === 0 ? (

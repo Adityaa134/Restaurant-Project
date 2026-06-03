@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react'
-import { Button, Input } from '../index'
-import authService from '../../services/authService'
-import { login } from "../../features/auth/authSlice"
-import { Link, useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
-import { useDispatch } from 'react-redux'
-import { useDebounce } from 'use-debounce';
-import { GoogleLogin } from '@react-oauth/google';
+import { useEffect, useState } from "react";
+import { Button, Input } from "../index";
+import authService from "../../services/authService";
+import { login } from "../../features/auth/authSlice";
+import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { useDebounce } from "use-debounce";
+import { GoogleLogin } from "@react-oauth/google";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
 function Register() {
@@ -15,12 +15,19 @@ function Register() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailValue, setEmailValue] = useState("");
   const [usernameValue, setUsernameValue] = useState("");
-  const [error, setError] = useState("")
-  const navigate = useNavigate()
-  const { register, handleSubmit, formState: { errors: formErrors }, reset, watch, trigger } = useForm({
-    mode: "all"
-  })
-  const dispatch = useDispatch()
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors: formErrors },
+    reset,
+    watch,
+    trigger,
+  } = useForm({
+    mode: "all",
+  });
+  const dispatch = useDispatch();
 
   const password = watch("password");
 
@@ -29,33 +36,32 @@ function Register() {
 
   const createAccount = async (data) => {
     if (isSubmitting) return;
-    setIsSubmitting(true)
-    setError("")
+    setIsSubmitting(true);
+    setError("");
     try {
-      const response = await authService.Register(data)
+      const response = await authService.Register(data);
       if (response.userId) {
-        dispatch(login({
-          user: {
-            userId: response.userId,
-            userName: response.userName,
-            email: response.email
-          },
-          role: response.role,
-          profileImage: response.profileImage
-        }));
-        navigate("/")
-      }
-      else {
+        dispatch(
+          login({
+            user: {
+              userId: response.userId,
+              userName: response.userName,
+              email: response.email,
+            },
+            role: response.role,
+            profileImage: response.profileImage,
+          }),
+        );
+        navigate("/");
+      } else {
         navigate(`/confirm-email?email=${encodeURIComponent(data.email)}`);
       }
-
     } catch (error) {
-      setError(error.message)
+      setError(error.message);
+    } finally {
+      setIsSubmitting(false);
     }
-    finally {
-      setIsSubmitting(false)
-    }
-  }
+  };
 
   useEffect(() => {
     if (debouncedEmail) {
@@ -65,7 +71,6 @@ function Register() {
       trigger("username");
     }
   }, [debouncedEmail, debouncedUsername, trigger]);
-
 
   const checkEmailUnique = async (email) => {
     if (!email) return true;
@@ -80,28 +85,42 @@ function Register() {
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
-    setError("")
+    setError("");
     try {
-      const response = await authService.GoogleLogin(credentialResponse.credential)
+      const response = await authService.GoogleLogin(
+        credentialResponse.credential,
+      );
       if (response.userId) {
-        dispatch(login({
-          user: {
-            userId: response.userId,
-            userName: response.userName,
-            email: response.email
-          },
-          role: response.role,
-          profileImage: response.profileImage
-        }));
-        navigate("/")
+        dispatch(
+          login({
+            user: {
+              userId: response.userId,
+              userName: response.userName,
+              email: response.email,
+            },
+            role: response.role,
+            profileImage: response.profileImage,
+          }),
+        );
+        navigate("/");
       }
     } catch (error) {
-      setError(error.message)
+      setError(error.message);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div
+      className="
+        min-h-screen
+        bg-gray-50
+        flex flex-col
+        justify-start md:justify-center
+        px-4
+        py-6 md:py-10
+        sm:px-6 lg:px-8
+      "
+    >
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900">
@@ -113,10 +132,9 @@ function Register() {
         </div>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="mt-6 md:mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow-sm sm:rounded-lg sm:px-10 border border-gray-200">
           <form onSubmit={handleSubmit(createAccount)} className="space-y-6">
-
             <div>
               <Input
                 type="text"
@@ -127,19 +145,20 @@ function Register() {
                   required: "Username is required",
                   minLength: {
                     value: 5,
-                    message: "Username should be between 5 to 10 characters"
+                    message: "Username should be between 5 to 10 characters",
                   },
                   maxLength: {
                     value: 10,
-                    message: "Username should be between 5 to 10 characters"
+                    message: "Username should be between 5 to 10 characters",
                   },
                   pattern: {
                     value: /^[a-zA-Z0-9_]*$/,
-                    message: "Username should only contain letters, numbers and underscore"
+                    message:
+                      "Username should only contain letters, numbers and underscore",
                   },
                   validate: {
-                    checkUsernameUnique: checkUsernameUnique
-                  }
+                    checkUsernameUnique: checkUsernameUnique,
+                  },
                 })}
                 onChange={(e) => setUsernameValue(e.target.value)}
               />
@@ -160,9 +179,9 @@ function Register() {
                   required: "Email is required",
                   pattern: {
                     value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                    message: "Please enter a valid email address"
+                    message: "Please enter a valid email address",
                   },
-                  validate: checkEmailUnique
+                  validate: checkEmailUnique,
                 })}
                 onChange={(e) => setEmailValue(e.target.value)}
               />
@@ -183,16 +202,16 @@ function Register() {
                   required: false,
                   minLength: {
                     value: 10,
-                    message: "Phone number must be exactly 10 digits."
+                    message: "Phone number must be exactly 10 digits.",
                   },
                   maxLength: {
                     value: 10,
-                    message: "Phone number must be exactly 10 digits."
+                    message: "Phone number must be exactly 10 digits.",
                   },
                   pattern: {
                     value: /^[0-9]*$/,
-                    message: "Phone number should contain only digits"
-                  }
+                    message: "Phone number should contain only digits",
+                  },
                 })}
               />
               {formErrors.phoneNumber && (
@@ -220,7 +239,8 @@ function Register() {
                     required: "Password is required",
                     validate: {
                       minLength: (value) =>
-                        value.length >= 8 || "Password must be at least 8 characters",
+                        value.length >= 8 ||
+                        "Password must be at least 8 characters",
                       hasLowercase: (value) =>
                         /[a-z]/.test(value) ||
                         "Password must contain at least one lowercase letter",
@@ -228,7 +248,8 @@ function Register() {
                         /[A-Z]/.test(value) ||
                         "Password must contain at least one uppercase letter",
                       hasDigit: (value) =>
-                        /\d/.test(value) || "Password must contain at least one digit",
+                        /\d/.test(value) ||
+                        "Password must contain at least one digit",
                       hasSpecialChar: (value) =>
                         /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value) ||
                         "Password must contain at least one special character",
@@ -280,12 +301,14 @@ function Register() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowConfirmPassword(!showConfirmPassword)
-                  }
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute inset-y-0 right-3 flex items-center text-gray-400"
                 >
-                  {showConfirmPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                  {showConfirmPassword ? (
+                    <FiEyeOff size={18} />
+                  ) : (
+                    <FiEye size={18} />
+                  )}
                 </button>
               </div>
             </div>
@@ -293,17 +316,37 @@ function Register() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+              className="
+              group relative w-full flex justify-center items-center
+              py-2 px-4
+              border border-transparent
+              text-sm font-medium
+              rounded-md
+              text-white
+              bg-blue-600 hover:bg-blue-700
+              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+              transition-colors duration-200
+              disabled:opacity-80 disabled:cursor-not-allowed
+            "
             >
-              Create Account
+              {isSubmitting ? (
+                <div
+                  className="
+                  w-5 h-5
+                  border-2 border-white border-t-transparent
+                  rounded-full
+                  animate-spin
+                "
+                />
+              ) : (
+                "Create Account"
+              )}
             </Button>
           </form>
 
           {error && (
             <div className="mt-6 rounded-md bg-red-50 p-4 border border-red-200">
-              <div className="text-sm text-red-700 text-center">
-                {error}
-              </div>
+              <div className="text-sm text-red-700 text-center">{error}</div>
             </div>
           )}
 
@@ -315,7 +358,7 @@ function Register() {
 
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
-            onError={() => console.log('Login Failed')}
+            onError={() => console.log("Login Failed")}
             theme="outline"
             size="large"
             text="continue_with"
@@ -328,7 +371,9 @@ function Register() {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Already have an account?</span>
+                <span className="px-2 bg-white text-gray-500">
+                  Already have an account?
+                </span>
               </div>
             </div>
 
@@ -344,7 +389,7 @@ function Register() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Register
+export default Register;
