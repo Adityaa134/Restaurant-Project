@@ -1,35 +1,38 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
 import orderService from "../../services/orderService";
 import { updateOrder } from "../../features/orders/orderSlice";
-import {
-  ORDER_STATUS,
-  ORDER_STATUS_LABEL,
-  ORDER_STATUS_FLOW,
-  ORDER_STATUS_COLOR
-} from "../../constants/orderStatus";
+import { setCartItems } from "../../features/cart/cartSlice";
+import { ORDER_STATUS, ORDER_STATUS_COLOR } from "../../constants/orderStatus";
 
 const getStatusValue = (status) => {
   if (typeof status === "number") return status;
 
   switch (status) {
-    case "Pending": return ORDER_STATUS.PENDING;
-    case "Preparing": return ORDER_STATUS.PREPARING;
-    case "Confirmed": return ORDER_STATUS.CONFIRMED;
-    case "Cancelled": return ORDER_STATUS.CANCELLED;
-    case "Delivered": return ORDER_STATUS.DELIVERED;
-    default: return null;
+    case "Pending":
+      return ORDER_STATUS.PENDING;
+    case "Preparing":
+      return ORDER_STATUS.PREPARING;
+    case "Confirmed":
+      return ORDER_STATUS.CONFIRMED;
+    case "Cancelled":
+      return ORDER_STATUS.CANCELLED;
+    case "Delivered":
+      return ORDER_STATUS.DELIVERED;
+    default:
+      return null;
   }
 };
 
 const OrderDetails = () => {
   const { orderId } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const reduxOrder = useSelector((state) =>
-    state.orders.orders.find((o) => o.orderId === orderId)
+    state.orders.orders.find((o) => o.orderId === orderId),
   );
 
   const [order, setOrder] = useState(reduxOrder || null);
@@ -56,7 +59,7 @@ const OrderDetails = () => {
 
   const handleCancelOrder = async () => {
     const confirmCancel = window.confirm(
-      "Are you sure you want to cancel this order?"
+      "Are you sure you want to cancel this order?",
     );
 
     if (!confirmCancel) return;
@@ -65,7 +68,7 @@ const OrderDetails = () => {
       setCancelLoading(true);
       const response = await orderService.CancelOrder(
         order.orderId,
-        "Cancelled"
+        "Cancelled",
       );
       setOrder(response);
       dispatch(updateOrder(response));
@@ -87,11 +90,81 @@ const OrderDetails = () => {
     }
   };
 
+  const handleReorder = () => {
+    const reorderedItems = order.orderItems.map((item) => ({
+      dishId: item.dishId,
+      dishName: item.dishName,
+      quantity: item.quantity,
+      dishPrice: item.unitPrice,
+      dish_Image_Path: item.dishImagePath,
+    }));
+
+    dispatch(setCartItems(reorderedItems));
+    navigate("/checkout");
+  };
+
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center mt-20 space-y-4">
-        <div className="w-10 h-10 border-4 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
-        <p className="text-gray-600 text-sm">Loading order details…</p>
+      <div className="bg-gray-50 pt-6 pb-4 sm:pb-6 px-4 animate-pulse">
+        <div className="max-w-2xl mx-auto px-4 py-4 sm:py-6">
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="p-5 sm:p-7 border-b border-gray-200">
+              <div className="flex items-start justify-between gap-4">
+                <div className="space-y-3">
+                  <div className="h-8 w-52 bg-gray-200 rounded-lg"></div>
+                  <div className="h-4 w-40 bg-gray-200 rounded"></div>
+                </div>
+
+                <div className="h-12 w-36 bg-gray-200 rounded-full"></div>
+              </div>
+            </div>
+
+            <div className="px-5 sm:px-7 py-5 border-b border-gray-200">
+              <div className="h-6 w-48 bg-gray-200 rounded mb-4"></div>
+
+              <div className="space-y-2">
+                <div className="h-4 w-full bg-gray-200 rounded"></div>
+                <div className="h-4 w-3/4 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+
+            <div className="px-5 sm:px-7 py-5 border-b border-gray-200">
+              <div className="h-6 w-24 bg-gray-200 rounded mb-6"></div>
+
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-xl bg-gray-200 flex-shrink-0"></div>
+
+                <div className="flex-1 space-y-3">
+                  <div className="h-5 w-40 bg-gray-200 rounded"></div>
+                  <div className="h-4 w-20 bg-gray-200 rounded"></div>
+                </div>
+
+                <div className="h-5 w-16 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+
+            <div className="px-5 sm:px-7 py-5 border-b border-gray-200 space-y-4">
+              <div className="flex justify-between">
+                <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                <div className="h-4 w-16 bg-gray-200 rounded"></div>
+              </div>
+
+              <div className="flex justify-between">
+                <div className="h-4 w-28 bg-gray-200 rounded"></div>
+                <div className="h-4 w-14 bg-gray-200 rounded"></div>
+              </div>
+
+              <div className="border-t border-gray-200 pt-4 flex justify-between">
+                <div className="h-6 w-20 bg-gray-200 rounded"></div>
+                <div className="h-6 w-16 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+
+            <div className="p-5 sm:p-7">
+              <div className="h-14 w-full bg-gray-200 rounded-2xl"></div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -100,9 +173,7 @@ const OrderDetails = () => {
     return (
       <div className="flex flex-col items-center justify-center mt-20 space-y-3">
         <span className="text-5xl">📦</span>
-        <h2 className="text-lg font-semibold text-gray-700">
-          Order not found
-        </h2>
+        <h2 className="text-lg font-semibold text-gray-700">Order not found</h2>
         <p className="text-sm text-gray-500 text-center max-w-sm">
           The order you’re looking for doesn’t exist.
         </p>
@@ -115,140 +186,154 @@ const OrderDetails = () => {
     order.orderStatus === "Pending" || order.orderStatus === "Preparing";
 
   return (
-    <div className="bg-gray-50 pt-6 pb-6 px-4">
-      <div className="max-w-3xl mx-auto">
-        <div className="bg-white rounded-xl shadow-md border p-6 space-y-6">
+    <div className="bg-gray-50 pt-6 pb-4 sm:pb-6 px-4">
+      <div className="max-w-2xl mx-auto px-4 py-4 sm:py-6">
+        <div
+          className="
+      bg-white
+      rounded-3xl
+      shadow-sm
+      border border-gray-200
+      overflow-hidden
+    "
+        >
+          <div className="p-5 sm:p-7 border-b border-gray-200">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                  Order #{order.orderId.slice(0, 8)}
+                </h1>
 
-          <div className="flex justify-between items-start">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">
-                Order #{order.orderId.slice(0, 8)}
-              </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                {new Date(order.orderDate).toLocaleString()}
-              </p>
+                <p className="text-sm sm:text-base text-gray-500 mt-1">
+                  {new Date(order.orderDate).toLocaleString()}
+                </p>
+              </div>
+
+              <span
+                className={`
+              inline-flex items-center gap-2
+              px-4 py-2 rounded-full
+              text-sm font-semibold
+              shadow-sm
+              ${ORDER_STATUS_COLOR[currentStatus]}
+              `}
+              >
+                <span className="w-2 h-2 rounded-full bg-current opacity-70"></span>
+                {order.orderStatus}
+              </span>
             </div>
-
-            <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${ORDER_STATUS_COLOR[currentStatus]}`}
-            >
-              {order.orderStatus}
-            </span>
           </div>
 
-          {currentStatus !== ORDER_STATUS.CANCELLED && (
-            <div className="flex items-center gap-3">
-              {ORDER_STATUS_FLOW.map((status, index) => {
-                const isCurrent = status === currentStatus;
-                const isCompleted = status < currentStatus;
-                const isLast = index === ORDER_STATUS_FLOW.length - 1;
+          <div className="px-5 sm:px-7 py-5 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">
+              Delivery Address
+            </h2>
 
-                let pillClass = "bg-gray-100 text-gray-400"; 
+            <p className="text-gray-600 leading-relaxed">
+              {order.deliveryAddress?.addressLine}
 
-                if (isCurrent) {
-                  pillClass = ORDER_STATUS_COLOR[status];
-                } else if (isCompleted) {
-                  pillClass = "bg-gray-200 text-gray-600"; 
-                }
+              {order.deliveryAddress?.area && `, ${order.deliveryAddress.area}`}
 
-                return (
-                  <div key={status} className="flex items-center">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${pillClass}`}
-                    >
-                      {ORDER_STATUS_LABEL[status]}
-                    </span>
+              {order.deliveryAddress?.city && `, ${order.deliveryAddress.city}`}
 
-                    {!isLast && (
-                      <div
-                        className={`w-8 h-[2px] ${isCompleted || isCurrent
-                            ? "bg-gray-400"
-                            : "bg-gray-200"
-                          }`}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+              {order.deliveryAddress?.landmark &&
+                ` (${order.deliveryAddress.landmark})`}
+            </p>
+          </div>
 
-          <hr className="border-gray-300" />
+          <div className="px-5 sm:px-7 py-5 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900 mb-5">Items</h2>
 
-          <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">
-              Items
-            </h3>
-
-            <div className="space-y-2">
+            <div className="space-y-5">
               {order.orderItems.map((item) => (
-                <div
-                  key={item.dishId}
-                  className="flex justify-between text-sm text-gray-800"
-                >
-                  <span>
-                    {item.quantity} × {item.dishName}
-                  </span>
-                  <span className="font-medium">
+                <div key={item.dishId} className="flex items-center gap-4">
+                  <img
+                    src={item.dishImagePath}
+                    alt={item.dishName}
+                    className="
+                  w-16 h-16
+                  rounded-xl
+                  object-cover
+                  border border-gray-200
+                  flex-shrink-0
+                "
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-gray-900 truncate">
+                      {item.dishName}
+                    </h3>
+
+                    <p className="text-sm text-gray-500 mt-1">
+                      Qty: {item.quantity}
+                    </p>
+                  </div>
+
+                  <p className="font-semibold text-gray-900">
                     ₹{item.totalPrice}
-                  </span>
+                  </p>
                 </div>
               ))}
             </div>
           </div>
+          <div className="px-5 sm:px-7 py-5 border-b border-gray-200">
+            <div className="space-y-3">
+              <div className="flex justify-between text-gray-600">
+                <span>Subtotal</span>
+                <span>₹{order.totalBill}</span>
+              </div>
 
-          <hr className="border-gray-300" />
+              <div className="flex justify-between text-gray-600">
+                <span>Delivery Fee</span>
+                <span>Free</span>
+              </div>
 
-          <div className="flex justify-between items-center">
-            <span className="text-base font-semibold text-gray-900">
-              Total Amount
-            </span>
-            <span className="text-lg font-bold text-gray-900">
-              ₹{order.totalBill}
-            </span>
+              <div className="border-t border-gray-200 pt-3 flex justify-between">
+                <span className="text-lg font-bold text-gray-900">Total</span>
+
+                <span className="text-xl font-bold text-gray-900">
+                  ₹{order.totalBill}
+                </span>
+              </div>
+            </div>
           </div>
 
-          {order.orderStatus !== "Cancelled" && order.deliveryAddress && (
-            <>
-              <hr className="border-gray-300" />
-              <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">
-                  Delivery Address
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  {order.deliveryAddress.addressLine}
-                  {order.deliveryAddress.area && `, ${order.deliveryAddress.area}`}
-                  {order.deliveryAddress.city && `, ${order.deliveryAddress.city}`}
-                  {order.deliveryAddress.landmark &&
-                    ` (${order.deliveryAddress.landmark})`}
-                </p>
-              </div>
-            </>
-          )}
+          <div className="p-5 sm:p-7">
+            {order.orderStatus === "Delivered" && (
+              <button
+                onClick={handleReorder}
+                className="
+                w-full
+                bg-blue-600
+                hover:bg-blue-700
+                text-white
+                font-semibold
+                py-3 rounded-2xl
+                transition
+                flex items-center justify-center gap-2
+              "
+              >
+                ↻ Reorder
+              </button>
+            )}
 
-          {canCancel && (
-            <>
-              <hr className="border-gray-300" />
-              <div className="flex justify-end">
-                <button
-                  onClick={handleCancelOrder}
-                  disabled={cancelLoading}
-                  className="
-                    px-4 py-2
-                    border border-red-500
-                    text-red-600
-                    rounded-md
-                    text-sm font-medium
-                    hover:bg-red-50
-                    disabled:opacity-50
-                    disabled:cursor-not-allowed
-                  "
-                >
-                  {cancelLoading ? "Cancelling..." : "Cancel Order"}
-                </button>
-              </div>
-            </>
-          )}
+            {(order.orderStatus === "Pending" ||
+              order.orderStatus === "Preparing") && (
+              <button
+                onClick={handleCancelOrder}
+                className="
+              w-full
+              bg-red-600
+              hover:bg-red-700
+              text-white
+              font-semibold
+              py-3 rounded-2xl
+              transition
+            "
+              >
+                Cancel Order
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

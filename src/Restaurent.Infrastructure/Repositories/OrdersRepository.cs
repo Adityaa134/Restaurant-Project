@@ -51,7 +51,8 @@ namespace Restaurent.Infrastructure.Repositories
                         DishName = oi.Dish.DishName,
                         Quantity = oi.Quantity,
                         UnitPrice = oi.UnitPrice,
-                        TotalPrice = oi.Quantity * oi.UnitPrice
+                        TotalPrice = oi.Quantity * oi.UnitPrice,
+                        DishImagePath = oi.Dish.Image_Path
                     }).ToList()
                 })
                 .AsNoTracking()
@@ -95,7 +96,8 @@ namespace Restaurent.Infrastructure.Repositories
                          DishName = oi.Dish.DishName,
                          Quantity = oi.Quantity,
                          UnitPrice = oi.UnitPrice,
-                         TotalPrice = oi.Quantity * oi.UnitPrice
+                         TotalPrice = oi.Quantity * oi.UnitPrice,
+                         DishImagePath = oi.Dish.Image_Path
                      }).ToList()
                  })
                  .AsNoTracking()
@@ -140,7 +142,8 @@ namespace Restaurent.Infrastructure.Repositories
                         DishName = oi.Dish.DishName,
                         Quantity = oi.Quantity,
                         UnitPrice = oi.UnitPrice,
-                        TotalPrice = oi.Quantity * oi.UnitPrice
+                        TotalPrice = oi.Quantity * oi.UnitPrice,
+                        DishImagePath = oi.Dish.Image_Path
                     }).ToList()
                 })
                 .AsNoTracking()

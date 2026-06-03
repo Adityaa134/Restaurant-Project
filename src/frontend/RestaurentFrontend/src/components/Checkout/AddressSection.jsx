@@ -14,15 +14,15 @@ const AddressSection = ({ selectedAddress, setSelectedAddress }) => {
   useEffect(() => {
     const fetchAddresses = async () => {
       try {
-        setAddressLoading(true)
+        setAddressLoading(true);
         const response = await addressService.GetAddressesOfUser(userId);
         setAddresses(Array.isArray(response) ? response : []);
       } catch (error) {
-        console.log(error)
+        console.log(error);
       } finally {
-        setAddressLoading(false)
+        setAddressLoading(false);
       }
-    }
+    };
     fetchAddresses();
   }, [userId]);
 
@@ -35,17 +35,15 @@ const AddressSection = ({ selectedAddress, setSelectedAddress }) => {
         result = await addressService.UpdateAddress({
           addressId: editingAddress.addressId,
           userId,
-          ...formData
+          ...formData,
         });
         setAddresses((prev) =>
-          prev.map((a) =>
-            a.addressId === result.addressId ? result : a
-          )
+          prev.map((a) => (a.addressId === result.addressId ? result : a)),
         );
       } else {
         result = await addressService.CreateAddress({
           userId,
-          ...formData
+          ...formData,
         });
 
         setAddresses((prev) => [...prev, result]);
@@ -104,9 +102,11 @@ const AddressSection = ({ selectedAddress, setSelectedAddress }) => {
             key={addr.addressId}
             className={`
               flex gap-3 border p-3 rounded cursor-pointer
-              ${selectedAddress?.addressId === addr.addressId
-                ? "border-green-500 bg-green-50"
-                : "hover:border-green-400"}
+              ${
+                selectedAddress?.addressId === addr.addressId
+                  ? "border-green-500 bg-green-50"
+                  : "hover:border-green-400"
+              }
             `}
           >
             <input
@@ -133,7 +133,7 @@ const AddressSection = ({ selectedAddress, setSelectedAddress }) => {
             </button>
           </label>
         ))}
-        
+
       {showForm && (
         <AddressForm
           initialData={editingAddress}

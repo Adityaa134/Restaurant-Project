@@ -4,25 +4,20 @@ import { Input, Button } from "../index";
 
 const MAX_LENGTH = 40;
 
-const AddressForm = ({
-  initialData,
-  onCancel,
-  onSubmit,
-  loading
-}) => {
+const AddressForm = ({ initialData, onCancel, onSubmit, loading }) => {
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isValid }
+    formState: { errors, isValid },
   } = useForm({
     mode: "onChange",
     defaultValues: {
       addressLine: "",
       city: "",
       area: "",
-      landmark: ""
-    }
+      landmark: "",
+    },
   });
 
   useEffect(() => {
@@ -31,7 +26,7 @@ const AddressForm = ({
         addressLine: initialData.addressLine || "",
         city: initialData.city || "",
         area: initialData.area || "",
-        landmark: initialData.landmark || ""
+        landmark: initialData.landmark || "",
       });
     }
   }, [initialData, reset]);
@@ -53,8 +48,8 @@ const AddressForm = ({
             required: "Address line is required",
             maxLength: {
               value: MAX_LENGTH,
-              message: "Maximum 40 characters allowed"
-            }
+              message: "Maximum 40 characters allowed",
+            },
           })}
         />
         {errors.addressLine && (
@@ -72,14 +67,12 @@ const AddressForm = ({
             required: "Area is required",
             maxLength: {
               value: MAX_LENGTH,
-              message: "Maximum 40 characters allowed"
-            }
+              message: "Maximum 40 characters allowed",
+            },
           })}
         />
         {errors.area && (
-          <p className="text-xs text-red-500 mt-1">
-            {errors.area.message}
-          </p>
+          <p className="text-xs text-red-500 mt-1">{errors.area.message}</p>
         )}
       </div>
 
@@ -91,14 +84,12 @@ const AddressForm = ({
             required: "City is required",
             maxLength: {
               value: MAX_LENGTH,
-              message: "Maximum 40 characters allowed"
-            }
+              message: "Maximum 40 characters allowed",
+            },
           })}
         />
         {errors.city && (
-          <p className="text-xs text-red-500 mt-1">
-            {errors.city.message}
-          </p>
+          <p className="text-xs text-red-500 mt-1">{errors.city.message}</p>
         )}
       </div>
 
@@ -109,14 +100,12 @@ const AddressForm = ({
           {...register("landmark", {
             maxLength: {
               value: MAX_LENGTH,
-              message: "Maximum 40 characters allowed"
-            }
+              message: "Maximum 40 characters allowed",
+            },
           })}
         />
         {errors.landmark && (
-          <p className="text-xs text-red-500 mt-1">
-            {errors.landmark.message}
-          </p>
+          <p className="text-xs text-red-500 mt-1">{errors.landmark.message}</p>
         )}
       </div>
 
@@ -134,9 +123,11 @@ const AddressForm = ({
           disabled={!isValid || loading}
           className={`
             text-sm font-medium transition
-            ${isValid
-              ? "bg-green-600 text-white hover:bg-green-700"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"}
+            ${
+              isValid
+                ? "bg-green-600 text-white hover:bg-green-700"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }
           `}
         >
           {loading ? "Saving..." : initialData ? "Update" : "Save"}

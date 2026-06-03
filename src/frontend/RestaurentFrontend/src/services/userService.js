@@ -1,4 +1,5 @@
 import axiosInstance from "../axios/axiosInstance"
+import { logger } from "../utils/logger";
 
 export class User{
     async GetUserById(userId) {

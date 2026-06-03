@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { DefaultAvtar,LogOutBtn } from "../index";
+import { DefaultAvtar, LogOutBtn } from "../index";
 
-const ProfileMenu = ({profileImage}) => {
+const ProfileMenu = ({ profileImage }) => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -14,11 +14,7 @@ const ProfileMenu = ({profileImage}) => {
         onClick={() => setOpen(!open)}
       >
         <img
-          src={
-            profileImage
-              ? profileImage
-              : DefaultAvtar
-          }
+          src={profileImage ? profileImage : DefaultAvtar}
           alt="profile"
           className="
           w-11 h-11 
@@ -36,20 +32,40 @@ const ProfileMenu = ({profileImage}) => {
       {open && (
         <div
           className="
-      absolute 
-      right-0 
-      top-12 
-      w-48 
-      bg-white 
-      rounded-md 
-      shadow-lg 
-      border 
-      z-50
-      overflow-hidden
+      absolute
+right-0
+top-14
+w-64
+bg-white
+rounded-2xl
+shadow-xl
+border
+border-gray-100
+overflow-hidden
+z-50
+animate-in
+fade-in
+duration-200
+
     "
         >
+          <div className="px-5 py-4 bg-gray-50 border-b border-gray-100">
+            <p className="font-semibold text-gray-900 text-sm">My Account</p>
+
+            <p className="text-xs text-gray-500 mt-1">
+              Manage your profile and orders
+            </p>
+          </div>
           <button
-            className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+            className="w-full
+text-left
+px-5
+py-3.5
+text-sm
+font-medium
+text-gray-700
+hover:bg-gray-50
+transition-colors"
             onClick={() => {
               setOpen(false);
               navigate("/profile");
@@ -59,7 +75,15 @@ const ProfileMenu = ({profileImage}) => {
           </button>
 
           <button
-            className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+            className="w-full
+text-left
+px-5
+py-3.5
+text-sm
+font-medium
+text-gray-700
+hover:bg-gray-50
+transition-colors"
             onClick={() => {
               setOpen(false);
               navigate("/your-orders");
@@ -68,8 +92,8 @@ const ProfileMenu = ({profileImage}) => {
             Your Orders
           </button>
 
-          <div className="border-t" />
-          <div className="px-1 py-1">
+          <div className="border-t border-gray-100" />
+          <div className="px-3 py-2 bg-gray-50">
             <LogOutBtn />
           </div>
         </div>
