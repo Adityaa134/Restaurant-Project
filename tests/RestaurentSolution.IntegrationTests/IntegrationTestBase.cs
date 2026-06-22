@@ -24,7 +24,7 @@ namespace RestaurentSolution.IntegrationTests
             _fixture = new Fixture();
         }
 
-        private async Task  ResetDatabase()
+        private async Task ResetDatabase()
         {
             using var scope = _factory.Services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
@@ -105,6 +105,7 @@ namespace RestaurentSolution.IntegrationTests
                             .With(t=>t.DishName,"Cheese Pizza")
                             .With(t => t.CartItems, null as List<Carts>)
                             .With(t => t.OrderItems, null as List<OrderItem>)
+                            .With(t=>t.Ratings,null as List<Rating>)
                             .Create();
 
             await db.Dishes.AddAsync(dish);

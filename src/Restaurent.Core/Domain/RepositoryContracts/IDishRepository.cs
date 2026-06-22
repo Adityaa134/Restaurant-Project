@@ -52,10 +52,24 @@ namespace Restaurent.Core.Domain.RepositoryContracts
         Task<List<Dish>> GetDishesBasedOnCategoryId(Guid categoryId);
 
         /// <summary>
-        /// Returns all dishes which matches with given  searchString
+        /// Returns all dishes which matches with given searchString
         /// </summary>
         /// <param name="searchString">search String to search</param>
         /// <returns>Returns all matching dishes based on searchString</returns>
         Task<List<Dish>?> SearchDish(string searchString);
+
+        /// <summary>
+        /// Checks if a dish exist
+        /// </summary>
+        /// <param name="dishId">The dish to check</param>
+        /// <returns>Returns true if exist otherwise false</returns>
+        Task<bool> IsDishExist(Guid dishId);
+
+        /// <summary>
+        /// Applies the new rating to the dish and updates its average rating and total ratings
+        /// </summary>
+        /// <param name="rating">The rating details to apply</param>
+        /// <returns>Returns the updated dish details</returns>
+        Task<Dish?> ApplyNewRatingToDish(Rating rating);
     }
 }

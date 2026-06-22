@@ -1,8 +1,8 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using AutoFixture;
 using FluentAssertions;
 using Restaurent.Core.DTO;
-using System.Net;
 using Restaurent.Core.Enums;
 
 namespace RestaurentSolution.IntegrationTests
@@ -225,6 +225,36 @@ namespace RestaurentSolution.IntegrationTests
             OrderResponse? orderResponseActual = await response.Content.ReadFromJsonAsync<OrderResponse>();
             orderResponseActual.OrderId.Should().Be(orderResponse.OrderId);
             orderResponseActual.OrderStatus.Should().Be(updateOrderStatusRequest.OrderStatus.ToString());
+        }
+
+        #endregion
+
+        #region SubmitRating
+
+        [Fact]
+        public async Task SubmitRating_WithValidDetails_ShouldReturnRatingDetails()
+        {
+            var authenticationResponse = await RegisterAndLoginUser();
+            var orderResponse = await CreateOrder(authenticationResponse.UserId);
+            var dishId = orderResponse.OrderItems.FirstOrDefault()?.DishId;
+
+            RatingRequest ratingRequest = _fixture.Build<RatingRequest>()
+                                                  .With(t=>t.UserId,orderResponse.UserId)
+                                                  .With(t=>t.OrderId,orderResponse.OrderId)
+                                                  .With(t=>t.DishId,dishId)
+                                                  .With(t=>t.Rate,4)
+                                                  .Create();
+
+            var response = await _httpClient.PostAsJsonAsync("api/Orders/rate", ratingRequest);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            RatingResponse? ratingResponse = await response.Content.ReadFromJsonAsync<RatingResponse>();
+            ratingResponse.Should().NotBeNull();
+            ratingResponse.Id.Should().NotBeEmpty();
+            ratingResponse.UserId.Should().Be(authenticationResponse.UserId);
+            ratingResponse.OrderId.Should().Be(orderResponse.OrderId);
+            ratingResponse.DishId.Should().Be(dishId.Value);
+            ratingResponse.Rate.Should().Be(ratingRequest.Rate);
         }
 
         #endregion

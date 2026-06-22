@@ -57,5 +57,21 @@ namespace Restaurent.Core.Domain.RepositoryContracts
         /// <param name="orderId">The order which status to be change</param>
         /// <returns>Returns updated order details</returns>
         Task<OrderResponse?> UpdateOrderStatus(OrderStatus orderStatus,Guid orderId);
+
+        /// <summary>
+        /// Checks whether the given dish exists in the given order
+        /// </summary>
+        /// <param name="orderId">The order to check</param>
+        /// <param name="dishId">The dish to check</param>
+        /// <returns>Returns true if the dish is part of the order otherwise false</returns>
+        Task<bool> IsDishPartOfOrder(Guid orderId, Guid dishId);
+
+        /// <summary>
+        /// Checks whether the given order belongs to the given user
+        /// </summary>
+        /// <param name="userId">The user to check</param>
+        /// <param name="orderId">The order to check</param>
+        /// <returns>Returns true if the order belongs to the user otherwise false</returns>
+        Task<bool> IsOrderOwnedByUser(Guid userId, Guid orderId);
     }
 }

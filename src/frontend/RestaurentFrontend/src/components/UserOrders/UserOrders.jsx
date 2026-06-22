@@ -27,7 +27,7 @@ const FILTERS = [
   { label: "All orders", value: "all" },
   { label: "Delivered", value: "delivered" },
   { label: "Cancelled", value: "cancelled" },
-  { label: "Pending", value: "pending" },
+  { label: "In progress", value: "In progress" },
 ];
 
 const StatCard = ({ value, label, color = "text-gray-900" }) => (
@@ -96,7 +96,7 @@ const UserOrders = () => {
     const s = getStatusValue(o.orderStatus);
     if (activeFilter === "delivered") return s === ORDER_STATUS.DELIVERED;
     if (activeFilter === "cancelled") return s === ORDER_STATUS.CANCELLED;
-    if (activeFilter === "pending")
+    if (activeFilter === "In progress")
       return (
         s === ORDER_STATUS.PENDING ||
         s === ORDER_STATUS.PREPARING ||

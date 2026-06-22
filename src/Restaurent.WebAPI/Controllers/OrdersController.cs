@@ -12,12 +12,14 @@ namespace Restaurent.WebAPI.Controllers
         private readonly IOrderCreateService _orderCreateService;
         private readonly IOrderGetterService _orderGetterService;
         private readonly IOrderUpdateService _orderUpdateService;
+        private readonly IRatingsService _ratingsService;
 
-        public OrdersController(IOrderCreateService orderCreateService, IOrderGetterService orderGetterService, IOrderUpdateService orderUpdateService)
+        public OrdersController(IOrderCreateService orderCreateService, IOrderGetterService orderGetterService, IOrderUpdateService orderUpdateService, IRatingsService ratingsService)
         {
             _orderCreateService = orderCreateService;
             _orderGetterService = orderGetterService;
             _orderUpdateService = orderUpdateService;
+            _ratingsService = ratingsService;
         }
 
         [HttpGet()]
@@ -89,6 +91,13 @@ namespace Restaurent.WebAPI.Controllers
 
             var result = await _orderUpdateService.UpdateOrderStatusToCancel(request);
             return Ok(result);
+        }
+
+        [HttpPost("rate")]
+        public async Task<ActionResult> SubmitRating(RatingRequest ratingRequest)
+        {
+            RatingResponse ratingResponse = await _ratingsService.AddRating(ratingRequest);
+            return Ok(ratingResponse);
         }
     }
 }

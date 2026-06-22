@@ -13,6 +13,7 @@ namespace Restaurent.Core.Domain.Identity
         public string? ProfileImagePath { get; set; }
         public ICollection<Carts> Carts { get; set; } = new List<Carts>();
         public ICollection<Order> Orders { get; set; } = new List<Order>();
-        public ICollection<Address> Addresses { get; set; }
+        public ICollection<Address> Addresses { get; set; } = new List<Address>();
+        public ICollection<Rating> Ratings { get; set; } = new List<Rating>();
     }
 }

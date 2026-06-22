@@ -45,6 +45,7 @@ namespace RestaurentSolution.UnitTests
                                     .With(t=>t.Carts,null as List<Carts>)
                                     .With(t => t.Orders, null as List<Order>)
                                     .With(t => t.Addresses, null as List<Address>)
+                                    .With(t=>t.Ratings,null as List<Rating>)
                                     .Create();
             _authServiceMock.Setup(temp => temp.GetUserRole(It.IsAny<ApplicationUser>()))
                 .ReturnsAsync("user");

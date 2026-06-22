@@ -87,5 +87,22 @@ namespace Restaurent.Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
             return matchingDish;
         }
+
+        public async Task<Dish?> ApplyNewRatingToDish(Rating rating)
+        {
+            Dish? dish = await GetDishByDishId(rating.DishId);
+            if (dish == null) return null;
+            int newTotal = dish.TotalRatings + 1;
+            decimal avgRating = ((dish.AverageRating*dish.TotalRatings) + rating.Rate) / newTotal;
+            dish.TotalRatings = newTotal;
+            dish.AverageRating = avgRating;
+            await _dbContext.SaveChangesAsync();
+            return dish;
+        }
+
+        public async Task<bool> IsDishExist(Guid dishId)
+        {
+            return await _dbContext.Dishes.AnyAsync(t=>t.DishId ==  dishId);
+        }
     }
 }

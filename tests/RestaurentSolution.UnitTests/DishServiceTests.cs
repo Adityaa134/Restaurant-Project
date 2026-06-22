@@ -3,6 +3,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using Restaurent.Core.Domain.Entities;
+using Restaurent.Core.Domain.Identity;
 using Restaurent.Core.Domain.RepositoryContracts;
 using Restaurent.Core.DTO;
 using Restaurent.Core.Service;
@@ -63,21 +64,25 @@ namespace RestaurentSolution.UnitTests
                 .With(t=>t.Category,null as Category)
                 .With(t=>t.CartItems,null as List<Carts>)
                 .With(t=>t.OrderItems,null as List<OrderItem>)
+                .With(t=>t.Ratings,null as List<Rating>)
                 .Create(),
                 _fixture.Build<Dish>()
                 .With(t=>t.Category,null as Category)
                 .With(t=>t.CartItems,null as List<Carts>)
                 .With(t=>t.OrderItems,null as List<OrderItem>)
+                .With(t=>t.Ratings,null as List<Rating>)
                 .Create(),
                 _fixture.Build<Dish>()
                 .With(t=>t.Category,null as Category)
                 .With(t=>t.CartItems,null as List<Carts>)
                 .With(t=>t.OrderItems,null as List<OrderItem>)
+                .With(t=>t.Ratings,null as List<Rating>)
                 .Create(),
                 _fixture.Build<Dish>()
                 .With(t=>t.Category,null as Category)
                 .With(t=>t.CartItems,null as List<Carts>)
                 .With(t=>t.OrderItems,null as List<OrderItem>)
+                .With(t=>t.Ratings,null as List<Rating>)
                 .Create()
             };
 
@@ -116,18 +121,21 @@ namespace RestaurentSolution.UnitTests
                 .With(t => t.Category, null as Category)
                 .With(t => t.CartItems, null as List<Carts>)
                 .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t=>t.Ratings,null as List<Rating>)
                 .With(t=>t.DishName,"cheese pizza")
                 .Create(),
                 _fixture.Build<Dish>()
                 .With(t => t.Category, null as Category)
                 .With(t => t.CartItems, null as List<Carts>)
                 .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t=>t.Ratings,null as List<Rating>)
                 .With(t=>t.DishName,"onion pizza")
                 .Create(),
                 _fixture.Build<Dish>()
                 .With(t => t.Category, null as Category)
                 .With(t => t.CartItems, null as List<Carts>)
                 .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t=>t.Ratings,null as List<Rating>)
                 .With(t=>t.DishName,"corn pizza")
                 .Create()
             };
@@ -163,6 +171,7 @@ namespace RestaurentSolution.UnitTests
                 .With(t => t.Category, null as Category)
                 .With(t => t.CartItems, null as List<Carts>)
                 .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t => t.Ratings, null as List<Rating>)
                 .Create();
 
             DishResponse dishResponseExpected = dish.ToDishResponse();
@@ -237,24 +246,28 @@ namespace RestaurentSolution.UnitTests
                 .With(t=>t.Category,null as Category)
                 .With(t=>t.CartItems,null as List<Carts>)
                 .With(t=>t.OrderItems,null as List<OrderItem>)
+                .With(t=>t.Ratings,null as List<Rating>)
                 .With(t=>t.CategoryId,category.Id)
                 .Create(),
                 _fixture.Build<Dish>()
                 .With(t=>t.Category,null as Category)
                 .With(t=>t.CartItems,null as List<Carts>)
                 .With(t=>t.OrderItems,null as List<OrderItem>)
+                .With(t=>t.Ratings,null as List<Rating>)
                 .With(t=>t.CategoryId,category.Id)
                 .Create(),
                 _fixture.Build<Dish>()
                 .With(t=>t.Category,null as Category)
                 .With(t=>t.CartItems,null as List<Carts>)
                 .With(t=>t.OrderItems,null as List<OrderItem>)
+                .With(t=>t.Ratings,null as List<Rating>)
                 .With(t=>t.CategoryId,category.Id)
                 .Create(),
                 _fixture.Build<Dish>()
                 .With(t=>t.Category,null as Category)
                 .With(t=>t.CartItems,null as List<Carts>)
                 .With(t=>t.OrderItems,null as List<OrderItem>)
+                .With(t=>t.Ratings,null as List<Rating>)
                 .With(t=>t.CategoryId,category.Id)
                 .Create()
             };
@@ -274,12 +287,91 @@ namespace RestaurentSolution.UnitTests
             dishResponseActual_list.Should().BeEquivalentTo(dishResponsesExpected_list);
         }
 
+        [Fact]
+        public async Task ApplyNewRatingToDish_IfDishNotValid_ShouldThrowArgumentException()
+        {
+            Rating rating = _fixture.Build<Rating>()
+                .With(t=>t.User,null as ApplicationUser)
+                .With(t=>t.Dish,null as Dish)
+                .With(t=>t.Order,null as Order)
+                .Create();
+            _dishRepositoryMock.Setup(temp=>temp.IsDishExist(It.IsAny<Guid>()))
+                .ReturnsAsync(false);
+            Func<Task> action = async () =>
+            {
+                await _dishGetterService.ApplyNewRatingToDish(rating);
+            };
+
+            await action.Should().ThrowAsync<ArgumentException>();
+        }
+
+        [Fact]
+        public async Task ApplyNewRatingToDish_IfDishValid_ShouldReturnUpdatedDishDetails()
+        {
+            Rating rating = _fixture.Build<Rating>()
+                .With(t => t.User, null as ApplicationUser)
+                .With(t => t.Dish, null as Dish)
+                .With(t => t.Order, null as Order)
+                .Create();
+
+            Dish dish = _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t => t.Ratings, null as List<Rating>)
+                .With(t=>t.DishId,rating.DishId)
+                .Create();
+
+
+            _dishRepositoryMock.Setup(temp => temp.IsDishExist(It.IsAny<Guid>()))
+                .ReturnsAsync(true);
+
+            _dishRepositoryMock.Setup(temp => temp.ApplyNewRatingToDish(It.IsAny<Rating>()))
+                .ReturnsAsync(dish);
+
+            DishResponse dishResponseExpected = dish.ToDishResponse();
+
+            DishResponse? dishResponseActual = await _dishGetterService.ApplyNewRatingToDish(rating);
+            dishResponseActual.Should().NotBeNull();
+            dishResponseActual.Should().BeEquivalentTo(dishResponseExpected);
+
+        }
+
+        [Fact]
+        public async Task IsDishExist_ValidDishId_ShouldReturnTrue()
+        {
+            Dish dish =  _fixture.Build<Dish>()
+                 .With(t => t.Category, null as Category)
+                 .With(t => t.CartItems, null as List<Carts>)
+                 .With(t => t.OrderItems, null as List<OrderItem>)
+                 .With(t => t.Ratings, null as List<Rating>)
+                 .Create();
+
+            _dishRepositoryMock.Setup(temp => temp.IsDishExist(It.IsAny<Guid>()))
+               .ReturnsAsync(true);
+
+            bool isExist = await _dishGetterService.IsDishExist(dish.DishId);
+
+            isExist.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task IsDishExist_InValidDishId_ShouldReturnFalse()
+        {
+            _dishRepositoryMock.Setup(temp => temp.IsDishExist(It.IsAny<Guid>()))
+               .ReturnsAsync(false);
+
+            bool isExist = await _dishGetterService.IsDishExist(Guid.NewGuid());
+
+            isExist.Should().BeFalse();
+        }
+
         #endregion
 
         #region AddDish
 
-          [Fact]
-          public async Task AddDish_NullDishName_ThrowArgumentException()
+        [Fact]
+        public async Task AddDish_NullDishName_ThrowArgumentException()
           {
               var mockImageFile = _fixture.Create<Mock<IFormFile>>();
               DishAddRequest dishAddRequest = _fixture.Build<DishAddRequest>()
@@ -295,8 +387,8 @@ namespace RestaurentSolution.UnitTests
               await action.Should().ThrowAsync<ArgumentException>();
           }
 
-          [Fact]
-          public async Task AddDish_ValidDishDetails_ShouldBeSuccessfull()
+        [Fact]
+        public async Task AddDish_ValidDishDetails_ShouldBeSuccessfull()
           {
               var mockImageFile = _fixture.Create<Mock<IFormFile>>();
               mockImageFile.Setup(f => f.FileName).Returns("test.jpg");
@@ -357,6 +449,7 @@ namespace RestaurentSolution.UnitTests
                    .With(t => t.Category, null as Category)
                    .With(t => t.CartItems, null as List<Carts>)
                    .With(t => t.OrderItems, null as List<OrderItem>)
+                   .With(t => t.Ratings, null as List<Rating>)
                    .Create();
 
             var mockImageFile = _fixture.Create<Mock<IFormFile>>();
@@ -409,6 +502,7 @@ namespace RestaurentSolution.UnitTests
                 .With(t => t.Category, null as Category)
                 .With(t => t.CartItems, null as List<Carts>)
                 .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t=>t.Ratings,null as List<Rating>)
                 .Create();
 
             _dishRepositoryMock.Setup(temp => temp.GetDishByDishId(It.IsAny<Guid>()))

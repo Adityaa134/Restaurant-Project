@@ -30,6 +30,8 @@ import ToasterProvider from "./ToasterProvider/ToasterProvider"
 import ManageOrders from "./ManageOrders/ManageOrders";
 import AddCategory from "./AddCategory/AddCategory";
 import ManageCategories from "./ManageCategories/ManageCategories";
+import StarRating from "./StarRating/StarRating";
+import DishRatingPanel from "./DishRatingPanel/DishratingPanel";
 
 export {
     Header,
@@ -63,5 +65,7 @@ export {
     ToasterProvider,
     ManageOrders,
     AddCategory,
-    ManageCategories
+    ManageCategories,
+    StarRating,
+    DishRatingPanel
 }
