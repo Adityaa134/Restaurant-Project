@@ -31,7 +31,7 @@ import ManageOrders from "./ManageOrders/ManageOrders";
 import AddCategory from "./AddCategory/AddCategory";
 import ManageCategories from "./ManageCategories/ManageCategories";
 import StarRating from "./StarRating/StarRating";
-import DishRatingPanel from "./DishRatingPanel/DishratingPanel";
+import DishRatingPanel from "./DishRatingPanel/DishRatingPanel";
 
 export {
     Header,
