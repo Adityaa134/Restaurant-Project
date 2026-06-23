@@ -16,7 +16,6 @@ namespace Restaurent.Core.Service
             _dishRepository = dishRepository;
             _categoriesGettterService = categoriesGetterService;
         }
-
        
         public async Task<List<DishResponse>> GetAllDishes()
         {
@@ -60,6 +59,22 @@ namespace Restaurent.Core.Service
             if(dishes == null) return null;
             return dishes.Select(temp=>temp.ToDishResponse())
                                            .ToList();
+        }
+
+        public async Task<DishResponse?> ApplyNewRatingToDish(Rating rating)
+        {
+            if (rating == null)
+                throw new ArgumentNullException(nameof(rating));
+            bool isDishExist = await _dishRepository.IsDishExist(rating.DishId);
+            if (!isDishExist)
+                throw new ArgumentException(nameof(rating));
+            Dish? updatedDishRating = await _dishRepository.ApplyNewRatingToDish(rating);
+            return updatedDishRating?.ToDishResponse();
+        }
+
+        public async Task<bool> IsDishExist(Guid dishId)
+        {
+            return await _dishRepository.IsDishExist(dishId);
         }
     }
 }

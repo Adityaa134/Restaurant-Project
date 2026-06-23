@@ -20,6 +20,7 @@ namespace RestaurentSolution.UnitTests
         private readonly Mock<IDishGetterService> _dishGetterServiceMock;
         private readonly Mock<IAddressService> _addressServiceMock;
         private readonly Mock<IAuthService> _authServiceMock;
+        private readonly Mock<IRatingsService> _ratingsServiceMock;
 
         private readonly IOrderCreateService _orderCreateService;
         private readonly IOrderUpdateService _orderUpdateService;
@@ -32,9 +33,11 @@ namespace RestaurentSolution.UnitTests
             _addressServiceMock = new Mock<IAddressService>();
             _removeCartItemsServiceMock = new Mock<IRemoveCartItemsService>();
             _authServiceMock = new Mock<IAuthService>();
+            _ratingsServiceMock = new Mock<IRatingsService>();
+
 
             _orderCreateService = new OrderCreateService(_ordersRepositoryMock.Object, _dishGetterServiceMock.Object, _authServiceMock.Object, _addressServiceMock.Object, _removeCartItemsServiceMock.Object);
-            _orderGetterService = new OrderGetterService(_ordersRepositoryMock.Object, _authServiceMock.Object);
+            _orderGetterService = new OrderGetterService(_ordersRepositoryMock.Object, _authServiceMock.Object,_ratingsServiceMock.Object);
             _orderUpdateService = new OrderUpdateService(_ordersRepositoryMock.Object);
         }
 
@@ -55,15 +58,45 @@ namespace RestaurentSolution.UnitTests
         [Fact]
         public async Task GetOrderByOrderId_ValidOrderId_ShouldReturnMatchingOrder()
         {
-            OrderResponse orderResponseExpected = _fixture.Build<OrderResponse>().Create();
+             OrderResponse orderResponseExpected =
+                    _fixture.Build<OrderResponse>().Create();
 
-            _ordersRepositoryMock.Setup(temp => temp.GetOrderByOrderId(It.IsAny<Guid>()))
-                .ReturnsAsync(orderResponseExpected);
+             List<RatingResponse> ratingsExpected =
+                    orderResponseExpected.OrderItems!
+                    .Select(item => new RatingResponse
+                    {
+                        Id = Guid.NewGuid(),
+                        OrderId = orderResponseExpected.OrderId,
+                        DishId = item.DishId,
+                        Rate = _fixture.Create<decimal>(),
+                        Comment = _fixture.Create<string>()
+                    })
+                    .ToList();
 
-            OrderResponse? odrerResponseActual = await _orderGetterService.GetOrderByOrderId(orderResponseExpected.OrderId);
+              _ordersRepositoryMock
+                    .Setup(temp => temp.GetOrderByOrderId(It.IsAny<Guid>()))
+                    .ReturnsAsync(orderResponseExpected);
 
-            odrerResponseActual.Should().NotBeNull();
-            odrerResponseActual.Should().BeEquivalentTo(orderResponseExpected);
+              _ratingsServiceMock
+                    .Setup(temp => temp.GetRatingsByOrderId(It.IsAny<Guid>()))
+                    .ReturnsAsync(ratingsExpected);
+
+              OrderResponse? orderResponseActual =
+                    await _orderGetterService.GetOrderByOrderId(orderResponseExpected.OrderId);
+
+              orderResponseActual.Should().NotBeNull();
+              orderResponseActual.Should().BeEquivalentTo(orderResponseExpected,
+                    options => options.Excluding(x => x.OrderItems));
+
+            foreach (var item in orderResponseActual!.OrderItems!)
+            {
+                var matchingRating =
+                    ratingsExpected.FirstOrDefault(r => r.DishId == item.DishId);
+
+                matchingRating.Should().NotBeNull();
+                item.Rating.Should().Be(matchingRating!.Rate);
+                item.Comment.Should().Be(matchingRating.Comment);
+            }
         }
 
         [Fact]
@@ -151,7 +184,47 @@ namespace RestaurentSolution.UnitTests
             orderResponseActual.Should().BeEquivalentTo(orderResponseExpected);
         }
 
-        #endregion 
+        [Fact]
+        public async Task IsOrderOwnedByUser_IfUserDoNotOwnedOrder_ShouldReturnFalse()
+        {
+            _ordersRepositoryMock.Setup(temp=>temp.IsOrderOwnedByUser(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync(false);
+            bool isOwned = await _orderGetterService.IsOrderOwnedByUser(Guid.NewGuid(), Guid.NewGuid());
+            isOwned.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task IsOrderOwnedByUser_IfUserOwnedOrder_ShouldReturnTrue()
+        {
+            OrderResponse orderResponse = _fixture.Build<OrderResponse>().Create();
+
+            _ordersRepositoryMock.Setup(temp => temp.IsOrderOwnedByUser(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync(true);
+            bool isOwned = await _orderGetterService.IsOrderOwnedByUser(orderResponse.UserId,orderResponse.OrderId);
+            isOwned.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task IsDishPartOfOrder_IfDishIsNotInOrder_ShouldReturnFalse()
+        {
+            _ordersRepositoryMock.Setup(temp => temp.IsDishPartOfOrder(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync(false);
+            bool isOwned = await _orderGetterService.IsDishPartOfOrder(Guid.NewGuid(), Guid.NewGuid());
+            isOwned.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task IsDishPartOfOrder_IfDishIsInOrder_ShouldReturnTrue()
+        {
+            OrderResponse orderResponse = _fixture.Build<OrderResponse>().Create();
+
+            _ordersRepositoryMock.Setup(temp => temp.IsDishPartOfOrder(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync(true);
+            bool isOwned = await _orderGetterService.IsDishPartOfOrder(orderResponse.OrderId, orderResponse.OrderItems.FirstOrDefault().DishId);
+            isOwned.Should().BeTrue();
+        }
+
+        #endregion
 
        #region CreateOrder
 
@@ -166,7 +239,6 @@ namespace RestaurentSolution.UnitTests
             mockImageFile.Setup(f => f.Length).Returns(1024);
 
             DishResponse dishResponse = _fixture.Build<DishResponse>()
-                                    .With(t => t.Dish_Image, mockImageFile.Object)
                                     .Create();
 
             _dishGetterServiceMock.Setup(temp => temp.GetDishByDishId(It.IsAny<Guid>()))
@@ -194,7 +266,6 @@ namespace RestaurentSolution.UnitTests
             mockImageFile.Setup(f => f.Length).Returns(1024);
 
             DishResponse dishResponse = _fixture.Build<DishResponse>()
-                                    .With(t => t.Dish_Image, mockImageFile.Object)
                                     .Create();
             AddressResponse addressResponse = _fixture.Build<AddressResponse>()
                                     .With(t => t.UserId, orderAddRequest.UserId)
@@ -244,6 +315,7 @@ namespace RestaurentSolution.UnitTests
                                             .With(t => t.DeliveryAddress, null as Address)
                                             .With(t => t.OrderItems, null as List<OrderItem>)
                                             .With(t => t.User, null as ApplicationUser)
+                                            .With(t=>t.Ratings,null as List<Rating>)
                                             .Create();
             OrderResponse orderResponseExpected = _fixture.Build<OrderResponse>()
                                                 .With(t=>t.OrderId,request.OrderId)
@@ -277,6 +349,7 @@ namespace RestaurentSolution.UnitTests
                                             .With(t=>t.DeliveryAddress,null as Address)
                                             .With(t=>t.OrderItems,null as List<OrderItem>)
                                             .With(t=>t.User,null as ApplicationUser)
+                                            .With(t => t.Ratings, null as List<Rating>)
                                             .Create();
 
              _ordersRepositoryMock.Setup(temp => temp.GetOrderDetailsByOrderId(It.IsAny<Guid>()))
@@ -302,6 +375,7 @@ namespace RestaurentSolution.UnitTests
                                             .With(t => t.DeliveryAddress, null as Address)
                                             .With(t => t.OrderItems, null as List<OrderItem>)
                                             .With(t => t.User, null as ApplicationUser)
+                                            .With(t => t.Ratings, null as List<Rating>)
                                             .Create();
 
             _ordersRepositoryMock.Setup(temp => temp.GetOrderDetailsByOrderId(It.IsAny<Guid>()))
@@ -327,6 +401,7 @@ namespace RestaurentSolution.UnitTests
                                             .With(t => t.DeliveryAddress, null as Address)
                                             .With(t => t.OrderItems, null as List<OrderItem>)
                                             .With(t => t.User, null as ApplicationUser)
+                                            .With(t => t.Ratings, null as List<Rating>)
                                             .Create();
             OrderResponse orderResponseExpected = _fixture.Build<OrderResponse>()
                                                 .With(t => t.OrderId, request.OrderId)

@@ -18,6 +18,7 @@ namespace Restaurent.Infrastructure.DBContext
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Address> Address { get; set; }
+        public DbSet<Rating> Ratings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,6 +36,12 @@ namespace Restaurent.Infrastructure.DBContext
 
             modelBuilder.Entity<OrderItem>().ToTable("OrderItems");
             modelBuilder.Entity<Address>().ToTable("Address");
+            modelBuilder.Entity<Rating>()
+                .ToTable("Ratings")
+                .HasOne(r=>r.Order)
+                .WithMany(r=>r.Ratings)
+                .HasForeignKey(r=>r.OrderId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

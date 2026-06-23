@@ -57,6 +57,7 @@ namespace RestaurentSolution.UnitTests
                  .With(t => t.Category, null as Category)
                  .With(t => t.CartItems, null as List<Carts>)
                  .With(t => t.OrderItems, null as List<OrderItem>)
+                 .With(t => t.Ratings, null as List<Rating>)
                  .Create();
             List<Carts> carts = new List<Carts>()
             {
@@ -151,6 +152,7 @@ namespace RestaurentSolution.UnitTests
                  .With(t => t.Category, null as Category)
                  .With(t => t.CartItems, null as List<Carts>)
                  .With(t => t.OrderItems, null as List<OrderItem>)
+                 .With(t=>t.Ratings,null as List<Rating>)
                  .Create();
 
             DishResponse dishResponse = dish.ToDishResponse();
@@ -211,6 +213,7 @@ namespace RestaurentSolution.UnitTests
                  .With(t => t.Category, null as Category)
                  .With(t => t.CartItems, null as List<Carts>)
                  .With(t => t.OrderItems, null as List<OrderItem>)
+                 .With(t => t.Ratings, null as List<Rating>)
                  .Create();
             Carts cart = _fixture.Build<Carts>()
                                        .With(t=>t.Id, request.CartId)

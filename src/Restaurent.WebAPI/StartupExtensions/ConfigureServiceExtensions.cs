@@ -44,6 +44,7 @@ namespace Restaurent.WebAPI.StartupExtensions
             services.AddScoped<IOrderUpdateService, OrderUpdateService>();
             services.AddScoped<ICategoryAdderService, CategoryAdderService>();
             services.AddScoped<ICategoryUpdateService, CategoryUpdateService>();
+            services.AddScoped<IRatingsService, RatingsService>();
             services.Configure<SMTPConfigOptions>(configuration.GetSection("SMTPConfig"));
 
             services.AddScoped<IDishRepository, DishRepository>();
@@ -51,6 +52,7 @@ namespace Restaurent.WebAPI.StartupExtensions
             services.AddScoped<ICartsRepository, CartsRepository>();
             services.AddScoped<IOrdersRepository, OrdersRepository>();
             services.AddScoped<IAddressRepository, AddressRepository>();
+            services.AddScoped<IRatingsRepository, RatingsRepository>();
 
             services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {

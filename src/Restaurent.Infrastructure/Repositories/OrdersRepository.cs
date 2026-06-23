@@ -164,5 +164,18 @@ namespace Restaurent.Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
             return await GetOrderByOrderId(orderId);
         }
+
+        public async Task<bool> IsDishPartOfOrder(Guid orderId, Guid dishId)
+        {
+            return await _dbContext.OrderItems
+                .AnyAsync(o =>
+                    o.OrderId == orderId &&
+                    o.DishId == dishId);
+        }
+
+        public async Task<bool> IsOrderOwnedByUser(Guid userId, Guid orderId)
+        {
+            return await _dbContext.Orders.AnyAsync(o=>o.UserId == userId && o.Id == orderId);
+        }
     }
 }

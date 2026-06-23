@@ -13,11 +13,9 @@ namespace Restaurent.Core.DTO
         public decimal? Price { get; set; }
         public string? Description { get; set; }
         public Guid? CategoryId { get; set; }
-
+        public decimal AverageRating { get; set; }
+        public int TotalRating { get; set; }
         public string? CategoryName { get; set; }
-
-        public IFormFile? Dish_Image { get; set; }
-
         public string? Dish_Image_Path { get; set; }
     }
 
@@ -33,7 +31,9 @@ namespace Restaurent.Core.DTO
                 Price = dish.Price,
                 Description = dish.Description,
                 Dish_Image_Path = dish.Image_Path,
-                CategoryName = dish.Category?.CategoryName
+                CategoryName = dish.Category?.CategoryName,
+                AverageRating = dish.AverageRating,
+                TotalRating = dish.TotalRatings
             };
         }
     }

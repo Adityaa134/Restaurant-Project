@@ -13,6 +13,8 @@ namespace Restaurent.Core.DTO
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }
         public string? DishImagePath { get; set; }
+        public decimal? Rating { get; set; }
+        public string? Comment { get; set; }
     }
 
     public static class OrderItemExtension

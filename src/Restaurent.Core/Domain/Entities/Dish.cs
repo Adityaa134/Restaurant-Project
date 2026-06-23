@@ -21,10 +21,15 @@ namespace Restaurent.Core.Domain.Entities
         public string Image_Path { get; set; }
         public Guid CategoryId { get; set; }
 
+        [Precision(18, 2)]
+        public decimal AverageRating { get; set; } = 0;
+        public int TotalRatings { get; set; } = 0;
+
         [ForeignKey(nameof(CategoryId))]
         public Category Category { get; set; }
 
         public ICollection<Carts> CartItems { get; set; } = new List<Carts>();
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public ICollection<Rating> Ratings { get; set; } = new List<Rating>();
     }
 }

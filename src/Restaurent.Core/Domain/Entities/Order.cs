@@ -23,5 +23,7 @@ namespace Restaurent.Core.Domain.Entities
 
         [ForeignKey(nameof(DeliveryAddressId))]
         public Address DeliveryAddress { get; set; }
+
+        public ICollection<Rating> Ratings { get; set; } = new List<Rating>();
     }
 }
