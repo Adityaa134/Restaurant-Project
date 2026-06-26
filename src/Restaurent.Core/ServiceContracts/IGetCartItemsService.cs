@@ -10,7 +10,7 @@ namespace Restaurent.Core.ServiceContracts
         /// </summary>
         /// <param name="userId">The user which cart items will be returns </param>
         /// <returns>Returns all the cart items of the specific user based on user </returns>
-        Task<List<AddToCartResponse>> GetAllCartItems(Guid? userId);
+        Task<List<CartResponse>> GetAllCartItems(Guid? userId);
 
 
         /// <summary>

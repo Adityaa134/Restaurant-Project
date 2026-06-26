@@ -99,5 +99,12 @@ namespace Restaurent.WebAPI.Controllers
             RatingResponse ratingResponse = await _ratingsService.AddRating(ratingRequest);
             return Ok(ratingResponse);
         }
+
+        [HttpPost("{orderId:guid}/reorder")]
+        public async Task<ActionResult> Reorder(Guid orderId)
+        {
+            List<CartResponse> cartResponse = await _orderGetterService.Reorder(orderId);
+            return Ok(cartResponse);
+        }
     }
 }

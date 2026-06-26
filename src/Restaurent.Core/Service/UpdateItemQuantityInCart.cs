@@ -15,7 +15,7 @@ namespace Restaurent.Core.Service
             _cartsRepository = cartsRepository;
         }
 
-        public async Task<AddToCartResponse> UpdateDishQuantityInCartItem(UpdateQuantityRequest updateQuantityRequest)
+        public async Task<CartResponse> UpdateDishQuantityInCartItem(UpdateQuantityRequest updateQuantityRequest)
         {
             if(updateQuantityRequest==null)
                 throw new ArgumentNullException(nameof(updateQuantityRequest)); 
@@ -30,7 +30,7 @@ namespace Restaurent.Core.Service
                 throw new ArgumentException("cart Item does not exist for the current user");
 
             Carts updatedCart = await _cartsRepository.UpdateCartItemQuantity(cart, updateQuantityRequest.Quantity);
-            return updatedCart.ToAddToCartResponse();
+            return updatedCart.CartResponse();
         }
     }
 }

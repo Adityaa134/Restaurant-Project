@@ -41,5 +41,12 @@ namespace Restaurent.Core.ServiceContracts
         /// <param name="orderId">The order to check</param>
         /// <returns>Returns true if the order belongs to the user otherwise false</returns>
         Task<bool> IsOrderOwnedByUser(Guid userId, Guid orderId);
+
+        /// <summary>
+        /// Reorders all items from a previously placed order by adding them back to the user's cart
+        /// </summary>
+        /// <param name="orderId">The order to reorder</param>
+        /// <returns>Returns the updated cart items</returns>
+        Task<List<CartResponse>> Reorder(Guid orderId);
     }
 }

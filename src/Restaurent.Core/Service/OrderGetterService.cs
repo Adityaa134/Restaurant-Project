@@ -9,11 +9,13 @@ namespace Restaurent.Core.Service
         private readonly IOrdersRepository _ordersRepository;
         private readonly IAuthService _authService;
         private readonly IRatingsService _ratingsService;
-        public OrderGetterService(IOrdersRepository ordersRepository, IAuthService authService, IRatingsService ratingsService)
+        private readonly IAddCartItemsService _addCartItemsService;
+        public OrderGetterService(IOrdersRepository ordersRepository, IAuthService authService, IRatingsService ratingsService, IAddCartItemsService addCartItemsService)
         {
             _ordersRepository = ordersRepository;
             _authService = authService;
             _ratingsService = ratingsService;
+            _addCartItemsService = addCartItemsService;
         }
 
         public async Task<OrderResponse?> GetOrderByOrderId(Guid orderId)
@@ -65,6 +67,26 @@ namespace Restaurent.Core.Service
         public async Task<bool> IsOrderOwnedByUser(Guid userId, Guid orderId)
         {
             return await _ordersRepository.IsOrderOwnedByUser(userId, orderId);
+        }
+
+        public async Task<List<CartResponse>> Reorder(Guid orderId)
+        {
+            if(orderId == Guid.Empty)
+                throw new ArgumentNullException(nameof(orderId));
+
+            OrderResponse? order = await _ordersRepository.GetOrderByOrderId(orderId);
+
+            if (order == null)
+                throw new ArgumentException("OrderId is invalid");
+
+            var items = order.OrderItems.Select(t => new ReorderCartItemRequest()
+                        {
+                            DishId = t.DishId,
+                            Quantity = t.Quantity,
+                            UserId = order.UserId
+                        }).ToList();
+
+            return await _addCartItemsService.AddOrderItemsToCart(items);
         }
     }
 }

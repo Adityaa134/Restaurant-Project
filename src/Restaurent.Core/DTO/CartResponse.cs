@@ -5,7 +5,7 @@ namespace Restaurent.Core.DTO
     /// <summary>
     /// Acts as a DTO to return dishes present in the user's cart  
     /// </summary>
-    public class AddToCartResponse
+    public class CartResponse
     {
         public Guid CartId { get; set; }
         public Guid? UserId { get; set; }
@@ -18,9 +18,9 @@ namespace Restaurent.Core.DTO
 
     public static class CartExtensions
     {
-        public static AddToCartResponse ToAddToCartResponse(this Carts cart)
+        public static CartResponse CartResponse(this Carts cart)
         {
-            return new AddToCartResponse
+            return new CartResponse
             {
                 CartId = cart.Id,
                 UserId = cart.UserId,

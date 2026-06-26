@@ -10,6 +10,13 @@ namespace Restaurent.Core.ServiceContracts
         /// </summary>
         /// <param name="addToCart">The dish to add</param>
         /// <returns></returns>
-        Task<AddToCartResponse> AddItemToCart(AddToCartRequest addToCart);
+        Task<CartResponse> AddItemToCart(AddToCartRequest addToCart);
+
+        /// <summary>
+        /// Adds multiple order items to the cart during reorder operation
+        /// </summary>
+        /// <param name="items">The order items to add into cart</param>
+        /// <returns>Returns the updated cart items</returns>
+        Task<List<CartResponse>> AddOrderItemsToCart(List<ReorderCartItemRequest> items);
     }
 }

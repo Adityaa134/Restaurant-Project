@@ -16,7 +16,7 @@ namespace Restaurent.Core.Service
             _dishGetterService = dishGetterService;
         }
 
-        public async Task<AddToCartResponse> AddItemToCart(AddToCartRequest addToCart)
+        public async Task<CartResponse> AddItemToCart(AddToCartRequest addToCart)
         {
             if (addToCart == null)
                 throw new ArgumentNullException(nameof(addToCart));
@@ -33,7 +33,23 @@ namespace Restaurent.Core.Service
 
             Carts cartItem = await _cartsRepository.AddItemToCart(cart);
 
-            return cartItem.ToAddToCartResponse();
+            return cartItem.CartResponse();
+        }
+
+        public async Task<List<CartResponse>> AddOrderItemsToCart(List<ReorderCartItemRequest> items)
+        {
+            foreach (var item in items)
+            {
+                bool isDishExist = await _dishGetterService.IsDishExist(item.DishId);
+
+                if (!isDishExist)
+                    throw new InvalidOperationException($"Dish {item.DishId} is not available");
+            }
+
+            List<Carts> carts = items.Select(t=>t.ToCart()).ToList();
+
+            var addedCarts = await _cartsRepository.AddOrderItemsToCart(carts);
+            return addedCarts.Select(t=>t.CartResponse()).ToList();
         }
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Restaurent.Core.Domain.Entities;
 using Restaurent.Core.Domain.RepositoryContracts;
+using Restaurent.Core.DTO;
 using Restaurent.Infrastructure.DBContext;
 
 namespace Restaurent.Infrastructure.Repositories
@@ -94,6 +95,15 @@ namespace Restaurent.Infrastructure.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(temp => temp.UserId == userId && temp.DishId == dishId);
 
+        }
+
+        public async Task<List<Carts>> AddOrderItemsToCart(List<Carts> carts)
+        {
+            await _db.Carts.AddRangeAsync(carts);
+            await _db.SaveChangesAsync();
+            Guid? userId = carts.First()?.UserId;
+
+            return await GetAllCartItemsWithUserId(userId.Value);
         }
     }
 }

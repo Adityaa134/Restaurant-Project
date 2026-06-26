@@ -77,5 +77,12 @@ namespace Restaurent.Core.Domain.RepositoryContracts
         /// <param name="dishId">The dish to check</param>
         /// <returns>Returns true if the the specific product is present in the current logged in user; otherwise false</returns>
         Task<bool> IsCartItemExist(Guid? userId, Guid dishId);
+
+        /// <summary>
+        /// Adds multiple cart items into the data store during reorder operation
+        /// </summary>
+        /// <param name="carts">The cart items to store</param>
+        /// <returns>Returns the updated cart items from data store</returns>
+        Task<List<Carts>> AddOrderItemsToCart(List<Carts> carts);
     }
 }

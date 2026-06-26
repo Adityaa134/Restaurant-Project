@@ -29,14 +29,14 @@ namespace Restaurent.WebAPI.Controllers
                     statusCode: StatusCodes.Status400BadRequest);
             }
 
-            AddToCartResponse addToCartResponse = await _addCartItemsService.AddItemToCart(addToCartRequest);
+            CartResponse addToCartResponse = await _addCartItemsService.AddItemToCart(addToCartRequest);
             return Ok(addToCartResponse);
         }
 
         [HttpGet("GetCartItems")]
         public async Task<ActionResult> GetCartItems([FromQuery] Guid? userId)
         {
-            List<AddToCartResponse> cartItems = await _getCartItemsService.GetAllCartItems(userId);
+            List<CartResponse> cartItems = await _getCartItemsService.GetAllCartItems(userId);
             return Ok(cartItems);
         }
 
