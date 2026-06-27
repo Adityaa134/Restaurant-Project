@@ -33,7 +33,6 @@ const OrderSummary = ({ selectedAddress, isAddressSelected }) => {
 
       const payload = {
         userId,
-        orderDate: new Date().toISOString(),
         orderItems,
         deliveryAddressId: selectedAddress.addressId,
       };

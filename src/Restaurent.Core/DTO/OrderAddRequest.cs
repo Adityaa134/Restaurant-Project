@@ -11,9 +11,6 @@ namespace Restaurent.Core.DTO
         [Required(ErrorMessage ="User Id can't be null")]
         public Guid? UserId { get; set; }
 
-        [Required(ErrorMessage = "Order Date can't be null")]
-        public DateTime OrderDate { get; set; }
-
         [Required]
         public List<OrderItemAddRequest> OrderItems { get; set; }
         [Required]
@@ -24,7 +21,7 @@ namespace Restaurent.Core.DTO
             return new Order()
             {
                 UserId = UserId.Value,
-                OrderDate = OrderDate,
+                OrderDate = DateTime.UtcNow,
                 OrderItems = OrderItems
                             .Select(item=>item.ToOrderItems())
                             .ToList(),

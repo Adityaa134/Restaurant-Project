@@ -25,8 +25,8 @@ A full-stack online food ordering application built with React, ASP.NET Core, an
 This project includes comprehensive test coverage for both the service layer and API endpoints.
 
 ### Test Suite
-- **Unit Tests**: 63 tests covering service logic, edge cases, and business rules
-- **Integration Tests**: 57 tests verifying API endpoints and real request/response flows
+- **Unit Tests**: 85 tests covering service logic, edge cases, and business rules
+- **Integration Tests**: 62 tests verifying API endpoints and end-to-end request/response flows
 
 ### What's Tested
 - User authentication and authorization flows

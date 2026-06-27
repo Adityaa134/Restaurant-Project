@@ -89,7 +89,7 @@ namespace RestaurentSolution.IntegrationTests
             return address;
         }
 
-        protected async Task<DishResponse> AddDishToDatabase()
+        protected async Task<DishResponse> AddDishToDatabase(int price = 150,decimal rating = 4)
         {
             using var scope = _factory.Services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
@@ -103,6 +103,8 @@ namespace RestaurentSolution.IntegrationTests
                             .With(t => t.Category, category)
                             .With(t=>t.CategoryId,category.Id)
                             .With(t=>t.DishName,"Cheese Pizza")
+                            .With(t=>t.Price,price)
+                            .With(t=>t.AverageRating,rating)
                             .With(t => t.CartItems, null as List<Carts>)
                             .With(t => t.OrderItems, null as List<OrderItem>)
                             .With(t=>t.Ratings,null as List<Rating>)

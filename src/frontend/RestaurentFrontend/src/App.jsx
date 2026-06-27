@@ -11,6 +11,7 @@ import { login, logout, authCheckCompleted } from "./features/auth/authSlice";
 import cartService from "./services/cartService";
 import { setCartItems } from "./features/cart/cartSlice";
 import { logger } from "./utils/logger";
+import healthService from "./services/healthService";
 
 function App() {
   const dispatch = useDispatch();
@@ -18,9 +19,37 @@ function App() {
   const [error, setError] = useState("");
   const authStatus = useSelector((state) => state.auth.authStatus);
   const userId = useSelector((state) => state.auth.userData?.userId);
-
   const authCheckInProgress = useRef(false);
   const restoreAttempted = useRef(false);
+
+  const waitForBackend = async (retryCount = 3) => {
+    try {
+      await healthService.checkHealth();
+    } catch {
+      if (retryCount > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        return waitForBackend(retryCount - 1);
+      }
+
+      throw new Error("Backend unavailable");
+    }
+  };
+
+  const fetchInitialData = async () => {
+    const dishes = await dishService.GetDishes();
+    dispatch(setDishes(dishes));
+
+    const categories = await categoryService.GetCategories();
+    dispatch(setCategories(categories));
+
+    if (userId) {
+      const cartItems = await cartService.GetCartItems(userId);
+
+      if (cartItems != null) {
+        dispatch(setCartItems(cartItems));
+      }
+    }
+  };
 
   useEffect(() => {
     if (restoreAttempted.current) return;
@@ -68,54 +97,73 @@ function App() {
   }, [dispatch]);
 
   useEffect(() => {
-    dishService
-      .GetDishes()
-      .then((response) => {
-        if (response) {
-          dispatch(setDishes(response));
-        }
-      })
-      .catch((error) => {
-        logger.error("Error in fetching dishes :: App.jsx :: ", error);
+    const initializeApp = async () => {
+      try {
+        await waitForBackend();
+        await fetchInitialData();
+      } catch {
+        setError("Server is waking up. Please refresh after a moment.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        setError(
-          "Unable to load dishes. Server may be waking up. Please refresh or try again in a moment.",
-        );
-      })
-      .finally(() => setLoading(false));
+    initializeApp();
   }, []);
 
-  useEffect(() => {
-    categoryService
-      .GetCategories()
-      .then((response) => {
-        if (response) {
-          dispatch(setCategories(response));
-        }
-      })
-      .catch((error) => {
-        logger.error("Error in fetching categories :: App.jsx :: ", error);
-      });
-  }, []);
+  // useEffect(() => {
+  //   dishService
+  //     .GetDishes()
+  //     .then((response) => {
+  //       if (response) {
+  //         dispatch(setDishes(response));
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       logger.error("Error in fetching dishes :: App.jsx :: ", error);
 
-  useEffect(() => {
-    cartService
-      .GetCartItems(userId)
-      .then((response) => {
-        if (response != null) dispatch(setCartItems(response));
-      })
-      .catch((error) => {
-        logger.error(
-          "Error in fetching CartItems of user :: App.jsx :: ",
-          error,
-        );
-      });
-  }, [userId]);
+  //       setError(
+  //         "Unable to load dishes. Server may be waking up. Please refresh or try again in a moment.",
+  //       );
+  //     })
+  //     .finally(() => setLoading(false));
+  // }, []);
+
+  // useEffect(() => {
+  //   categoryService
+  //     .GetCategories()
+  //     .then((response) => {
+  //       if (response) {
+  //         dispatch(setCategories(response));
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       logger.error("Error in fetching categories :: App.jsx :: ", error);
+  //     });
+  // }, []);
+
+  // useEffect(() => {
+  //   cartService
+  //     .GetCartItems(userId)
+  //     .then((response) => {
+  //       if (response != null) dispatch(setCartItems(response));
+  //     })
+  //     .catch((error) => {
+  //       logger.error(
+  //         "Error in fetching CartItems of user :: App.jsx :: ",
+  //         error,
+  //       );
+  //     });
+  // }, [userId]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
         <div className="w-10 h-10 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
+
+        <p className="text-gray-600 text-sm">
+          Preparing menu... Server may take a minute to wake up.
+        </p>
       </div>
     );
   }
@@ -126,7 +174,7 @@ function App() {
         <div className="text-3xl mb-4 opacity-80">⚠️</div>
 
         <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-3">
-          Failed to load dishes
+          Server is waking up
         </h2>
 
         <p className="text-gray-500 text-sm sm:text-base max-w-md leading-relaxed">

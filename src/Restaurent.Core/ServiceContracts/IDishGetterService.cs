@@ -48,5 +48,12 @@ namespace Restaurent.Core.ServiceContracts
         /// <param name="rating">The rating details to apply</param>
         /// <returns>Returns the updated dish details</returns>
         Task<DishResponse?> ApplyNewRatingToDish(Rating rating);
+
+        /// <summary>
+        /// Returns dishes based on the applied price and rating filters
+        /// </summary>
+        /// <param name="request">The filter criteria for dishes</param>
+        /// <returns>Returns all matching dishes based on filter conditions</returns>
+        Task<List<DishResponse>?> FilterDishes(DishFilterRequest request);
     }
 }

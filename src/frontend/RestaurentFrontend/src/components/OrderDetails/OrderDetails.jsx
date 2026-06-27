@@ -93,16 +93,16 @@ const OrderDetails = () => {
 
   const handleReorder = async () => {
     try {
-    const response = await orderService.Reorder(order.orderId);
+      const response = await orderService.Reorder(order.orderId);
 
-    if (response && response.length > 0) {
-      dispatch(setCartItems(response));
-      navigate("/cart");
+      if (response && response.length > 0) {
+        dispatch(setCartItems(response));
+        navigate("/cart");
+      }
+    } catch (error) {
+      logger.log(error);
     }
-  } catch (error) {
-    logger.log(error);
-  } 
- };
+  };
 
   if (loading) {
     return (
