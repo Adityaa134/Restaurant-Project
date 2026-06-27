@@ -111,51 +111,6 @@ function App() {
     initializeApp();
   }, []);
 
-  // useEffect(() => {
-  //   dishService
-  //     .GetDishes()
-  //     .then((response) => {
-  //       if (response) {
-  //         dispatch(setDishes(response));
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       logger.error("Error in fetching dishes :: App.jsx :: ", error);
-
-  //       setError(
-  //         "Unable to load dishes. Server may be waking up. Please refresh or try again in a moment.",
-  //       );
-  //     })
-  //     .finally(() => setLoading(false));
-  // }, []);
-
-  // useEffect(() => {
-  //   categoryService
-  //     .GetCategories()
-  //     .then((response) => {
-  //       if (response) {
-  //         dispatch(setCategories(response));
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       logger.error("Error in fetching categories :: App.jsx :: ", error);
-  //     });
-  // }, []);
-
-  // useEffect(() => {
-  //   cartService
-  //     .GetCartItems(userId)
-  //     .then((response) => {
-  //       if (response != null) dispatch(setCartItems(response));
-  //     })
-  //     .catch((error) => {
-  //       logger.error(
-  //         "Error in fetching CartItems of user :: App.jsx :: ",
-  //         error,
-  //       );
-  //     });
-  // }, [userId]);
-
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
