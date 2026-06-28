@@ -10,6 +10,6 @@ namespace Restaurent.Core.ServiceContracts
         /// </summary>
         /// <param name="updateQuantityRequest">Quantity to update</param>
         /// <returns>Returns The updated cart details</returns>
-        Task<AddToCartResponse> UpdateDishQuantityInCartItem(UpdateQuantityRequest updateQuantityRequest);
+        Task<CartResponse> UpdateDishQuantityInCartItem(UpdateQuantityRequest updateQuantityRequest);
     }
 }

@@ -520,5 +520,75 @@ namespace RestaurentSolution.UnitTests
         }
         #endregion
 
+        #region FilterDish
+
+        [Fact]
+        public async Task FilterDishes_IfNoDishesFound_ShouldReturnNull()
+        {
+            DishFilterRequest request = _fixture
+                .Build<DishFilterRequest>()
+                .Create();
+
+            _dishRepositoryMock
+                .Setup(temp => temp.FilterDishes(It.IsAny<DishFilterRequest>()))
+                .ReturnsAsync((List<Dish>?)null);
+
+            List<DishResponse>? dishesActual =
+                await _dishGetterService.FilterDishes(request);
+
+            dishesActual.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task FilterDishes_WithValidRequest_ShouldReturnFilteredDishes()
+        {
+            List<Dish> dishes = new List<Dish>()
+            {
+                _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t => t.Ratings, null as List<Rating>)
+                .With(t=>t.Price,180)
+                .With(t=>t.AverageRating,4)
+                .Create(),
+                _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t => t.Ratings, null as List<Rating>)
+                .With(t=>t.Price,140)
+                .With(t=>t.AverageRating,3)
+                .Create()
+            };
+            
+            List<DishResponse> dishesResponseExpected = dishes.Select(t=>t.ToDishResponse()).ToList();
+
+            DishFilterRequest request = _fixture
+                .Build<DishFilterRequest>()
+                .With(t=>t.MinPrice,100)
+                .With(t=>t.MaxPrice,200)
+                .With(t=>t.MinRating,3)
+                .Create();
+
+            _dishRepositoryMock
+                .Setup(temp => temp.FilterDishes(It.IsAny<DishFilterRequest>()))
+                .ReturnsAsync(dishes);
+
+            List<DishResponse>? dishesResponseActual =
+                await _dishGetterService.FilterDishes(request);
+
+            dishesResponseActual.Should().NotBeNull();
+            dishesResponseActual.Should().BeEquivalentTo(dishesResponseExpected);
+            dishesResponseActual!.Count.Should().Be(dishesResponseExpected.Count);
+
+            for (int i = 0; i < dishesResponseExpected.Count; i++)
+            {
+                dishesResponseActual[i].DishId.Should().Be(dishesResponseExpected[i].DishId);
+                dishesResponseActual[i].DishName.Should().Be(dishesResponseExpected[i].DishName);
+            }
+        }
+
+        #endregion
     }
 }

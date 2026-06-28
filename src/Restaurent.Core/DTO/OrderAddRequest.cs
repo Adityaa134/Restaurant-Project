@@ -11,7 +11,7 @@ namespace Restaurent.Core.DTO
         [Required(ErrorMessage ="User Id can't be null")]
         public Guid? UserId { get; set; }
 
-        [Required(ErrorMessage = "Order Date can't be null")]
+        [Required(ErrorMessage = "OrderDate can't be null")]
         public DateTime OrderDate { get; set; }
 
         [Required]

@@ -1,7 +1,7 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Restaurent.Core.Domain.Entities;
 using Restaurent.Core.Domain.RepositoryContracts;
+using Restaurent.Core.DTO;
 using Restaurent.Infrastructure.DBContext;
 
 namespace Restaurent.Infrastructure.Repositories
@@ -103,6 +103,26 @@ namespace Restaurent.Infrastructure.Repositories
         public async Task<bool> IsDishExist(Guid dishId)
         {
             return await _dbContext.Dishes.AnyAsync(t=>t.DishId ==  dishId);
+        }
+
+        public async Task<List<Dish>?> FilterDishes(DishFilterRequest request)
+        {
+            IQueryable<Dish> query = _dbContext.Dishes.AsQueryable();
+
+            if (request.MinPrice.HasValue)
+            {
+                query = query.Where(t => t.Price >= request.MinPrice);
+            }
+            if (request.MaxPrice.HasValue)
+            {
+                query = query.Where(t => t.Price <= request.MaxPrice);
+            }
+            if (request.MinRating.HasValue)
+            {
+                query = query.Where(t => t.AverageRating >= request.MinRating);
+            }
+
+            return await query.ToListAsync();
         }
     }
 }

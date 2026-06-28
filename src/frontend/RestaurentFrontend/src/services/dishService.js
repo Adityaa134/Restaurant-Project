@@ -119,6 +119,29 @@ export class Dish {
       });
     }
   }
+
+  async FilterDishes({
+    minPrice = null,
+    maxPrice = null,
+    minRating = null,
+  } = {}) {
+    try {
+      const params = new URLSearchParams();
+      if (minPrice !== null) params.append("MinPrice", minPrice);
+      if (maxPrice !== null) params.append("MaxPrice", maxPrice);
+      if (minRating !== null) params.append("MinRating", minRating);
+
+      const response = await axiosInstance.get(
+        `/api/Dishes/filter?${params.toString()}`,
+      );
+      return response.data;
+    } catch (error) {
+      logger.log("DishService :: FilterDishes :: ", {
+        status: error.response?.status,
+        detail: error.response?.data?.detail || error.message,
+      });
+    }
+  }
 }
 
 const dishService = new Dish();

@@ -21,6 +21,7 @@ namespace RestaurentSolution.UnitTests
         private readonly Mock<IAddressService> _addressServiceMock;
         private readonly Mock<IAuthService> _authServiceMock;
         private readonly Mock<IRatingsService> _ratingsServiceMock;
+        private readonly Mock<IAddCartItemsService> _addCartItemsServiceMock;
 
         private readonly IOrderCreateService _orderCreateService;
         private readonly IOrderUpdateService _orderUpdateService;
@@ -34,15 +35,16 @@ namespace RestaurentSolution.UnitTests
             _removeCartItemsServiceMock = new Mock<IRemoveCartItemsService>();
             _authServiceMock = new Mock<IAuthService>();
             _ratingsServiceMock = new Mock<IRatingsService>();
+            _addCartItemsServiceMock = new Mock<IAddCartItemsService>(); 
 
 
             _orderCreateService = new OrderCreateService(_ordersRepositoryMock.Object, _dishGetterServiceMock.Object, _authServiceMock.Object, _addressServiceMock.Object, _removeCartItemsServiceMock.Object);
-            _orderGetterService = new OrderGetterService(_ordersRepositoryMock.Object, _authServiceMock.Object,_ratingsServiceMock.Object);
+            _orderGetterService = new OrderGetterService(_ordersRepositoryMock.Object, _authServiceMock.Object,_ratingsServiceMock.Object,_addCartItemsServiceMock.Object);
             _orderUpdateService = new OrderUpdateService(_ordersRepositoryMock.Object);
         }
 
 
-       #region GetOrder
+        #region GetOrder
 
         [Fact]
         public async Task GetOrderByOrderId_InvalidOrderId_ShouldBeNull()
@@ -226,7 +228,7 @@ namespace RestaurentSolution.UnitTests
 
         #endregion
 
-       #region CreateOrder
+        #region CreateOrder
 
         [Fact]
         public async Task CreateOrder_InvalidUserId_ThrowArgumentException()
@@ -300,7 +302,7 @@ namespace RestaurentSolution.UnitTests
 
         #endregion
 
-       #region UpdateOrderStatus
+        #region UpdateOrderStatus
 
         [Fact]
         public async Task UpdateOrderStatusToCancel_CancelOrderWhenCurrentStatusPending_ShouldBeSuccessfull()
@@ -420,6 +422,73 @@ namespace RestaurentSolution.UnitTests
             OrderResponse? orderResponseActual = await _orderUpdateService.UpdateOrderStatus(request);
             orderResponseActual.Should().NotBeNull();
             orderResponseActual.Should().BeEquivalentTo(orderResponseExpected);
+        }
+
+        #endregion
+
+        #region Reorder
+
+        [Fact]
+        public async Task Reorder_WithEmptyOrderId_ShouldThrowArgumentNullException()
+        {
+            Guid orderId = Guid.Empty;
+
+            Func<Task> action = async () =>
+            {
+                await _orderGetterService.Reorder(orderId);
+            };
+
+            await action.Should().ThrowAsync<ArgumentNullException>();
+        }
+
+        [Fact]
+        public async Task Reorder_WithInValidId_ShouldReturnArgumentException()
+        {
+            Guid orderId = Guid.NewGuid();
+
+            _ordersRepositoryMock
+                .Setup(temp => temp.GetOrderByOrderId(It.IsAny<Guid>()))
+                .ReturnsAsync((OrderResponse?)null);
+
+            Func<Task> action = async () =>
+            {
+                await _orderGetterService.Reorder(orderId);
+            };
+
+            await action.Should().ThrowAsync<ArgumentException>()
+                .WithMessage("OrderId is invalid");
+        }
+
+        [Fact]
+        public async Task Reorder_WithValidId_ShouldReturnAddedCartItems()
+        {
+            OrderResponse orderResponseExpected =
+                _fixture.Build<OrderResponse>().Create();
+
+            List<CartResponse> cartResponseExpected =
+            orderResponseExpected.OrderItems
+            .Select(item => new CartResponse
+            {
+                DishId = item.DishId,
+                Quantity = item.Quantity,
+                UserId = orderResponseExpected.UserId
+            })
+            .ToList();
+
+            _ordersRepositoryMock
+                .Setup(temp => temp.GetOrderByOrderId(It.IsAny<Guid>()))
+                .ReturnsAsync(orderResponseExpected);
+
+            _addCartItemsServiceMock
+                .Setup(temp => temp.AddOrderItemsToCart(
+                    It.IsAny<List<ReorderCartItemRequest>>()))
+                .ReturnsAsync(cartResponseExpected);
+
+            List<CartResponse> cartResponseActual =
+                await _orderGetterService.Reorder(orderResponseExpected.OrderId);
+
+            cartResponseActual.Should().NotBeNull();
+            cartResponseActual.Count.Should().Be(orderResponseExpected.OrderItems.Count);
         }
 
         #endregion

@@ -8,6 +8,7 @@ import { updateOrder } from "../../features/orders/orderSlice";
 import { setCartItems } from "../../features/cart/cartSlice";
 import { ORDER_STATUS, ORDER_STATUS_COLOR } from "../../constants/orderStatus";
 import { StarRating, DishRatingPanel } from "../index";
+import { logger } from "../../utils/logger";
 
 const getStatusValue = (status) => {
   if (typeof status === "number") return status;
@@ -52,7 +53,7 @@ const OrderDetails = () => {
         setOrder(response);
         dispatch(updateOrder(response));
       } catch (err) {
-        console.error(err);
+        logger.error(err);
       } finally {
         setLoading(false);
       }
@@ -83,23 +84,24 @@ const OrderDetails = () => {
         },
       });
     } catch (error) {
-      console.error(error);
+      logger.error(error);
       toast.error("Unable to cancel order");
     } finally {
       setCancelLoading(false);
     }
   };
 
-  const handleReorder = () => {
-    const reorderedItems = order.orderItems.map((item) => ({
-      dishId: item.dishId,
-      dishName: item.dishName,
-      quantity: item.quantity,
-      dishPrice: item.unitPrice,
-      dish_Image_Path: item.dishImagePath,
-    }));
-    dispatch(setCartItems(reorderedItems));
-    navigate("/checkout");
+  const handleReorder = async () => {
+    try {
+      const response = await orderService.Reorder(order.orderId);
+
+      if (response && response.length > 0) {
+        dispatch(setCartItems(response));
+        navigate("/cart");
+      }
+    } catch (error) {
+      logger.log(error);
+    }
   };
 
   if (loading) {

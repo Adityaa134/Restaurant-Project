@@ -27,7 +27,7 @@ namespace RestaurentSolution.IntegrationTests
             var response  = await _httpClient.PostAsJsonAsync("api/Carts/add-to-cart", addToCartRequest);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            AddToCartResponse? addToCartResponse = await response.Content.ReadFromJsonAsync<AddToCartResponse>();
+            CartResponse? addToCartResponse = await response.Content.ReadFromJsonAsync<CartResponse>();
             addToCartResponse.Should().NotBeNull();
             addToCartResponse.CartId.Should().NotBeEmpty();
             addToCartResponse.DishId.Should().Be(addToCartRequest.DishId.Value);
@@ -55,7 +55,7 @@ namespace RestaurentSolution.IntegrationTests
         {
             AuthenticationResponse authenticationResponse = await RegisterAndLoginUser();
 
-            List<AddToCartResponse> addToCartResponseExpected = new List<AddToCartResponse>()
+            List<CartResponse> addToCartResponseExpected = new List<CartResponse>()
             {
                 await AddItemToCart(authenticationResponse.UserId),
                 await AddItemToCart(authenticationResponse.UserId)
@@ -65,7 +65,7 @@ namespace RestaurentSolution.IntegrationTests
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            List<AddToCartResponse>? addToCartResponsActual = await response.Content.ReadFromJsonAsync<List<AddToCartResponse>>();
+            List<CartResponse>? addToCartResponsActual = await response.Content.ReadFromJsonAsync<List<CartResponse>>();
             addToCartResponsActual.Should().NotBeEmpty();
             addToCartResponsActual.Should().BeEquivalentTo(addToCartResponseExpected);
         }
@@ -78,7 +78,7 @@ namespace RestaurentSolution.IntegrationTests
             var response = await _httpClient.GetAsync($"api/Carts/GetCartItems?userId={authenticationResponse.UserId}");
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            List<AddToCartResponse>? addToCartResponsActual = await response.Content.ReadFromJsonAsync<List<AddToCartResponse>>();
+            List<CartResponse>? addToCartResponsActual = await response.Content.ReadFromJsonAsync<List<CartResponse>>();
             addToCartResponsActual.Should().BeEmpty();
         }
 
@@ -101,7 +101,7 @@ namespace RestaurentSolution.IntegrationTests
         public async Task UpdateQuantity_IfCartIsValid_ShouldReturnUpdatedCartDetails()
         {
             AuthenticationResponse authenticationResponse = await RegisterAndLoginUser();
-            AddToCartResponse addToCartResponse = await AddItemToCart(authenticationResponse.UserId);
+            CartResponse addToCartResponse = await AddItemToCart(authenticationResponse.UserId);
 
             UpdateQuantityRequest updateQuantityRequest = _fixture.Build<UpdateQuantityRequest>()
                                                           .With(t=>t.CartId,addToCartResponse.CartId)
@@ -111,7 +111,7 @@ namespace RestaurentSolution.IntegrationTests
             var response = await _httpClient.PutAsJsonAsync("api/Carts/update-quantity", updateQuantityRequest);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            AddToCartResponse? updatedCartResponse = await response.Content.ReadFromJsonAsync<AddToCartResponse>();
+            CartResponse? updatedCartResponse = await response.Content.ReadFromJsonAsync<CartResponse>();
             updatedCartResponse.Should().NotBeNull();
 
             updatedCartResponse.CartId.Should().Be(addToCartResponse.CartId);
@@ -126,7 +126,7 @@ namespace RestaurentSolution.IntegrationTests
         public async Task CheckCartItemExist_IfCartItemExist_ShouldReturnTrue()
         {
             AuthenticationResponse authenticationResponse =  await RegisterAndLoginUser();
-            AddToCartResponse addToCartResponse =  await AddItemToCart(authenticationResponse.UserId);
+            CartResponse addToCartResponse =  await AddItemToCart(authenticationResponse.UserId);
 
             var response = await _httpClient.GetAsync($"api/Carts/CheckCartItemExist?userId={authenticationResponse.UserId}&dishId={addToCartResponse.DishId}");
             response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -147,7 +147,7 @@ namespace RestaurentSolution.IntegrationTests
 
         #endregion
 
-        private async Task<AddToCartResponse> AddItemToCart(Guid userId)
+        private async Task<CartResponse> AddItemToCart(Guid userId)
         {
             DishResponse dishResponse = await AddDishToDatabase();
 
@@ -159,7 +159,7 @@ namespace RestaurentSolution.IntegrationTests
             var response = await _httpClient.PostAsJsonAsync("api/Carts/add-to-cart", addToCartRequest);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            AddToCartResponse? addToCartResponse = await response.Content.ReadFromJsonAsync<AddToCartResponse>();
+            CartResponse? addToCartResponse = await response.Content.ReadFromJsonAsync<CartResponse>();
             addToCartResponse.Should().NotBeNull();
             addToCartResponse.CartId.Should().NotBeEmpty();
 

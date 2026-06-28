@@ -101,6 +101,18 @@ export class Order {
       });
     }
   }
+
+  async Reorder(orderId) {
+    try {
+      const response = await axiosInstance.post(`/api/Orders/${orderId}/reorder`);
+      return response.data;
+    } catch (error) {
+      logger.log("OrderService :: Reorder :: ", {
+        status: error.response?.status,
+        detail: error.response?.data?.detail || error.message,
+      });
+    }
+  }
 }
 
 const orderService = new Order();

@@ -259,6 +259,37 @@ namespace RestaurentSolution.IntegrationTests
 
         #endregion
 
+        #region Reorder
+
+        [Fact]
+        public async Task Reorder_WithValidOrderId_ShouldAddItemsInCart()
+        {
+            var authenticationResponse = await RegisterAndLoginUser();
+            var orderResponse = await CreateOrder(authenticationResponse.UserId);
+
+            var response = await _httpClient.PostAsync($"api/Orders/{orderResponse.OrderId}/reorder", null);
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            List<CartResponse>? cartResponse =
+                await response.Content.ReadFromJsonAsync<List<CartResponse>>();
+
+            cartResponse.Should().NotBeNull();
+            cartResponse.Should().NotBeEmpty();
+
+            cartResponse!.Count.Should().Be(orderResponse.OrderItems.Count);
+
+            cartResponse.Select(t => t.DishId)
+                .Should()
+                .BeEquivalentTo(orderResponse.OrderItems.Select(t => t.DishId));
+
+            cartResponse.Select(t => t.Quantity)
+                .Should()
+                .BeEquivalentTo(orderResponse.OrderItems.Select(t => t.Quantity));
+        }
+
+        #endregion
+
         private async Task<OrderResponse> CreateOrder(Guid userId)
         {
             var address = await CreateAddress(userId);

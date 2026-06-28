@@ -38,5 +38,13 @@ namespace Restaurent.WebAPI.Controllers
            List<DishResponse>? dishes =  await _dishGetterService.SearchDish(dish);
             return Ok(dishes);
         }
+
+        [HttpGet("filter")]
+        public async Task<ActionResult> FilterDishes([FromQuery] DishFilterRequest request)
+        {
+            List<DishResponse>? dishes =
+                await _dishGetterService.FilterDishes(request);
+            return Ok(dishes);
+        }
     }
 }

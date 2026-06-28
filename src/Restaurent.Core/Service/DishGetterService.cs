@@ -1,5 +1,4 @@
-﻿using System;
-using Restaurent.Core.Domain.Entities;
+﻿using Restaurent.Core.Domain.Entities;
 using Restaurent.Core.Domain.RepositoryContracts;
 using Restaurent.Core.DTO;
 using Restaurent.Core.ServiceContracts;
@@ -75,6 +74,12 @@ namespace Restaurent.Core.Service
         public async Task<bool> IsDishExist(Guid dishId)
         {
             return await _dishRepository.IsDishExist(dishId);
+        }
+
+        public async Task<List<DishResponse>?> FilterDishes(DishFilterRequest request)
+        {
+            List<Dish>? dishes = await _dishRepository.FilterDishes(request);
+            return dishes?.Select(temp=>temp.ToDishResponse()).ToList();
         }
     }
 }

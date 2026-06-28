@@ -15,17 +15,17 @@ namespace Restaurent.Core.Service
         }
 
 
-        public async Task<List<AddToCartResponse>> GetAllCartItems(Guid? userId)
+        public async Task<List<CartResponse>> GetAllCartItems(Guid? userId)
         {
             if (userId == null)
             {
                 List<Carts> cartsItemsUserIdIsNull = await _cartRepository.GetAllCartItemsWithoutUserId();
-                return cartsItemsUserIdIsNull.Select(temp => temp.ToAddToCartResponse())
+                return cartsItemsUserIdIsNull.Select(temp => temp.CartResponse())
                     .ToList();
             }
 
             List<Carts> cartsItems = await _cartRepository.GetAllCartItemsWithUserId(userId.Value);
-            return cartsItems.Select(temp => temp.ToAddToCartResponse())
+            return cartsItems.Select(temp => temp.CartResponse())
                 .ToList();
         }
 
