@@ -1,8 +1,6 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Restaurent.Core.Domain.Entities;
 using Restaurent.Core.Domain.RepositoryContracts;
-using Restaurent.Core.DTO;
 using Restaurent.Infrastructure.DBContext;
 
 namespace Restaurent.Infrastructure.Repositories

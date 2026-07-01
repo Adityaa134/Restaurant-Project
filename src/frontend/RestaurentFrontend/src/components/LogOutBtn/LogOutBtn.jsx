@@ -1,27 +1,29 @@
-import { useDispatch } from 'react-redux'
-import authService from '../../services/authService'
-import { logout } from '../../features/auth/authSlice'
+import { useDispatch } from "react-redux";
+import authService from "../../services/authService";
+import { logout } from "../../features/auth/authSlice";
+import { removeItemsFromCart } from "../../features/cart/cartSlice";
 
 function LogOutBtn() {
-    const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
-    const logoutHandler = () => {
-        authService.Logout()
-            .then(() => {
-                dispatch(logout())
-            })
-        localStorage.removeItem("token")
-        localStorage.removeItem("refreshToken")
-    }
+  const logoutHandler = () => {
+    authService.Logout().then(() => {
+      dispatch(logout());
+    });
+    localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("guestCart");
+    dispatch(removeItemsFromCart());
+  };
 
-    return (
-        <button
-            className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-gray-50"
-            onClick={logoutHandler}
-        >
-            Logout
-        </button>
-    )
+  return (
+    <button
+      className="text-gray-600 hover:text-blue-600 font-medium text-sm transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-gray-50"
+      onClick={logoutHandler}
+    >
+      Logout
+    </button>
+  );
 }
 
-export default LogOutBtn
+export default LogOutBtn;

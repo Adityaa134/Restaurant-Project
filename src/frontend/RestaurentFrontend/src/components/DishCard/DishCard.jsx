@@ -7,41 +7,35 @@ import { addItemToCart } from "../../features/cart/cartSlice";
 
 function DishCard({ dishId, dishName, price, dish_Image_Path }) {
   const userId = useSelector((state) => state.auth.userData?.userId);
+  const cartItems = useSelector((state) => state.carts.cartItems);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const imageUrl = `${dish_Image_Path}`;
 
-  const [itemAdded, setItemAdded] = useState("Order Now");
-
-  useEffect(() => {
-    const checkItemInCart = async () => {
-      if (dishId) {
-        try {
-          const exists = await cartService.CheckCartItemExist(userId, dishId);
-          if (exists) {
-            setItemAdded("View Item");
-          } else {
-            setItemAdded("Order Now");
-          }
-        } catch (error) {
-          console.log("Error checking item in cart:", error);
-          setItemAdded("Order Now");
-        }
-      }
-    };
-
-    checkItemInCart();
-  }, [userId, dishId]);
+  const itemAdded = cartItems.some((cartItem) => cartItem.dishId === dishId)
+    ? "View Item"
+    : "Order Now";
 
   const addItem = async () => {
     if (isPlacingOrder) return;
     setIsPlacingOrder(true);
     try {
-      const response = await cartService.AddItemToCart(userId, dishId);
-      if (response) {
-        dispatch(addItemToCart(response));
-        setItemAdded("View Item");
+      if (userId) {
+        const response = await cartService.AddItemToCart(userId, dishId);
+        if (response) {
+          dispatch(addItemToCart(response));
+        }
+      } else {
+        dispatch(
+          addItemToCart({
+            dishId,
+            dishName,
+            quantity: 1,
+            dishPrice: price,
+            dish_Image_Path,
+          }),
+        );
       }
     } catch (error) {
       console.log(error);

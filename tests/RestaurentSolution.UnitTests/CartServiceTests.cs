@@ -88,46 +88,7 @@ namespace RestaurentSolution.UnitTests
             cartResponsesActual.Should().NotBeEmpty();
             cartResponsesActual.Should().BeEquivalentTo(cartsResponsesExpected);
         }
-
-        [Fact]
-        public async Task IsCartItemExist_IfDishIdIsNull_ShouldBeFalse()
-        {
-            Guid dishId = Guid.Empty;
-            Guid userId = Guid.NewGuid();
-
-            bool isExist = await _getCartItemsService.IsCartItemExist(userId,dishId);
-
-            isExist.Should().BeFalse();
-        }
-
-        [Fact]
-        public async Task IsCartItemExist_IfDishIdAndUserIdRecordIsNotFound_ShouldBeFalse()
-        {
-            Guid userId = Guid.NewGuid();
-            Guid dishId = Guid.NewGuid();
-
-            _cartsRepositoryMock.Setup(temp => temp.IsCartItemExist(It.IsAny<Guid>(), It.IsAny<Guid>()))
-                .ReturnsAsync(false);
-
-            bool isExist = await _getCartItemsService.IsCartItemExist(userId,dishId);
-
-            isExist.Should().BeFalse();
-        }
-
-        [Fact]
-        public async Task IsCartItemExist_IfDishIdAndUserIdRecordIsFound_ShouldBeTrue()
-        {
-            Guid userId = Guid.NewGuid();
-            Guid dishId = Guid.NewGuid();
-
-            _cartsRepositoryMock.Setup(temp=>temp.IsCartItemExist(It.IsAny<Guid>(), It.IsAny<Guid>()))
-                   .ReturnsAsync(true);
-
-            bool isExist = await _getCartItemsService.IsCartItemExist(userId, dishId);
-
-            isExist.Should().BeTrue();
-        }
-
+ 
         #endregion 
 
         #region AddItemsTocart
@@ -377,6 +338,209 @@ namespace RestaurentSolution.UnitTests
 
             isDeleted.Should().BeTrue();
         }
-        #endregion 
+        #endregion
+
+        #region MergeCart
+
+        [Fact]
+        public async Task MergeCart_WithNewItems_ShouldAddItemsToCart()
+        {
+            Guid userId = Guid.NewGuid();
+
+            List<MergeCartRequest> items = new()
+            {
+                new() { DishId = Guid.NewGuid(), Quantity = 2 }
+            };
+
+            Dish dish = _fixture.Build<Dish>()
+                 .With(t => t.Category, null as Category)
+                 .With(t => t.CartItems, null as List<Carts>)
+                 .With(t => t.OrderItems, null as List<OrderItem>)
+                 .With(t => t.Ratings, null as List<Rating>)
+                 .With(t => t.DishId, items.First()?.DishId)
+                 .Create();
+
+            Carts carts = _fixture.Build<Carts>()
+                                  .With(t => t.Users, null as ApplicationUser)
+                                  .With(t => t.Dishes, dish)
+                                  .With(t => t.DishId, items.First()?.DishId)
+                                  .With(t => t.Quantity, items.First().Quantity)
+                                  .Create();
+
+            List<Carts> carts1 = new List<Carts>()
+            {
+                carts
+            };
+
+            List<CartResponse> cartResponsesExpected = new List<CartResponse>()
+            {
+                carts.CartResponse()
+            };
+
+            _cartsRepositoryMock
+                .Setup(x => x.AddItemToCart(It.IsAny<Carts>()))
+                .ReturnsAsync(carts);
+
+            _cartsRepositoryMock
+                .SetupSequence(x => x.GetAllCartItemsWithUserId(It.IsAny<Guid>()))
+                .ReturnsAsync(new List<Carts>())
+                .ReturnsAsync(carts1);
+
+            List<CartResponse> cartResponsesActual =
+                await _addCartItemsService.MergeCart(userId, items);
+
+            cartResponsesActual.Should().NotBeNull();
+            cartResponsesActual.Count.Should().Be(1);
+            cartResponsesActual.Should().BeEquivalentTo(cartResponsesExpected);
+        }
+
+        [Fact]
+        public async Task MergeCart_WithExistingItem_ShouldUpdateQuantity()
+        {
+            Guid userId = Guid.NewGuid();
+
+            Dish dish = _fixture.Build<Dish>()
+                 .With(t => t.Category, null as Category)
+                 .With(t => t.CartItems, null as List<Carts>)
+                 .With(t => t.OrderItems, null as List<OrderItem>)
+                 .With(t => t.Ratings, null as List<Rating>)
+                 .Create();
+
+            List<MergeCartRequest> items = new()
+            {
+                new() { DishId = dish.DishId, Quantity = 2 }
+            };
+
+            Carts carts = _fixture.Build<Carts>()
+                                  .With(t => t.Users, null as ApplicationUser)
+                                  .With(t => t.Dishes, dish)
+                                  .With(t => t.DishId, dish.DishId)
+                                  .With(t => t.Quantity, 1)
+                                  .Create();
+
+            Carts updatedCart = _fixture.Build<Carts>()
+                                .With(t => t.Users, null as ApplicationUser)
+                                .With(t => t.Dishes, dish)
+                                .With(t => t.DishId, dish.DishId)
+                                .With(t => t.Quantity, carts.Quantity + items.First().Quantity)
+                                .Create();
+
+            List<Carts> existingCart = new()
+            {
+                carts
+            };
+
+            List<Carts> cartItems = new List<Carts>()
+            {
+                updatedCart
+            };
+
+            List<CartResponse> cartResponsesExpected = new List<CartResponse>()
+            {
+                updatedCart.CartResponse()
+            };
+
+            _cartsRepositoryMock
+                .Setup(x => x.UpdateCartItemQuantity(
+                    It.IsAny<Carts>(),
+                    It.IsAny<int>()
+                ))
+                .ReturnsAsync(updatedCart);
+
+            _cartsRepositoryMock
+                .SetupSequence(x => x.GetAllCartItemsWithUserId(It.IsAny<Guid>()))
+                .ReturnsAsync(existingCart)
+                .ReturnsAsync(cartItems);
+
+            List<CartResponse> cartResponsesActual =
+                await _addCartItemsService.MergeCart(userId, items);
+
+            cartResponsesActual.Should().NotBeNull();
+            cartResponsesExpected.Should().BeEquivalentTo(cartResponsesActual);
+        }
+
+        [Fact]
+        public async Task MergeCart_WithExistingAndNewItems_ShouldMergeCorrectly()
+        {
+            Guid userId = Guid.NewGuid();
+
+            Dish existingDish = _fixture.Build<Dish>()
+                 .With(t => t.Category, null as Category)
+                 .With(t => t.CartItems, null as List<Carts>)
+                 .With(t => t.OrderItems, null as List<OrderItem>)
+                 .With(t => t.Ratings, null as List<Rating>)
+                 .Create();
+
+            Dish newDish = _fixture.Build<Dish>()
+                 .With(t => t.Category, null as Category)
+                 .With(t => t.CartItems, null as List<Carts>)
+                 .With(t => t.OrderItems, null as List<OrderItem>)
+                 .With(t => t.Ratings, null as List<Rating>)
+                 .Create();
+
+            List<MergeCartRequest> items = new()
+            {
+                new() { DishId = newDish.DishId, Quantity = 2 },
+                new() { DishId = existingDish.DishId, Quantity = 1 }
+            };
+
+            Carts existingCart = _fixture.Build<Carts>()
+                                  .With(t => t.Users, null as ApplicationUser)
+                                  .With(t => t.Dishes, existingDish)
+                                  .With(t => t.DishId, existingDish.DishId)
+                                  .With(t => t.Quantity, 1)
+                                  .Create();
+
+            Carts updatedExistingCart = _fixture.Build<Carts>()
+                                .With(t => t.Users, null as ApplicationUser)
+                                .With(t => t.Dishes, existingDish)
+                                .With(t => t.DishId, existingDish.DishId)
+                                .With(t => t.Quantity, existingCart.Quantity + items[1].Quantity)
+                                .Create();
+
+            List<Carts> existingCartItems = new()
+            {
+                existingCart
+            };
+
+            Carts newCart = _fixture.Build<Carts>()
+                                  .With(t => t.Users, null as ApplicationUser)
+                                  .With(t => t.Dishes, newDish)
+                                  .With(t => t.DishId, newDish.DishId)
+                                  .With(t => t.Quantity, items.First().Quantity)
+                                  .Create();
+
+            List<Carts> cartItems = new List<Carts>()
+            {
+                updatedExistingCart,
+                newCart
+            };
+
+            List<CartResponse> cartResponsesExpected = cartItems.Select(t => t.CartResponse()).ToList();
+
+            _cartsRepositoryMock
+                .Setup(x => x.UpdateCartItemQuantity(
+                    It.IsAny<Carts>(),
+                    It.IsAny<int>()
+                ))
+                .ReturnsAsync(updatedExistingCart);
+
+            _cartsRepositoryMock
+                .Setup(x => x.AddItemToCart(It.IsAny<Carts>()))
+                .ReturnsAsync(newCart);
+
+            _cartsRepositoryMock
+                .SetupSequence(x => x.GetAllCartItemsWithUserId(It.IsAny<Guid>()))
+                .ReturnsAsync(existingCartItems)
+                .ReturnsAsync(cartItems);
+
+            List<CartResponse> cartResponsesActual =
+                await _addCartItemsService.MergeCart(userId, items);
+
+            cartResponsesActual.Should().NotBeNull();
+            cartResponsesExpected.Should().BeEquivalentTo(cartResponsesActual);
+        }
+
+        #endregion
     }
 }

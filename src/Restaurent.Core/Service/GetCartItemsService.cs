@@ -1,5 +1,4 @@
-﻿using System;
-using Restaurent.Core.Domain.Entities;
+﻿using Restaurent.Core.Domain.Entities;
 using Restaurent.Core.Domain.RepositoryContracts;
 using Restaurent.Core.DTO;
 using Restaurent.Core.ServiceContracts;
@@ -27,18 +26,6 @@ namespace Restaurent.Core.Service
             List<Carts> cartsItems = await _cartRepository.GetAllCartItemsWithUserId(userId.Value);
             return cartsItems.Select(temp => temp.CartResponse())
                 .ToList();
-        }
-
-        public async Task<bool> IsCartItemExist(Guid? userId, Guid dishId)
-        {
-            if (dishId == Guid.Empty)
-                return false;
-
-            bool isProductPresent = await _cartRepository.IsCartItemExist(userId, dishId);
-
-            if (isProductPresent)
-                return true;
-            return false;
         }
     }
 }

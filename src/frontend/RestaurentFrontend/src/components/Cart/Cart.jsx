@@ -4,27 +4,51 @@ import cartService from "../../services/cartService";
 import {
   updateCartItems,
   removeItemFromCart,
+  updateLocalCartItemQuantity,
 } from "../../features/cart/cartSlice";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../index";
+import { logger } from "../../utils/logger";
 
 function Cart() {
   const cartItems = useSelector((state) => state.carts.cartItems);
+  const userId = useSelector((state) => state.auth.userData?.userId);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const updateQuantity = async (quantity, cartId) => {
+  const updateQuantity = async (quantity, cartId, dishId) => {
     try {
-      let response = await cartService.UpdateQuantity(quantity, cartId);
-      if (response) {
+      if (userId) {
+        const response = await cartService.UpdateQuantity(quantity, cartId);
         if (response.quantity === 0) {
           dispatch(removeItemFromCart(response.cartId));
         } else {
           dispatch(updateCartItems(response));
         }
+      } else {
+        const existingItem = cartItems.find((item) => item.dishId === dishId);
+        const newQuantity = existingItem.quantity + quantity;
+        if (newQuantity <= 0) {
+          dispatch(removeItemFromCart(cartId));
+          const updatedGuestCart = cartItems.filter(
+            (item) => item.dishId !== dishId,
+          );
+          localStorage.setItem("guestCart", JSON.stringify(updatedGuestCart));
+        } else {
+          dispatch(
+            updateLocalCartItemQuantity({
+              dishId,
+              quantity,
+            }),
+          );
+          const updatedGuestCart = cartItems.map((item) =>
+            item.dishId === dishId ? { ...item, quantity: newQuantity } : item,
+          );
+          localStorage.setItem("guestCart", JSON.stringify(updatedGuestCart));
+        }
       }
     } catch (error) {
-      console.log(error);
+      logger.error(error);
     }
   };
 
@@ -114,7 +138,9 @@ function Cart() {
                 "
                   >
                     <button
-                      onClick={() => updateQuantity(-1, item.cartId)}
+                      onClick={() =>
+                        updateQuantity(-1, item?.cartId, item.dishId)
+                      }
                       className="
                     w-8 h-8
                     flex items-center justify-center
@@ -137,7 +163,9 @@ function Cart() {
                     </span>
 
                     <button
-                      onClick={() => updateQuantity(+1, item.cartId)}
+                      onClick={() =>
+                        updateQuantity(+1, item?.cartId, item.dishId)
+                      }
                       className="
                     w-8 h-8
                     flex items-center justify-center

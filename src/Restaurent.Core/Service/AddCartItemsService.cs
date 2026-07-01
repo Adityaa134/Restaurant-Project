@@ -51,5 +51,39 @@ namespace Restaurent.Core.Service
             var addedCarts = await _cartsRepository.AddOrderItemsToCart(carts);
             return addedCarts.Select(t=>t.CartResponse()).ToList();
         }
+
+        public async Task<List<CartResponse>> MergeCart(Guid userId, List<MergeCartRequest> items)
+        {
+            var existingCartItems = await _cartsRepository.GetAllCartItemsWithUserId(userId);
+
+            foreach (var item in items)
+            {
+                var existingItem = existingCartItems
+                    ?.FirstOrDefault(x => x.DishId == item.DishId);
+
+                if (existingItem != null)
+                {
+                    await _cartsRepository.UpdateCartItemQuantity(existingItem,item.Quantity);
+                }
+                else
+                {
+                    var newCart = new Carts
+                    {
+                        UserId = userId,
+                        DishId = item.DishId,
+                        Quantity = item.Quantity
+                    };
+
+                    await _cartsRepository.AddItemToCart(newCart);
+                }
+            }
+
+            var updatedCart =
+                await _cartsRepository.GetAllCartItemsWithUserId(userId);
+
+            return updatedCart
+                .Select(x => x.CartResponse())
+                .ToList();
+        }
     }
 }

@@ -120,29 +120,88 @@ namespace RestaurentSolution.IntegrationTests
 
         #endregion
 
-        #region CheckCartItemExist
+        #region MergeCart
 
         [Fact]
-        public async Task CheckCartItemExist_IfCartItemExist_ShouldReturnTrue()
+        public async Task MergeCart_WithNewItems_ShouldAddItemsToCart()
         {
-            AuthenticationResponse authenticationResponse =  await RegisterAndLoginUser();
-            CartResponse addToCartResponse =  await AddItemToCart(authenticationResponse.UserId);
+            DishResponse dishResponse1 =  await AddDishToDatabase();
+            DishResponse dishResponse2 = await AddDishToDatabase();
 
-            var response = await _httpClient.GetAsync($"api/Carts/CheckCartItemExist?userId={authenticationResponse.UserId}&dishId={addToCartResponse.DishId}");
+            AuthenticationResponse authenticationResponse =  await RegisterAndLoginUser();
+
+            List<MergeCartRequest> items = new()
+            {
+                new()
+                {
+                    DishId = dishResponse1.DishId.Value,
+                    Quantity = 2
+                },
+                new()
+                {
+                    DishId = dishResponse2.DishId.Value,
+                    Quantity = 2
+                }
+            };
+
+            var response = await _httpClient.PostAsJsonAsync(
+                $"api/Carts/{authenticationResponse.UserId}/merge",
+                items
+            );
+
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            bool isExist = await response.Content.ReadFromJsonAsync<bool>();
-            isExist.Should().BeTrue();
+
+            List<CartResponse>? cartResponsesActual = await response.Content.ReadFromJsonAsync<List<CartResponse>>();
+
+            cartResponsesActual.Should().NotBeNull();
+            cartResponsesActual.Should().HaveCount(items.Count);
         }
 
         [Fact]
-        public async Task CheckCartItemExist_IfCartItemDoesNotExist_ShouldReturnFalse()
+        public async Task MergeCart_WithExistingAndNewItems_ShouldMergeCorrectly()
         {
+            DishResponse dishResponse = await AddDishToDatabase();
+
             AuthenticationResponse authenticationResponse = await RegisterAndLoginUser();
 
-            var response = await _httpClient.GetAsync($"/api/Carts/CheckCartItemExist?userId={authenticationResponse.UserId}&dishId={Guid.NewGuid()}");
+            CartResponse cartResponse =  await AddItemToCart(authenticationResponse.UserId);
+
+            List<MergeCartRequest> items = new()
+            {
+                new()
+                {
+                    DishId = cartResponse.DishId,
+                    Quantity = 2
+                },
+                new()
+                {
+                    DishId = dishResponse.DishId.Value,
+                    Quantity = 2
+                }
+            };
+
+            var response = await _httpClient.PostAsJsonAsync(
+                $"/api/Carts/{authenticationResponse.UserId}/merge",
+                items
+            );
+
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            bool isExist = await response.Content.ReadFromJsonAsync<bool>();
-            isExist.Should().BeFalse();
+
+            List<CartResponse>? cartResponsesActual = await response.Content.ReadFromJsonAsync<List<CartResponse>>();
+
+            cartResponsesActual.Should().NotBeNull();
+            cartResponsesActual.Should().HaveCount(items.Count);
+            CartResponse existingItem = cartResponsesActual
+                .First(x => x.DishId == cartResponse.DishId);
+
+            CartResponse newItem = cartResponsesActual
+                .First(x => x.DishId == dishResponse.DishId);
+
+            existingItem.Quantity.Should().Be(
+                items[0].Quantity + cartResponse.Quantity
+            );
+
+            newItem.Quantity.Should().Be(items[1].Quantity);
         }
 
         #endregion
