@@ -44,10 +44,12 @@ function App() {
 
     if (userId) {
       const cartItems = await cartService.GetCartItems(userId);
-
       if (cartItems != null) {
         dispatch(setCartItems(cartItems));
       }
+    } else {
+      const guestCart = JSON.parse(localStorage.getItem("guestCart")) || [];
+      dispatch(setCartItems(guestCart));
     }
   };
 
@@ -109,7 +111,7 @@ function App() {
     };
 
     initializeApp();
-  }, []);
+  }, [userId]);
 
   if (loading) {
     return (
@@ -126,15 +128,14 @@ function App() {
   if (error) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
-        <div className="text-3xl mb-4 opacity-80">⚠️</div>
-
+        <div className="w-8 h-8 border-4 border-gray-300 border-t-gray-800 rounded-full animate-spin mb-6"></div>
         <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-3">
-          Server is waking up
+          Waking up the server...
         </h2>
 
         <p className="text-gray-500 text-sm sm:text-base max-w-md leading-relaxed">
-          Server may be starting after inactivity. Please refresh the page or
-          try again after a few moments.
+          Our server was idle and is starting now. This may take a minute or
+          two. Thanks for waiting.
         </p>
       </div>
     );

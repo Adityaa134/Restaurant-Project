@@ -7,6 +7,8 @@ import { useDispatch } from "react-redux";
 import { Input, Button } from "../index";
 import { GoogleLogin } from "@react-oauth/google";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import cartService from "../../services/cartService";
+import { setCartItems } from "../../features/cart/cartSlice";
 
 function Login() {
   const [error, setError] = useState("");
@@ -38,6 +40,17 @@ function Login() {
             profileImage: response.profileImage,
           }),
         );
+        const guestCart = JSON.parse(localStorage.getItem("guestCart")) || [];
+        if (guestCart.length > 0) {
+          const cartItems = await cartService.MergeCart(
+            response.userId,
+            guestCart,
+          );
+          if (cartItems) {
+            dispatch(setCartItems(cartItems));
+          }
+          localStorage.removeItem("guestCart");
+        }
         navigate("/");
       } else {
         navigate(`/confirm-email?email=${encodeURIComponent(data.email)}`);
@@ -67,6 +80,17 @@ function Login() {
             profileImage: response.profileImage,
           }),
         );
+        const guestCart = JSON.parse(localStorage.getItem("guestCart")) || [];
+        if (guestCart.length > 0) {
+          const cartItems = await cartService.MergeCart(
+            response.userId,
+            guestCart,
+          );
+          if (cartItems) {
+            dispatch(setCartItems(cartItems));
+          }
+          localStorage.removeItem("guestCart");
+        }
         navigate("/");
       }
     } catch (error) {

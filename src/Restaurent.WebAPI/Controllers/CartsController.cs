@@ -5,7 +5,7 @@ using Restaurent.Core.ServiceContracts;
 
 namespace Restaurent.WebAPI.Controllers
 {
-    [AllowAnonymous]
+    [Authorize]
     public class CartsController : CustomControllerBase
     {
         private readonly IAddCartItemsService _addCartItemsService;
@@ -19,6 +19,7 @@ namespace Restaurent.WebAPI.Controllers
             _updateItemQuantityInCart = updateItemQuantityInCart;
         }
 
+        [AllowAnonymous]
         [HttpPost("add-to-cart")]
         public async Task<ActionResult> AddToCart(AddToCartRequest addToCartRequest)
         {
@@ -33,6 +34,7 @@ namespace Restaurent.WebAPI.Controllers
             return Ok(addToCartResponse);
         }
 
+        [AllowAnonymous]
         [HttpGet("GetCartItems")]
         public async Task<ActionResult> GetCartItems([FromQuery] Guid? userId)
         {
@@ -40,6 +42,7 @@ namespace Restaurent.WebAPI.Controllers
             return Ok(cartItems);
         }
 
+        [AllowAnonymous]
         [HttpPut("update-quantity")]
         public async Task<ActionResult> UpdateQuantity(UpdateQuantityRequest updateQuantityRequest)
         {
@@ -47,13 +50,11 @@ namespace Restaurent.WebAPI.Controllers
             return Ok(updatedCart);
         }
 
-        [HttpGet("CheckCartItemExist")]
-        public async Task<ActionResult> CheckCartItemExist([FromQuery] Guid? userId, [FromQuery] Guid dishId)
+        [HttpPost("{userId:guid}/merge")]
+        public async Task<IActionResult> MergeCart(Guid userId , List<MergeCartRequest> items)
         {
-            bool exist = await _getCartItemsService.IsCartItemExist(userId, dishId);
-            if (exist)
-                return Ok(true);
-            return Ok(false);
+            var response = await _addCartItemsService.MergeCart(userId,items);
+            return Ok(response);
         }
     }
 }

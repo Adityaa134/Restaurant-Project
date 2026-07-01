@@ -231,10 +231,10 @@ function Register() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   className="
-                  w-full px-3 py-2 pr-12
-                  border border-gray-300 rounded-md
-                  focus:outline-none focus:ring-blue-500 focus:border-blue-500
-                "
+      w-full px-3 py-2 pr-12
+      border border-gray-300 rounded-md
+      focus:outline-none focus:ring-blue-500 focus:border-blue-500
+    "
                   {...register("password", {
                     required: "Password is required",
                     validate: {
@@ -256,25 +256,26 @@ function Register() {
                     },
                   })}
                 />
-                {formErrors.password && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {formErrors.password.message}
-                  </p>
-                )}
 
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="
-                  absolute inset-y-0 right-3
-                  flex items-center
-                  text-gray-400 hover:text-gray-600
-                  focus:outline-none
-                "
+      absolute inset-y-0 right-3
+      flex items-center
+      text-gray-400 hover:text-gray-600
+      focus:outline-none
+    "
                 >
                   {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
                 </button>
               </div>
+
+              {formErrors.password && (
+                <p className="mt-1 text-sm text-red-600">
+                  {formErrors.password.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -293,11 +294,6 @@ function Register() {
                       value === watch("password") || "Passwords do not match",
                   })}
                 />
-                {formErrors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {formErrors.confirmPassword.message}
-                  </p>
-                )}
 
                 <button
                   type="button"
@@ -311,6 +307,12 @@ function Register() {
                   )}
                 </button>
               </div>
+
+              {formErrors.confirmPassword && (
+                <p className="mt-1 text-sm text-red-600">
+                  {formErrors.confirmPassword.message}
+                </p>
+              )}
             </div>
 
             <Button
