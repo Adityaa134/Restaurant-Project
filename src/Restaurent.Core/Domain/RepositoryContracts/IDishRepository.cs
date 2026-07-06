@@ -28,12 +28,12 @@ namespace Restaurent.Core.Domain.RepositoryContracts
         /// <returns>Returns true if dish is deleted ; otherwise false</returns>
         Task<bool> DeleteDishByDishId(Guid dishId);
 
-
         /// <summary>
-        /// Returns all dishes from the data store
+        /// Returns dishes using cursor based pagination.
         /// </summary>
-        /// <returns>Returns all dishes</returns>
-        Task<List<Dish>> GetAllDishes();
+        /// <param name="request">Contains the pagination details.</param>
+        /// <returns>Returns the list of dishes along with information indicating whether more dishes are available.</returns>
+        Task<(List<Dish>, bool)> GetAllDishes(DishPaginationRequest request);
 
 
         /// <summary>
@@ -42,14 +42,6 @@ namespace Restaurent.Core.Domain.RepositoryContracts
         /// <param name="dishId">the dish id to search</param>
         /// <returns>Returns the dish from the data store</returns>
         Task<Dish?> GetDishByDishId(Guid dishId);
-
-
-        /// <summary>
-        /// Returns All dishes based on category id
-        /// </summary>
-        /// <param name="categoryId">the id based on which the dishes will be returned </param>
-        /// <returns>Returns the list of dishes based on category id</returns>
-        Task<List<Dish>> GetDishesBasedOnCategoryId(Guid categoryId);
 
         /// <summary>
         /// Returns all dishes which matches with given searchString
@@ -78,5 +70,12 @@ namespace Restaurent.Core.Domain.RepositoryContracts
         /// <param name="request">The filter criteria for dishes</param>
         /// <returns>Returns all matching dishes from data store</returns>
         Task<List<Dish>?> FilterDishes(DishFilterRequest request);
+
+        /// <summary>
+        /// Returns all dishes belonging to the specified category.
+        /// </summary>
+        /// <param name="categoryId">The category to search.</param>
+        /// <returns>Returns all dishes belonging to the specified category from the data store.</returns>
+        Task<List<Dish>> GetDishesByCategory(Guid categoryId);
     }
 }

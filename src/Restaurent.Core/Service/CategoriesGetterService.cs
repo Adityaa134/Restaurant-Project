@@ -1,5 +1,4 @@
-﻿using System;
-using Restaurent.Core.Domain.Entities;
+﻿using Restaurent.Core.Domain.Entities;
 using Restaurent.Core.Domain.RepositoryContracts;
 using Restaurent.Core.DTO;
 using Restaurent.Core.ServiceContracts;
@@ -38,6 +37,11 @@ namespace Restaurent.Core.Service
             if(matchingCategory == null)
                 return null;
             return matchingCategory.ToCategoryResponse();
+        }
+
+        public async Task<bool> IsCategoryExist(Guid categoryId)
+        {
+            return await _categoryRepository.IsCategoryExist(categoryId);
         }
     }
 }

@@ -2,9 +2,13 @@ import axiosInstance from "../axios/axiosInstance";
 import { logger } from "../utils/logger";
 
 export class Dish {
-  async GetDishes() {
+  async GetDishes(cursorCreatedAt = null, cursorDishId = null, take = 12) {
     try {
-      let response = await axiosInstance.get("/api/Dishes");
+      const params = { take };
+      if (cursorCreatedAt) params.cursorCreatedAt = cursorCreatedAt;
+      if (cursorDishId) params.cursorDishId = cursorDishId;
+
+      let response = await axiosInstance.get("/api/Dishes", { params });
       return response.data;
     } catch (error) {
       logger.log("DishService :: GetDishes :: ", {
@@ -140,6 +144,21 @@ export class Dish {
         status: error.response?.status,
         detail: error.response?.data?.detail || error.message,
       });
+    }
+  }
+
+  async GetDishesByCategory(categoryId) {
+    try {
+      let response = await axiosInstance.get(
+        `/api/Dishes/category/${categoryId}`,
+      );
+      return response.data;
+    } catch (error) {
+      logger.log("DishService :: GetDishesByCategory :: ", {
+        status: error.response?.status,
+        detail: error.response?.data?.detail || error.message,
+      });
+      return false;
     }
   }
 }

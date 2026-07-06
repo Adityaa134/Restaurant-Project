@@ -17,6 +17,7 @@ namespace Restaurent.Core.DTO
         public int TotalRating { get; set; }
         public string? CategoryName { get; set; }
         public string? Dish_Image_Path { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 
     public static class DishExtension
@@ -33,7 +34,8 @@ namespace Restaurent.Core.DTO
                 Dish_Image_Path = dish.Image_Path,
                 CategoryName = dish.Category?.CategoryName,
                 AverageRating = dish.AverageRating,
-                TotalRating = dish.TotalRatings
+                TotalRating = dish.TotalRatings,
+                CreatedAt = dish.CreatedAt
             };
         }
     }

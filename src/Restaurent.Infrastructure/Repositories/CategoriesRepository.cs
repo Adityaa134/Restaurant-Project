@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Restaurent.Core.Domain.Entities;
 using Restaurent.Core.Domain.RepositoryContracts;
 using Restaurent.Infrastructure.DBContext;
@@ -54,6 +53,12 @@ namespace Restaurent.Infrastructure.Repositories
             matchingCategory.Status = status;
             await _dbContext.SaveChangesAsync();
             return matchingCategory;
+        }
+
+        public async Task<bool> IsCategoryExist(Guid categoryId)
+        {
+            return await _dbContext.Categories
+                                   .AnyAsync(c => c.Id == categoryId);
         }
     }
 }

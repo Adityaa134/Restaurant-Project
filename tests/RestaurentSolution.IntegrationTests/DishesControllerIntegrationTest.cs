@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
-using Restaurent.Core.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using Restaurent.Core.DTO;
 
 
@@ -20,25 +20,43 @@ namespace RestaurentSolution.IntegrationTests
         {
             var response = await _httpClient.GetAsync("api/Dishes");
 
-            List<DishResponse>? dishes = await response.Content.ReadFromJsonAsync<List<DishResponse>>();
+            CursorPaginationResponse<DishResponse>? dishesResponse =
+                await response.Content.ReadFromJsonAsync<CursorPaginationResponse<DishResponse>>();
+
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            dishes.Should().BeEmpty();
+            dishesResponse.Should().NotBeNull();
+            dishesResponse.Items.Should().BeEmpty();
+            dishesResponse.HasMore.Should().BeFalse();
+            dishesResponse.NextCursorCreatedAt.Should().BeNull();
+            dishesResponse.NextCursorDishId.Should().BeNull();
         }
 
         [Fact]
         public async Task GetDishes_IfDishesExist_ShouldReturnDishesList()
         {
+            var request = new DishPaginationRequest()
+            {
+                Take = 5
+            };
+
             List<DishResponse> dishResponsesExpected = new List<DishResponse>()
             {
                 await AddDishToDatabase(),
                 await AddDishToDatabase()
             };
-            
-            var response = await _httpClient.GetAsync("api/Dishes");
+
+            var response = await _httpClient.GetAsync($"api/Dishes?take={request.Take}");
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            List<DishResponse>? dishResponsesActual = await response.Content.ReadFromJsonAsync<List<DishResponse>>();
-            dishResponsesActual.Should().NotBeEmpty();
-            dishResponsesActual.Should().BeEquivalentTo(dishResponsesExpected);
+
+            CursorPaginationResponse<DishResponse>? dishesResponse =
+                await response.Content.ReadFromJsonAsync<CursorPaginationResponse<DishResponse>>();
+
+            dishesResponse.Should().NotBeNull();
+            dishesResponse.Items.Should().NotBeEmpty();
+            dishesResponse.Items.Should().BeEquivalentTo(dishResponsesExpected);
+            dishesResponse.HasMore.Should().BeFalse();
+            dishesResponse.NextCursorCreatedAt.Should().Be(dishResponsesExpected.First().CreatedAt);
+            dishesResponse.NextCursorDishId.Should().Be(dishResponsesExpected.First().DishId);
         }
 
         #endregion
@@ -152,6 +170,33 @@ namespace RestaurentSolution.IntegrationTests
             dishes!.Count.Should().BeGreaterThanOrEqualTo(2);
             dishes!.Should().Contain(t => t.DishId == dish1.DishId);
             dishes.Should().Contain(t => t.DishId == dish2.DishId);
+        }
+
+        #endregion
+
+        #region GetDishesByCategory
+
+        [Fact]
+        public async Task GetDishesByCategory_IfCategoryDoesNotExist_ShouldReturnNotFound()
+        {
+            var response = await _httpClient.GetAsync($"api/Dishes/category/{Guid.NewGuid()}");
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task GetDishesByCategory_IfCategoryExists_ShouldReturnDishesForThatCategory()
+        {
+            DishResponse dishResponseExpected = await AddDishToDatabase();
+
+            var response = await _httpClient.GetAsync($"api/Dishes/category/{dishResponseExpected.CategoryId}");
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            List<DishResponse>? dishesResponseActual = await response.Content.ReadFromJsonAsync<List<DishResponse>>();
+
+            dishesResponseActual.Should().NotBeNull();
+            dishesResponseActual.Should().NotBeEmpty();
+            dishesResponseActual.Should().ContainSingle(d => d.DishId == dishResponseExpected.DishId);
         }
 
         #endregion

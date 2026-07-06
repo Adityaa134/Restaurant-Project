@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
 import { DishCard } from "../components/index";
 import dishService from "../services/dishService";
+import { appendDishes, setDishesLoading } from "../features/dishes/dishSlice";
 import "../../src/index.css";
 
 const PRICE_OPTIONS = [
@@ -18,6 +19,7 @@ const RATING_OPTIONS = [
 ];
 
 function Home() {
+  const dispatch = useDispatch()
   const allDishes = useSelector((state) => state.dishes.dishes);
 
   const [panelOpen, setPanelOpen] = useState(false);
@@ -29,8 +31,58 @@ function Home() {
   const [filtering, setFiltering] = useState(false);
   const [visible, setVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const hasMore = useSelector((state) => state.dishes.hasMore);
+  const nextCursorCreatedAt = useSelector(
+    (state) => state.dishes.nextCursorCreatedAt,
+  );
+  const nextCursorDishId = useSelector(
+    (state) => state.dishes.nextCursorDishId,
+  );
+  const dishesLoading = useSelector((state) => state.dishes.dishesLoading);
 
   const filterBarRef = useRef(null);
+  const sentinelRef = useRef(null);
+
+  const loadMoreDishes = async () => {
+    if (!hasMore || dishesLoading) return;
+    dispatch(setDishesLoading(true));
+    try {
+      const result = await dishService.GetDishes(
+        nextCursorCreatedAt,
+        nextCursorDishId,
+        8,
+      );
+      if (result) {
+        dispatch(appendDishes(result));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      dispatch(setDishesLoading(false));
+    }
+  };
+
+  useEffect(() => {
+    if (filteredDishes !== null) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreDishes();
+        }
+      },
+      { threshold: 1.0 },
+    );
+
+    if (sentinelRef.current) observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [
+    nextCursorCreatedAt,
+    nextCursorDishId,
+    hasMore,
+    dishesLoading,
+    filteredDishes,
+  ]);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -38,7 +90,6 @@ function Home() {
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
-
 
   useEffect(() => {
     if (panelOpen) {
@@ -353,6 +404,16 @@ function Home() {
                 </div>
               ))}
             </div>
+          )}
+          {filteredDishes === null && (
+            <>
+              {dishesLoading && (
+                <div className="flex justify-center py-8">
+                  <div className="w-8 h-8 border-[3px] border-gray-200 border-t-gray-700 rounded-full animate-spin" />
+                </div>
+              )}
+              <div ref={sentinelRef} style={{ height: 1 }} />
+            </>
           )}
         </div>
       </div>
