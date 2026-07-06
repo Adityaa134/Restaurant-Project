@@ -16,6 +16,7 @@ namespace RestaurentSolution.IntegrationTests
         protected readonly HttpClient _httpClient;
         protected readonly CustomWebApplicationFactory _factory;
         protected readonly IFixture _fixture;
+        private DateTime _testClock = new DateTime(2026, 7, 6, 12, 0, 0, DateTimeKind.Utc);
 
         protected IntegrationTestBase(CustomWebApplicationFactory factory)
         {
@@ -94,6 +95,8 @@ namespace RestaurentSolution.IntegrationTests
             using var scope = _factory.Services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
 
+            _testClock = _testClock.AddSeconds(1);
+
             Category category = _fixture.Build<Category>()
                                  .With(t=>t.Status,true)
                                  .With(t=>t.Dishes,null as List<Dish>)
@@ -105,6 +108,7 @@ namespace RestaurentSolution.IntegrationTests
                             .With(t=>t.DishName,"Cheese Pizza")
                             .With(t=>t.Price,price)
                             .With(t=>t.AverageRating,rating)
+                            .With(t => t.CreatedAt,_testClock)
                             .With(t => t.CartItems, null as List<Carts>)
                             .With(t => t.OrderItems, null as List<OrderItem>)
                             .With(t=>t.Ratings,null as List<Rating>)

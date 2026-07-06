@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { setDishes } from "./features/dishes/dishSlice";
+import { setInitialDishes } from "./features/dishes/dishSlice";
 import { setCategories } from "./features/category/categorySlice";
 import dishService from "./services/dishService";
 import authService from "./services/authService";
@@ -30,14 +30,15 @@ function App() {
         await new Promise((resolve) => setTimeout(resolve, 3000));
         return waitForBackend(retryCount - 1);
       }
-
       throw new Error("Backend unavailable");
     }
   };
 
   const fetchInitialData = async () => {
-    const dishes = await dishService.GetDishes();
-    dispatch(setDishes(dishes));
+    const dishes = await dishService.GetDishes(null, null, 12);
+    if (dishes) {
+      dispatch(setInitialDishes(dishes));
+    }
 
     const categories = await categoryService.GetCategories();
     dispatch(setCategories(categories));

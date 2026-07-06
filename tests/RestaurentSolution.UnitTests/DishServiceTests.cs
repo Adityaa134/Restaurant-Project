@@ -44,57 +44,143 @@ namespace RestaurentSolution.UnitTests
         #region GetDish
 
         [Fact]
-        public async Task GetAllDishes_EmptyList_ShouldBeNull()
+        public async Task GetAllDishes_EmptyList_ShouldReturnEmptyResponse()
         {
-            List<Dish> dishes = new List<Dish>();
-            _dishRepositoryMock.Setup(temp => temp.GetAllDishes())
-                .ReturnsAsync(dishes);
+            var request = new DishPaginationRequest
+            {
+                Take = 10
+            };
 
-            List<DishResponse> dishResponses = await _dishGetterService.GetAllDishes();
+            _dishRepositoryMock
+                .Setup(x => x.GetAllDishes(It.IsAny<DishPaginationRequest>()))
+                .ReturnsAsync((new List<Dish>(), false));
 
-            dishResponses.Should().BeEmpty();
+            CursorPaginationResponse<DishResponse> response =
+                await _dishGetterService.GetAllDishes(request);
+
+            response.Should().NotBeNull();
+            response.Items.Should().BeEmpty();
+            response.HasMore.Should().BeFalse();
+            response.NextCursorCreatedAt.Should().BeNull();
+            response.NextCursorDishId.Should().BeNull();
         }
 
         [Fact]
-        public async Task GetAllDishes_ProperList_ShouldReturnAllDishes()
+        public async Task GetAllDishes_IfDishesPresent_ShouldReturnAllMappedDishes()
         {
-            List<Dish> dishes = new List<Dish>()
+
+            var request = new DishPaginationRequest
+            {
+                Take = 10
+            };
+
+            List<Dish> dishes = new List<Dish>
             {
                 _fixture.Build<Dish>()
-                .With(t=>t.Category,null as Category)
-                .With(t=>t.CartItems,null as List<Carts>)
-                .With(t=>t.OrderItems,null as List<OrderItem>)
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
                 .With(t=>t.Ratings,null as List<Rating>)
                 .Create(),
+
                 _fixture.Build<Dish>()
-                .With(t=>t.Category,null as Category)
-                .With(t=>t.CartItems,null as List<Carts>)
-                .With(t=>t.OrderItems,null as List<OrderItem>)
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
                 .With(t=>t.Ratings,null as List<Rating>)
                 .Create(),
+
                 _fixture.Build<Dish>()
-                .With(t=>t.Category,null as Category)
-                .With(t=>t.CartItems,null as List<Carts>)
-                .With(t=>t.OrderItems,null as List<OrderItem>)
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
                 .With(t=>t.Ratings,null as List<Rating>)
                 .Create(),
+
                 _fixture.Build<Dish>()
-                .With(t=>t.Category,null as Category)
-                .With(t=>t.CartItems,null as List<Carts>)
-                .With(t=>t.OrderItems,null as List<OrderItem>)
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
                 .With(t=>t.Ratings,null as List<Rating>)
                 .Create()
             };
 
-            List<DishResponse> dishesResponsesExpected = dishes.Select(temp => temp.ToDishResponse()).ToList();
+            List<DishResponse> expected =
+                dishes.Select(x => x.ToDishResponse()).ToList();
 
-            _dishRepositoryMock.Setup(temp => temp.GetAllDishes())
-                .ReturnsAsync(dishes);
+            _dishRepositoryMock
+                .Setup(x => x.GetAllDishes(It.IsAny<DishPaginationRequest>()))
+                .ReturnsAsync((dishes, false));
 
-            List<DishResponse> dishResponsesActual = await _dishGetterService.GetAllDishes();
+            CursorPaginationResponse<DishResponse> actual =
+                await _dishGetterService.GetAllDishes(request);
 
-            dishResponsesActual.Should().NotBeEmpty();
-            dishResponsesActual.Should().BeEquivalentTo(dishesResponsesExpected);
+            actual.Should().NotBeNull();
+            actual.Items.Should().BeEquivalentTo(expected);
+            actual.HasMore.Should().BeFalse();
+            actual.NextCursorCreatedAt.Should()
+                .Be(dishes.Last().CreatedAt);
+
+            actual.NextCursorDishId.Should()
+                .Be(dishes.Last().DishId);
+        }
+
+        [Fact]
+        public async Task GetAllDishes_WhenMoreDishesExists_ShouldReturnHasMoreTrue()
+        { 
+            var request = new DishPaginationRequest
+            {
+                Take = 5
+            };
+
+            List<Dish> dishes = new()
+            {
+                _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t=>t.Ratings,null as List<Rating>)
+                .Create(),
+               _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t=>t.Ratings,null as List<Rating>)
+                .Create(),
+               _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t=>t.Ratings,null as List<Rating>)
+                .Create(),
+               _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t=>t.Ratings,null as List<Rating>)
+                .Create(),
+               _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t=>t.Ratings,null as List<Rating>)
+                .Create()
+            };
+
+            _dishRepositoryMock
+                .Setup(x => x.GetAllDishes(It.IsAny<DishPaginationRequest>()))
+                .ReturnsAsync((dishes, true));
+
+            var response = await _dishGetterService.GetAllDishes(request);
+
+            response.HasMore.Should().BeTrue();
+            response.Items.Should().HaveCount(request.Take);
+
+            response.NextCursorCreatedAt.Should()
+                .Be(dishes.Last().CreatedAt);
+
+            response.NextCursorDishId.Should()
+                .Be(dishes.Last().DishId);
         }
 
         [Fact]
@@ -194,97 +280,6 @@ namespace RestaurentSolution.UnitTests
             DishResponse? dishResponseActual = await _dishGetterService.GetDishByDishId(Guid.NewGuid());
 
             dishResponseActual.Should().BeNull();
-        }
-
-        [Fact]
-        public async Task GetDishesBasedOnCategoryId_InvalidCategoryId_ShouldBeNull()
-        {
-            CategoryResponse? categoryResponse = null;
-
-            _categoriesGetterServiceMock.Setup(temp => temp.GetCategoryByCategoryId(It.IsAny<Guid>()))
-                .ReturnsAsync(categoryResponse);
-
-            List<DishResponse>? dishesResponseActual = await _dishGetterService.GetDishesBasedOnCategoryId(Guid.NewGuid());
-
-            dishesResponseActual.Should().BeNull();
-        }
-
-        [Fact]
-        public async Task GetDishesBasedOnCategoryId_ValidCategoryIdWithNoDishes_ShouldBeNull()
-        {
-            Category category = _fixture.Build<Category>()
-                .With(t => t.Dishes, null as List<Dish>)
-                .Create();
-
-            CategoryResponse categoryResponse = category.ToCategoryResponse();
-
-            List<Dish> dishes = new List<Dish>();
-
-            _categoriesGetterServiceMock.Setup(temp => temp.GetCategoryByCategoryId(It.IsAny<Guid>()))
-                .ReturnsAsync(categoryResponse);
-
-            _dishRepositoryMock.Setup(temp => temp.GetDishesBasedOnCategoryId(It.IsAny<Guid>()))
-                .ReturnsAsync(dishes);
-
-            List<DishResponse>? dishesResponseActual = await _dishGetterService.GetDishesBasedOnCategoryId(category.Id);
-
-            dishesResponseActual.Should().BeEmpty();
-        }
-
-        [Fact]
-        public async Task GetDishesBasedOnCategoryId_ValidCategoryIdWithDishes_ShouldReturnDishes()
-        {
-            Category category = _fixture.Build<Category>()
-                .With(t => t.Dishes, null as List<Dish>)
-                .Create();
-
-            CategoryResponse categoryResponse = category.ToCategoryResponse();
-
-            List<Dish> dishes = new List<Dish>()
-            {
-                _fixture.Build<Dish>()
-                .With(t=>t.Category,null as Category)
-                .With(t=>t.CartItems,null as List<Carts>)
-                .With(t=>t.OrderItems,null as List<OrderItem>)
-                .With(t=>t.Ratings,null as List<Rating>)
-                .With(t=>t.CategoryId,category.Id)
-                .Create(),
-                _fixture.Build<Dish>()
-                .With(t=>t.Category,null as Category)
-                .With(t=>t.CartItems,null as List<Carts>)
-                .With(t=>t.OrderItems,null as List<OrderItem>)
-                .With(t=>t.Ratings,null as List<Rating>)
-                .With(t=>t.CategoryId,category.Id)
-                .Create(),
-                _fixture.Build<Dish>()
-                .With(t=>t.Category,null as Category)
-                .With(t=>t.CartItems,null as List<Carts>)
-                .With(t=>t.OrderItems,null as List<OrderItem>)
-                .With(t=>t.Ratings,null as List<Rating>)
-                .With(t=>t.CategoryId,category.Id)
-                .Create(),
-                _fixture.Build<Dish>()
-                .With(t=>t.Category,null as Category)
-                .With(t=>t.CartItems,null as List<Carts>)
-                .With(t=>t.OrderItems,null as List<OrderItem>)
-                .With(t=>t.Ratings,null as List<Rating>)
-                .With(t=>t.CategoryId,category.Id)
-                .Create()
-            };
-
-            List<DishResponse> dishResponsesExpected_list = dishes.Select(temp => temp.ToDishResponse())
-                .ToList();
-
-            _categoriesGetterServiceMock.Setup(temp => temp.GetCategoryByCategoryId(It.IsAny<Guid>()))
-                .ReturnsAsync(categoryResponse);
-
-            _dishRepositoryMock.Setup(temp => temp.GetDishesBasedOnCategoryId(It.IsAny<Guid>()))
-                .ReturnsAsync(dishes);
-
-            List<DishResponse>? dishResponseActual_list = await _dishGetterService.GetDishesBasedOnCategoryId(category.Id);
-
-            dishResponseActual_list.Should().NotBeNull();
-            dishResponseActual_list.Should().BeEquivalentTo(dishResponsesExpected_list);
         }
 
         [Fact]
@@ -389,7 +384,7 @@ namespace RestaurentSolution.UnitTests
 
         [Fact]
         public async Task AddDish_ValidDishDetails_ShouldBeSuccessfull()
-          {
+        {
               var mockImageFile = _fixture.Create<Mock<IFormFile>>();
               mockImageFile.Setup(f => f.FileName).Returns("test.jpg");
               mockImageFile.Setup(f => f.Length).Returns(1024);
@@ -413,10 +408,13 @@ namespace RestaurentSolution.UnitTests
               dishResponseActual.Dish_Image_Path = dishResponseExpected.Dish_Image_Path;
 
               dishResponseActual.Should().NotBeNull();
-              dishResponseActual.Should().BeEquivalentTo(dishResponseExpected);
-          }
+              dishResponseActual.Should().BeEquivalentTo(dishResponseExpected, options =>
+                 options.Excluding(x => x.CreatedAt));
 
-          #endregion
+              dishResponseActual.CreatedAt.Should().BeCloseTo(dishResponseExpected.CreatedAt, TimeSpan.FromSeconds(2));
+        }
+
+        #endregion
 
         #region UpdateDish
 
@@ -587,6 +585,63 @@ namespace RestaurentSolution.UnitTests
                 dishesResponseActual[i].DishId.Should().Be(dishesResponseExpected[i].DishId);
                 dishesResponseActual[i].DishName.Should().Be(dishesResponseExpected[i].DishName);
             }
+        }
+
+        #endregion
+
+        #region GetDishesByCategory
+
+        [Fact]
+        public async Task GetDishesByCategory_IfCategoryDoesNotExist_ShouldReturnNull()
+        {
+            var categoryId = Guid.NewGuid();
+
+            _categoriesGetterServiceMock
+                .Setup(x => x.IsCategoryExist(It.IsAny<Guid>()))
+                .ReturnsAsync(false);
+
+            List<DishResponse>? dishesResponseActual = await _dishGetterService.GetDishesByCategory(categoryId);
+
+            dishesResponseActual.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task GetDishesByCategory_IfCategoryExists_ShouldReturnMatchingDishes()
+        {
+            var categoryId = Guid.NewGuid();
+
+            List<Dish> dishes = new()
+            {
+                _fixture.Build<Dish>()
+                    .With(t => t.Category, null as Category)
+                    .With(t => t.CartItems, null as List<Carts>)
+                    .With(t => t.OrderItems, null as List<OrderItem>)
+                    .With(t => t.Ratings, null as List<Rating>)
+                    .With(t=>t.CategoryId,categoryId)
+                    .Create(),
+                _fixture.Build<Dish>()
+                    .With(t => t.Category, null as Category)
+                    .With(t => t.CartItems, null as List<Carts>)
+                    .With(t => t.OrderItems, null as List<OrderItem>)
+                    .With(t => t.Ratings, null as List<Rating>)
+                    .With(t=>t.CategoryId,categoryId)
+                    .Create()
+            };
+
+            List<DishResponse> dishesResponseExpected = dishes.Select(x => x.ToDishResponse()).ToList();
+
+            _categoriesGetterServiceMock
+                .Setup(x => x.IsCategoryExist(It.IsAny<Guid>()))
+                .ReturnsAsync(true);
+
+            _dishRepositoryMock
+                .Setup(x => x.GetDishesByCategory(It.IsAny<Guid>()))
+                .ReturnsAsync(dishes);
+
+            List<DishResponse>? dishesResponseActual = await _dishGetterService.GetDishesByCategory(categoryId);
+
+            dishesResponseActual.Should().NotBeNull();
+            dishesResponseActual.Should().BeEquivalentTo(dishesResponseExpected);
         }
 
         #endregion

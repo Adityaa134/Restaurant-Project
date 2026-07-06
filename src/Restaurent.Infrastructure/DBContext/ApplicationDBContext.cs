@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Restaurent.Core.Domain.Entities;
 using Restaurent.Core.Domain.Identity;
@@ -23,7 +22,13 @@ namespace Restaurent.Infrastructure.DBContext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Dish>().ToTable("Dishes");
+            modelBuilder.Entity<Dish>(dish =>
+            {
+                dish.ToTable("Dishes");
+                dish.HasIndex(d => new { d.CreatedAt, d.DishId });
+                dish.HasIndex(d => new { d.CategoryId, d.CreatedAt, d.DishId });
+                dish.HasIndex(d=> new {d.DishName});
+            });
             modelBuilder.Entity<Category>().ToTable("Categories");
             modelBuilder.Entity<Carts>().ToTable("Carts");
             modelBuilder.Entity<Order>() 

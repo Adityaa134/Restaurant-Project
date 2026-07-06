@@ -15,12 +15,19 @@ namespace Restaurent.Core.Service
             _dishRepository = dishRepository;
             _categoriesGettterService = categoriesGetterService;
         }
-       
-        public async Task<List<DishResponse>> GetAllDishes()
-        {
 
-            List<Dish> dishes =  await _dishRepository.GetAllDishes();
-            return dishes.Select(temp => temp.ToDishResponse()).ToList();
+        public async Task<CursorPaginationResponse<DishResponse>> GetAllDishes(DishPaginationRequest request)
+        {
+            var (dishes, hasMore) = await _dishRepository.GetAllDishes(request);
+            var last = dishes.Count > 0 ? dishes[^1] : null;
+
+            return new CursorPaginationResponse<DishResponse>
+            {
+                Items = dishes.Select(x => x.ToDishResponse()).ToList(),
+                HasMore = hasMore,
+                NextCursorCreatedAt = last?.CreatedAt,
+                NextCursorDishId = last?.DishId
+            };
         }
 
         public async Task<DishResponse?> GetDishByDishId(Guid? dishId)
@@ -33,21 +40,6 @@ namespace Restaurent.Core.Service
             if(matchingDish==null)
                 return null;
             return matchingDish.ToDishResponse();
-        }
-
-        public async Task<List<DishResponse>?> GetDishesBasedOnCategoryId(Guid? categoryID)
-        {
-            if(categoryID==null)
-                throw new ArgumentNullException(nameof(categoryID));
-
-           CategoryResponse? matchingCategory = await _categoriesGettterService.GetCategoryByCategoryId(categoryID.Value);
-          
-            if(matchingCategory == null) 
-                return null;
-            List<Dish> dishes = await _dishRepository.GetDishesBasedOnCategoryId(categoryID.Value);
-
-            return dishes.Select(temp=>temp.ToDishResponse())
-                                           .ToList();
         }
 
         public async Task<List<DishResponse>?> SearchDish(string searchString)
@@ -80,6 +72,15 @@ namespace Restaurent.Core.Service
         {
             List<Dish>? dishes = await _dishRepository.FilterDishes(request);
             return dishes?.Select(temp=>temp.ToDishResponse()).ToList();
+        }
+
+        public async Task<List<DishResponse>?> GetDishesByCategory(Guid categoryId)
+        {
+            bool isExist = await _categoriesGettterService.IsCategoryExist(categoryId);
+            if (!isExist)
+                return null;
+            List<Dish> dishes = await _dishRepository.GetDishesByCategory(categoryId);
+            return dishes.Select(temp => temp.ToDishResponse()).ToList();
         }
     }
 }

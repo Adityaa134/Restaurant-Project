@@ -157,6 +157,32 @@ namespace RestaurentSolution.UnitTests
             categoryResponseActual.Should().BeNull();
         }
 
+        [Fact]
+        public async Task IsDishExist_ValidDishId_ShouldReturnTrue()
+        {
+            Category category = _fixture.Build<Category>()
+                .With(t => t.Dishes, null as List<Dish>)
+                .Create();
+
+            _categoryRepositoryMock.Setup(temp => temp.IsCategoryExist(It.IsAny<Guid>()))
+               .ReturnsAsync(true);
+
+            bool isExist = await _categoriesGetterService.IsCategoryExist(category.Id);
+
+            isExist.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task IsDishExist_InValidDishId_ShouldReturnFalse()
+        {
+            _categoryRepositoryMock.Setup(temp => temp.IsCategoryExist(It.IsAny<Guid>()))
+               .ReturnsAsync(false);
+
+            bool isExist = await _categoriesGetterService.IsCategoryExist(Guid.NewGuid());
+
+            isExist.Should().BeFalse();
+        }
+
         #endregion
 
         #region AddCategory

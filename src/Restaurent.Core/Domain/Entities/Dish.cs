@@ -24,6 +24,7 @@ namespace Restaurent.Core.Domain.Entities
         [Precision(18, 2)]
         public decimal AverageRating { get; set; } = 0;
         public int TotalRatings { get; set; } = 0;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [ForeignKey(nameof(CategoryId))]
         public Category Category { get; set; }

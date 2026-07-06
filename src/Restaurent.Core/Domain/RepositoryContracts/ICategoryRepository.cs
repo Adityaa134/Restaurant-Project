@@ -40,5 +40,12 @@ namespace Restaurent.Core.Domain.RepositoryContracts
         /// <param name="categoryId">The category whose status to update</param>
         /// <returns>Returns the updated details of category</returns>
         Task<Category?> UpdateCategoryStatus(bool status, Guid categoryId);
+
+        /// <summary>
+        /// Checks whether the category exists in the data store.
+        /// </summary>
+        /// <param name="categoryId">The category to check.</param>
+        /// <returns>Returns true if the category exists otherwise false.</returns>
+        Task<bool> IsCategoryExist(Guid categoryId);
     }
 }

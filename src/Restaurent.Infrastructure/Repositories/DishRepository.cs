@@ -36,13 +36,31 @@ namespace Restaurent.Infrastructure.Repositories
             return false;
         }
 
-        public async Task<List<Dish>> GetAllDishes()
+        public async Task<(List<Dish>,bool)> GetAllDishes(DishPaginationRequest request)
         {
-            return await _dbContext.Dishes
-                                   .Include(t=>t.Category)
-                                   .Where(c=>c.Category.Status==true)
-                                   .AsNoTracking()
-                                   .ToListAsync();
+            IQueryable<Dish> query = _dbContext.Dishes
+                                  .Include(x => x.Category)
+                                  .Where(x => x.Category.Status)
+                                  .AsNoTracking()
+                                  .OrderByDescending(x => x.CreatedAt)
+                                  .ThenByDescending(x => x.DishId);
+
+            if (request.CursorCreatedAt.HasValue && request.CursorDishId.HasValue)
+            {
+                query = query.Where(x =>
+                    x.CreatedAt < request.CursorCreatedAt.Value ||
+                    (
+                        x.CreatedAt == request.CursorCreatedAt.Value &&
+                        x.DishId.CompareTo(request.CursorDishId.Value) < 0
+                    ));
+            }
+
+            var dishes = await query.Take(request.Take + 1).ToListAsync();
+
+            bool hasMore = dishes.Count > request.Take;
+            if (hasMore) dishes.RemoveAt(dishes.Count - 1);
+
+            return (dishes, hasMore);
         }
 
         public async Task<Dish?> GetDishByDishId(Guid dishId)
@@ -53,15 +71,6 @@ namespace Restaurent.Infrastructure.Repositories
             if (matchingDish == null)
                 return null;
             return matchingDish;
-        }
-
-        public async Task<List<Dish>> GetDishesBasedOnCategoryId(Guid categoryId)
-        {
-            return await _dbContext.Dishes
-                                   .Where(temp=>temp.Category.Id == categoryId)
-                                   .Include(t=>t.Category)
-                                   .AsNoTracking()
-                                   .ToListAsync();
         }
 
         public async Task<List<Dish>?> SearchDish(string searchString)
@@ -123,6 +132,15 @@ namespace Restaurent.Infrastructure.Repositories
             }
 
             return await query.ToListAsync();
+        }
+
+        public async Task<List<Dish>> GetDishesByCategory(Guid categoryId)
+        {
+            return await _dbContext.Dishes
+                            .Where(d => d.CategoryId == categoryId)
+                            .AsNoTracking()
+                            .OrderByDescending(d => d.CreatedAt)
+                            .ToListAsync();
         }
     }
 }

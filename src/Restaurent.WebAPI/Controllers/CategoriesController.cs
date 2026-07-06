@@ -37,7 +37,7 @@ namespace Restaurent.WebAPI.Controllers
                 return Problem(detail: "Category Id Not Found", statusCode: StatusCodes.Status404NotFound, title: "Category Search");
             return Ok(category);
         }
-      
+
         [HttpPost("add-category")]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult> AddCategory(CategoryAddRequest categoryAddRequest)

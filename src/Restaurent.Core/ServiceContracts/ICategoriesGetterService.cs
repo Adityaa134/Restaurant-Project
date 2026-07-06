@@ -1,5 +1,4 @@
-﻿using System;
-using Restaurent.Core.DTO;
+﻿using Restaurent.Core.DTO;
 
 namespace Restaurent.Core.ServiceContracts
 {
@@ -24,5 +23,12 @@ namespace Restaurent.Core.ServiceContracts
         /// <param name="categoryId">the category to be search</param>
         /// <returns>Returns the category based on id</returns>
         Task<CategoryResponse?> GetCategoryByCategoryId(Guid? categoryId);
+
+        /// <summary>
+        /// Checks whether the category exists.
+        /// </summary>
+        /// <param name="categoryId">The category to check.</param>
+        /// <returns>Returns true if the category exists otherwise false.</returns>
+        Task<bool> IsCategoryExist(Guid categoryId);
     }
 }

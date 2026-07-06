@@ -16,9 +16,9 @@ namespace Restaurent.WebAPI.Controllers
         }
 
         [HttpGet()]
-        public async Task<ActionResult> GetDishes()
+        public async Task<ActionResult> GetDishes([FromQuery] DishPaginationRequest request)
         {
-            List<DishResponse> dishes  = await _dishGetterService.GetAllDishes();
+            CursorPaginationResponse<DishResponse> dishes  = await _dishGetterService.GetAllDishes(request);
             return Ok(dishes);
         }
 
@@ -44,6 +44,16 @@ namespace Restaurent.WebAPI.Controllers
         {
             List<DishResponse>? dishes =
                 await _dishGetterService.FilterDishes(request);
+            return Ok(dishes);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("category/{categoryId:guid}")]
+        public async Task<ActionResult> GetDishesByCategory(Guid categoryId)
+        {
+            List<DishResponse>? dishes = await _dishGetterService.GetDishesByCategory(categoryId);
+            if(dishes == null)
+                return Problem(detail: "Category Not Found", statusCode: StatusCodes.Status404NotFound, title: "Get Dishes By Category");
             return Ok(dishes);
         }
     }

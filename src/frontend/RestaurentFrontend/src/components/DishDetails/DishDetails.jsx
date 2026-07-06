@@ -138,6 +138,19 @@ function DishDetails() {
                   {dish.description || "No description available."}
                 </p>
 
+                {dish.totalRating > 0 && (
+                  <div className="flex items-center gap-1.5 mb-7 -mt-4">
+                    <span className="text-yellow-500 text-lg">⭐</span>
+                    <span className="text-gray-800 font-semibold">
+                      {dish.averageRating.toFixed(1)}
+                    </span>
+                    <span className="text-gray-500 text-sm">
+                      ({dish.totalRating}{" "}
+                      {dish.totalRating === 1 ? "rating" : "ratings"})
+                    </span>
+                  </div>
+                )}
+
                 <div className="flex flex-col sm:flex-row justify-between sm:items-end items-start gap-5 mb-7">
                   <span className="text-4xl sm:text-3xl font-bold text-green-600">
                     ₹ {dish.price}
