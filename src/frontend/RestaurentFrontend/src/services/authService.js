@@ -51,22 +51,7 @@ export class AuthService {
         status: error.response?.status,
         detail: error.response?.data?.detail || error.message,
       });
-      return false;
-    }
-  }
-
-  async checkEmailExists(email) {
-    try {
-      const response = await axiosInstance.get(
-        `/api/Account/EmailExist?email=${email}`,
-      );
-      return response.data;
-    } catch (error) {
-      logger.log("AuthService :: checkEmailExists :: ", {
-        status: error.response?.status,
-        detail: error.response?.data?.detail || error.message,
-      });
-      return { exists: false };
+      throw error;
     }
   }
 
@@ -89,7 +74,7 @@ export class AuthService {
     if (email == null) throw Error("Email can't be null");
     try {
       const response = await axiosInstance.get(
-        `/api/Account/confirm-email?email=${email}`,
+        `/api/Account/resend-confirm-email?email=${email}`,
       );
       return response.data;
     } catch (error) {

@@ -30,14 +30,6 @@ namespace Restaurent.Core.Service
         }
 
 
-        public async Task<bool> IsEmailAlereadyRegistered(string email)
-        {
-           ApplicationUser? user =  await _userManager.FindByEmailAsync(email);
-            if (user == null)
-                return false;
-            return true;
-        }
-
         public async Task<bool> IsUserNameAleradyExist(string userName)
         {
             ApplicationUser? user = await _userManager.FindByNameAsync(userName);

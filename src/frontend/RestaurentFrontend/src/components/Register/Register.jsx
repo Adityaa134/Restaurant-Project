@@ -53,11 +53,16 @@ function Register() {
           }),
         );
         navigate("/");
-      } else {
-        navigate(`/confirm-email?email=${encodeURIComponent(data.email)}`);
       }
     } catch (error) {
-      setError(error.message);
+      const status = error.response?.status;
+      const detail = error.response?.data?.detail;
+
+      if (status === 403) {
+        navigate(`/confirm-email?email=${encodeURIComponent(data.email)}`);
+      } else {
+        setError(detail || "Something went wrong. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -71,12 +76,6 @@ function Register() {
       trigger("username");
     }
   }, [debouncedEmail, debouncedUsername, trigger]);
-
-  const checkEmailUnique = async (email) => {
-    if (!email) return true;
-    const result = await authService.checkEmailExists(email);
-    return !result.exists || "Email is already taken";
-  };
 
   const checkUsernameUnique = async (userName) => {
     if (!userName) return true;
@@ -181,9 +180,7 @@ function Register() {
                     value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
                     message: "Please enter a valid email address",
                   },
-                  validate: checkEmailUnique,
                 })}
-                onChange={(e) => setEmailValue(e.target.value)}
               />
               {formErrors.email && (
                 <p className="mt-1 text-sm text-red-600">
@@ -199,7 +196,7 @@ function Register() {
                 placeholder="Enter your phone number"
                 className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 sm:text-sm"
                 {...register("phoneNumber", {
-                  required: false,
+                  required: "Phone Number is required",
                   minLength: {
                     value: 10,
                     message: "Phone number must be exactly 10 digits.",

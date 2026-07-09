@@ -64,6 +64,7 @@ namespace Restaurent.WebAPI.StartupExtensions
                 options.Password.RequireDigit = true;
                 options.Password.RequiredUniqueChars = 3; // a password must have 3 diff. characters eg aditya it has 5 unique characters
                 options.SignIn.RequireConfirmedEmail = true;
+                options.User.RequireUniqueEmail = true;
             })
 
            .AddEntityFrameworkStores<ApplicationDBContext>()
