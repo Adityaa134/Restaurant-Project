@@ -31,13 +31,6 @@ namespace Restaurent.Core.ServiceContracts
         Task Logout(HttpContext context);
 
         /// <summary>
-        /// Checks if the email alerady exist or not 
-        /// </summary>
-        /// <param name="email">email to check</param>
-        /// <returns>Returns true if exists; otherwise false</returns>
-        Task<bool> IsEmailAlereadyRegistered(string email);
-
-        /// <summary>
         /// Checks if the userName alerady exist or not
         /// </summary>
         /// <param name="userName">userName to check</param>

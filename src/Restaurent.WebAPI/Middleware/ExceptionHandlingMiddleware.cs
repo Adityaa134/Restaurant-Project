@@ -19,22 +19,47 @@
             }
             catch (Exception ex)
             {
-                if (ex is ArgumentException)
+                int statusCode;
+                string title;
+                string detail;
+
+                switch (ex)
                 {
-                    httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-                }
-                else if (ex.InnerException != null)
-                {
-                    _logger.LogError("{ExceptionType} {ExceptionMeassage}", ex.InnerException.GetType().ToString(), ex.InnerException.Message);
-                    httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                }
-                else
-                {
-                    _logger.LogError("{ExceptionType} {ExceptionMeassage}", ex.GetType().ToString(), ex.Message);
-                    httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    case ArgumentException argEx:
+                        statusCode = StatusCodes.Status400BadRequest;
+                        title = "Invalid Request";
+                        detail = argEx.Message;
+                        break;
+
+                    case InvalidOperationException invalidOpEx:
+                        statusCode = StatusCodes.Status409Conflict;
+                        title = "Operation Not Allowed";
+                        detail = invalidOpEx.Message;
+                        break;
+
+                    default:
+                        statusCode = StatusCodes.Status500InternalServerError;
+                        title = "Internal Server Error";
+                        detail = "OOPS! An error occurred. Please refresh.";
+
+                        if (ex.InnerException != null)
+                            _logger.LogError("{ExceptionType} {ExceptionMessage}", ex.InnerException.GetType().ToString(), ex.InnerException.Message);
+                        else
+                            _logger.LogError("{ExceptionType} {ExceptionMessage}", ex.GetType().ToString(), ex.Message);
+                        break;
                 }
 
-                await httpContext.Response.WriteAsync("OOPS! and error occured please refresh");
+                httpContext.Response.StatusCode = statusCode;
+                httpContext.Response.ContentType = "application/problem+json";
+
+                var problemDetails = new
+                    {
+                        title,
+                        status = statusCode,
+                        detail
+                    };
+
+                await httpContext.Response.WriteAsJsonAsync(problemDetails);
             }
         }
     }

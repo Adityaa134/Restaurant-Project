@@ -117,9 +117,14 @@ namespace Restaurent.WebAPI.Controllers
             }
             else
             {
-                string errorMesasage = string.Join("|", result.Errors.Select(err => err.Description));
-                return Problem(detail:errorMesasage,
-                    statusCode:StatusCodes.Status500InternalServerError);
+                bool isDuplicateIdentifier = result.Errors.Any(e =>
+                           e.Code == "DuplicateEmail" || e.Code == "DuplicateUserName");
+
+                string detail = isDuplicateIdentifier
+                    ? "We couldn't complete your registration. Please check your details and try again."
+                    : string.Join("|", result.Errors.Select(err => err.Description));
+
+                return Problem(detail: detail, statusCode: StatusCodes.Status400BadRequest);
             }
         }
 
@@ -150,17 +155,6 @@ namespace Restaurent.WebAPI.Controllers
             return Ok(authenticationResponse);
         }
 
-        [HttpGet("EmailExist")]
-        public async Task<ActionResult> IsEmailAlreadyRegistered(string email)
-        {
-            bool result = await _authService.IsEmailAlereadyRegistered(email);
-            if (!result)
-            {
-                return Ok(new { exists = result }); 
-            }
-            return Ok(new { exists = result }); 
-        }
-
         [HttpGet("UserNameExist")]
         public async Task<ActionResult> IsUserNameAleradyExist(string userName)
         {
@@ -172,8 +166,8 @@ namespace Restaurent.WebAPI.Controllers
             return Ok(new { exists = result }); 
         }
 
-        [HttpGet("confirm-email")]
-        public async Task<ActionResult> ConfirmEmail(string email)
+        [HttpGet("resend-confirm-email")]
+        public async Task<ActionResult> ResendConfirmEmail(string email)
         {
             var user = await _authService.FindUserByEmail(email);
             if (user != null)
