@@ -5,7 +5,7 @@ import {
   deleteCategory,
 } from "../../features/category/categorySlice";
 import dishService from "../../services/dishService";
-import { setDishes } from "../../features/dishes/dishSlice";
+import { setInitialDishes } from "../../features/dishes/dishSlice";
 import { useDispatch } from "react-redux";
 
 function ManageCategories() {
@@ -41,7 +41,9 @@ function ManageCategories() {
         dispatch(addCategory(updated));
       }
       const dishes = await dishService.GetDishes();
-      dispatch(setDishes(dishes));
+      if (dishes) {
+        dispatch(setInitialDishes(dishes));
+      }
     } catch (err) {
       console.error(err);
     } finally {

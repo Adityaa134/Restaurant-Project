@@ -33,7 +33,14 @@ const dishSlice = createSlice({
       state.selectedDishById = action.payload;
     },
     setDishes: (state, action) => {
-      state.dishes = action.payload;
+      if (Array.isArray(action.payload)) {
+        state.dishes = action.payload;
+      } else if (action.payload?.items && Array.isArray(action.payload.items)) {
+        state.dishes = action.payload.items;
+        state.hasMore = action.payload.hasMore;
+        state.nextCursorCreatedAt = action.payload.nextCursorCreatedAt;
+        state.nextCursorDishId = action.payload.nextCursorDishId;
+      }
     },
     setInitialDishes: (state, action) => {
       state.dishes = action.payload.items;

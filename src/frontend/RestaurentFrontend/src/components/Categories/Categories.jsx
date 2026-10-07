@@ -34,8 +34,17 @@ function CategoriesPage() {
     fetchCategoryDishes();
   }, [selectedCategoryId]);
 
+  const safeAllDishes = Array.isArray(allDishes)
+    ? allDishes
+    : Array.isArray(allDishes?.items)
+      ? allDishes.items
+      : [];
   const visibleDishes =
-    selectedCategory === "All" ? allDishes : (categoryDishes ?? []);
+    selectedCategory === "All"
+      ? safeAllDishes
+      : Array.isArray(categoryDishes)
+        ? categoryDishes
+        : [];
 
   const handleCategoryClick = (categoryName, categoryId) => {
     setSelectedCategory(categoryName);
