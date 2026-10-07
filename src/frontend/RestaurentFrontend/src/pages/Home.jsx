@@ -159,7 +159,12 @@ function Home() {
     await callFilter(appliedPriceIdx, 0);
   };
 
-  const displayDishes = filteredDishes ?? allDishes ?? [];
+  const safeAllDishes = Array.isArray(allDishes)
+    ? allDishes
+    : Array.isArray(allDishes?.items)
+      ? allDishes.items
+      : [];
+  const displayDishes = Array.isArray(filteredDishes) ? filteredDishes : safeAllDishes;
   const activeCount =
     (appliedPriceIdx !== 0 ? 1 : 0) + (appliedRatingIdx !== 0 ? 1 : 0);
 
@@ -315,8 +320,8 @@ function Home() {
           {filtering
             ? "Filtering..."
             : activeCount > 0
-              ? `${displayDishes.length} of ${allDishes?.length ?? 0} dishes`
-              : `${allDishes?.length ?? 0} dishes`}
+              ? `${displayDishes.length} of ${safeAllDishes.length} dishes`
+              : `${safeAllDishes.length} dishes`}
         </span>
       </div>
 
