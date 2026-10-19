@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -24,6 +24,7 @@ namespace RestaurentSolution.UnitTests
         private readonly Mock<IImageUpdateService> _imageUpdateServiceMock;
         private readonly Mock<IImageDeleteService> _imageDeleteServiceMock;
         private readonly Mock<ICategoriesGetterService> _categoriesGetterServiceMock;
+        private readonly Mock<ICacheService> _cacheServiceMock;
 
         public DishServiceTests()
         {
@@ -33,11 +34,12 @@ namespace RestaurentSolution.UnitTests
             _imageUpdateServiceMock = new Mock<IImageUpdateService>();
             _imageDeleteServiceMock = new Mock<IImageDeleteService>();
             _categoriesGetterServiceMock = new Mock<ICategoriesGetterService>();
+            _cacheServiceMock = new Mock<ICacheService>();
 
-            _dishGetterService = new DishGetterService(_dishRepositoryMock.Object,_categoriesGetterServiceMock.Object);
-            _dishAdderService = new DishAdderService(_dishRepositoryMock.Object, _imageAdderServiceMock.Object);
-            _dishUpdateService = new DishUpdateService(_dishRepositoryMock.Object,_imageUpdateServiceMock.Object);
-            _dishDeleteService = new DishDeleteService(_dishRepositoryMock.Object, _imageDeleteServiceMock.Object);
+            _dishGetterService = new DishGetterService(_dishRepositoryMock.Object,_categoriesGetterServiceMock.Object, _cacheServiceMock.Object);
+            _dishAdderService = new DishAdderService(_dishRepositoryMock.Object, _imageAdderServiceMock.Object, _cacheServiceMock.Object);
+            _dishUpdateService = new DishUpdateService(_dishRepositoryMock.Object,_imageUpdateServiceMock.Object, _cacheServiceMock.Object);
+            _dishDeleteService = new DishDeleteService(_dishRepositoryMock.Object, _imageDeleteServiceMock.Object, _cacheServiceMock.Object);
         }
 
 
@@ -184,6 +186,130 @@ namespace RestaurentSolution.UnitTests
         }
 
         [Fact]
+        public async Task GetAllDishes_CacheHit_ShouldReturnDishes()
+        {
+            DishPaginationRequest request = new DishPaginationRequest
+            {
+                Take = 10
+            };
+
+            List<Dish> dishes = new List<Dish>
+            {
+                _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t => t.Ratings, null as List<Rating>)
+                .Create(),
+
+                _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t => t.Ratings, null as List<Rating>)
+                .Create(),
+
+                _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t => t.Ratings, null as List<Rating>)
+                .Create(),
+
+                _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t => t.Ratings, null as List<Rating>)
+                .Create()
+            };
+
+            CursorPaginationResponse<DishResponse> dishResponsesExpected = new CursorPaginationResponse<DishResponse>
+            {
+                Items = dishes.Select(x => x.ToDishResponse()).ToList(),
+                HasMore = false,
+                NextCursorCreatedAt = dishes.Last().CreatedAt,
+                NextCursorDishId = dishes.Last().DishId
+            };
+
+            _cacheServiceMock.Setup(temp => temp.GetAsync<string>("dishes:version"))
+                .ReturnsAsync("1");
+
+            _cacheServiceMock.Setup(temp => temp.GetAsync<CursorPaginationResponse<DishResponse>>($"dishes:v1:cursor_{Guid.Empty}:take_10"))
+                .ReturnsAsync(dishResponsesExpected);
+
+            CursorPaginationResponse<DishResponse> dishResponsesActual = await _dishGetterService.GetAllDishes(request);
+
+            dishResponsesActual.Should().NotBeNull();
+            dishResponsesActual.Should().BeEquivalentTo(dishResponsesExpected);
+            _dishRepositoryMock.Verify(temp => temp.GetAllDishes(It.IsAny<DishPaginationRequest>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task GetAllDishes_CacheMiss_ShouldCallRepositoryAndSetCache()
+        {
+            DishPaginationRequest request = new DishPaginationRequest
+            {
+                Take = 10
+            };
+
+            List<Dish> dishes = new List<Dish>
+            {
+                _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t => t.Ratings, null as List<Rating>)
+                .Create(),
+
+                _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t => t.Ratings, null as List<Rating>)
+                .Create(),
+
+                _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t => t.Ratings, null as List<Rating>)
+                .Create(),
+
+                _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t => t.Ratings, null as List<Rating>)
+                .Create()
+            };
+
+            CursorPaginationResponse<DishResponse> dishResponsesExpected = new CursorPaginationResponse<DishResponse>
+            {
+                Items = dishes.Select(x => x.ToDishResponse()).ToList(),
+                HasMore = false,
+                NextCursorCreatedAt = dishes.Last().CreatedAt,
+                NextCursorDishId = dishes.Last().DishId
+            };
+
+            _cacheServiceMock.Setup(temp => temp.GetAsync<string>("dishes:version"))
+                .ReturnsAsync("1");
+
+            _cacheServiceMock.Setup(temp => temp.GetAsync<CursorPaginationResponse<DishResponse>>(It.IsAny<string>()))
+                .ReturnsAsync((CursorPaginationResponse<DishResponse>?)null);
+
+            _dishRepositoryMock.Setup(temp => temp.GetAllDishes(It.IsAny<DishPaginationRequest>()))
+                .ReturnsAsync((dishes, false));
+
+            CursorPaginationResponse<DishResponse> dishResponsesActual = await _dishGetterService.GetAllDishes(request);
+
+            dishResponsesActual.Should().NotBeNull();
+            dishResponsesActual.Should().BeEquivalentTo(dishResponsesExpected);
+            _dishRepositoryMock.Verify(temp => temp.GetAllDishes(It.IsAny<DishPaginationRequest>()), Times.Once);
+            _cacheServiceMock.Verify(temp => temp.SetAsync($"dishes:v1:cursor_{Guid.Empty}:take_10", It.IsAny<CursorPaginationResponse<DishResponse>>(), It.IsAny<TimeSpan?>()), Times.Once);
+        }
+
+        [Fact]
         public async Task SearchDish_IfSearchStringNotFound_ShouldBeNull()
         {
             string? searchString = "pizza";
@@ -269,6 +395,28 @@ namespace RestaurentSolution.UnitTests
 
             dishResponseActual.Should().NotBeNull();
             dishResponseActual.Should().BeEquivalentTo(dishResponseExpected);
+        }
+
+        [Fact]
+        public async Task GetDishByDishId_CacheHit_ShouldReturnMatchingDish()
+        {
+            Dish dish = _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t => t.Ratings, null as List<Rating>)
+                .Create();
+
+            DishResponse dishResponseExpected = dish.ToDishResponse();
+
+            _cacheServiceMock.Setup(temp => temp.GetAsync<DishResponse>($"dish:{dish.DishId}"))
+                .ReturnsAsync(dishResponseExpected);
+
+            DishResponse? dishResponseActual = await _dishGetterService.GetDishByDishId(dish.DishId);
+
+            dishResponseActual.Should().NotBeNull();
+            dishResponseActual.Should().BeEquivalentTo(dishResponseExpected);
+            _dishRepositoryMock.Verify(temp => temp.GetDishByDishId(It.IsAny<Guid>()), Times.Never);
         }
 
         [Fact]
@@ -414,6 +562,40 @@ namespace RestaurentSolution.UnitTests
               dishResponseActual.CreatedAt.Should().BeCloseTo(dishResponseExpected.CreatedAt, TimeSpan.FromSeconds(2));
         }
 
+        [Fact]
+        public async Task AddDish_ValidDishDetails_ShouldBumpDishesVersion()
+        {
+            Mock<IFormFile> mockImageFile = _fixture.Create<Mock<IFormFile>>();
+            mockImageFile.Setup(f => f.FileName).Returns("test.jpg");
+            mockImageFile.Setup(f => f.Length).Returns(1024);
+
+            DishAddRequest dishAddRequest = _fixture.Build<DishAddRequest>()
+                .With(t => t.Dish_Image, mockImageFile.Object)
+                .With(t => t.CategoryId, Guid.NewGuid().ToString())
+                .Create();
+
+            Dish dish = dishAddRequest.ToDish();
+            DishResponse dishResponseExpected = dish.ToDishResponse();
+
+            _dishRepositoryMock.Setup(temp => temp.AddDish(It.IsAny<Dish>()))
+                .ReturnsAsync(dish);
+
+            _imageAdderServiceMock.Setup(temp => temp.ImageAdder(It.IsAny<IFormFile>()))
+                .ReturnsAsync("dummy_path.jpg");
+
+            DishResponse dishResponseActual = await _dishAdderService.AddDish(dishAddRequest);
+
+            dishResponseExpected.DishId = dishResponseActual.DishId;
+            dishResponseActual.Dish_Image_Path = dishResponseExpected.Dish_Image_Path;
+
+            dishResponseActual.Should().NotBeNull();
+            dishResponseActual.Should().BeEquivalentTo(dishResponseExpected, options =>
+                 options.Excluding(x => x.CreatedAt));
+
+            dishResponseActual.CreatedAt.Should().BeCloseTo(dishResponseExpected.CreatedAt, TimeSpan.FromSeconds(2));
+            _cacheServiceMock.Verify(temp => temp.SetAsync("dishes:version", It.IsAny<string>(), It.IsAny<TimeSpan?>()), Times.Once);
+        }
+
         #endregion
 
         #region UpdateDish
@@ -481,6 +663,50 @@ namespace RestaurentSolution.UnitTests
               dishResponseActual.Should().BeEquivalentTo(dishResponseExpected);
           }
 
+        [Fact]
+        public async Task UpdateDish_ProperDetails_ShouldEvictDishCacheAndBumpDishesVersion()
+        {
+            Dish dish = _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t => t.Ratings, null as List<Rating>)
+                .Create();
+
+            Mock<IFormFile> mockImageFile = _fixture.Create<Mock<IFormFile>>();
+            mockImageFile.Setup(f => f.FileName).Returns("test.jpg");
+            mockImageFile.Setup(f => f.Length).Returns(1024);
+
+            DishUpdateRequest dishUpdateRequest = _fixture.Build<DishUpdateRequest>()
+                .With(t => t.Dish_Image, mockImageFile.Object)
+                .With(t => t.DishId, dish.DishId)
+                .With(t => t.DishName, dish.DishName)
+                .With(t => t.Description, dish.Description)
+                .With(t => t.Price, (int)dish.Price)
+                .With(t => t.Image_Path, dish.Image_Path)
+                .With(t => t.CategoryId, dish.CategoryId)
+                .Create();
+
+            DishResponse dishResponseExpected = dish.ToDishResponse();
+
+            _dishRepositoryMock.Setup(temp => temp.GetDishByDishId(It.IsAny<Guid>()))
+                .ReturnsAsync(dish);
+
+            _dishRepositoryMock.Setup(temp => temp.UpdateDish(It.IsAny<Dish>()))
+                .ReturnsAsync(dish);
+
+            _imageUpdateServiceMock.Setup(temp => temp.ImageUpdater(It.IsAny<IFormFile>(), It.IsAny<string>()))
+                .ReturnsAsync("dummy_path.jpg");
+
+            DishResponse? dishResponseActual = await _dishUpdateService.UpdateDish(dishUpdateRequest);
+
+            dishResponseActual.Should().NotBeNull();
+            dishResponseActual.Dish_Image_Path = dishResponseExpected.Dish_Image_Path;
+            dishResponseActual.Should().BeEquivalentTo(dishResponseExpected);
+            _cacheServiceMock.Verify(temp => temp.RemoveAsync($"dish:{dish.DishId}"), Times.Once);
+            _cacheServiceMock.Verify(temp => temp.SetAsync("dishes:version", It.IsAny<string>(), It.IsAny<TimeSpan?>()), Times.Once);
+        }
+
         #endregion
 
         #region DeleteDish
@@ -515,6 +741,32 @@ namespace RestaurentSolution.UnitTests
             bool isDeleted = await _dishDeleteService.DeleteDish(dish.DishId);
 
             isDeleted.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task DeleteDish_ValidDishId_ShouldEvictDishCacheAndBumpDishesVersion()
+        {
+            Dish dish = _fixture.Build<Dish>()
+                .With(t => t.Category, null as Category)
+                .With(t => t.CartItems, null as List<Carts>)
+                .With(t => t.OrderItems, null as List<OrderItem>)
+                .With(t => t.Ratings, null as List<Rating>)
+                .Create();
+
+            _dishRepositoryMock.Setup(temp => temp.GetDishByDishId(It.IsAny<Guid>()))
+                .ReturnsAsync(dish);
+
+            _imageDeleteServiceMock.Setup(temp => temp.ImageDeleter(It.IsAny<string>()))
+                .ReturnsAsync(true);
+
+            _dishRepositoryMock.Setup(temp => temp.DeleteDishByDishId(It.IsAny<Guid>()))
+                .ReturnsAsync(true);
+
+            bool isDeletedActual = await _dishDeleteService.DeleteDish(dish.DishId);
+
+            isDeletedActual.Should().BeTrue();
+            _cacheServiceMock.Verify(temp => temp.RemoveAsync($"dish:{dish.DishId}"), Times.Once);
+            _cacheServiceMock.Verify(temp => temp.SetAsync("dishes:version", It.IsAny<string>(), It.IsAny<TimeSpan?>()), Times.Once);
         }
         #endregion
 

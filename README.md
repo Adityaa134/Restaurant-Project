@@ -1,6 +1,6 @@
 # 🍽️ Online Food Ordering System
 
-A full-stack online food ordering application built with React, ASP.NET Core, and SQLServer. Features include dishes and category management, user authentication, shopping cart, order management.
+A full-stack online food ordering application built with React, ASP.NET Core, SQL Server, and Redis. Features include dishes and category management, user authentication, shopping cart, order management, and Redis-based distributed caching.
 
 ## Features
 
@@ -25,7 +25,7 @@ A full-stack online food ordering application built with React, ASP.NET Core, an
 This project includes comprehensive test coverage for both the service layer and API endpoints.
 
 ### Test Suite
-- **Unit Tests**: 87 tests covering service logic, edge cases, and business rules
+- **Unit Tests**: 98 tests covering service logic, edge cases, business rules, and caching behavior
 - **Integration Tests**: 64 tests verifying API endpoints and end-to-end request/response flows
 
 ### What's Tested
@@ -37,7 +37,7 @@ ontrol (Admin vs User permissions)
 
 ### Test Infrastructure
 - Custom authentication handler for testing protected endpoints
-- Isolated in-memory database per test run
+- Isolated in-memory database and in-memory distributed cache per test run
 - Mock email service to avoid external dependencies
 
 
@@ -60,6 +60,7 @@ ontrol (Admin vs User permissions)
 - **ASP.NET Core 8** - Web API framework
 - **Entity Framework Core** - ORM
 - **SQL Server** - Database
+- **Redis (Redis Cloud)** – Distributed caching for dishes and categories
 - **JWT Authentication** – Token-based authentication
 - **Role-based Authorization** – Access control (Admin/User roles)
 - **Google OAuth** – External authentication support
@@ -81,6 +82,7 @@ ontrol (Admin vs User permissions)
 - **Database** - Azure SQL Database in Production (free tier)
 - **Secrets Management** - Azure Key Vault (used in App Service)
 - **File Storage** - Azure Blob Storage for images
+- **Cache** - Redis Cloud (free tier) for distributed caching
 
 ### Testing
 - **xUnit** – Unit & integration testing framework

@@ -1,4 +1,4 @@
-﻿using Restaurent.Core.Domain.Entities;
+using Restaurent.Core.Domain.Entities;
 using Restaurent.Core.Domain.RepositoryContracts;
 using Restaurent.Core.DTO;
 using Restaurent.Core.Helpers;
@@ -10,11 +10,13 @@ namespace Restaurent.Core.Service
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly IImageAdderService _imageAdderService;
+        private readonly ICacheService _cacheService;
 
-        public CategoryAdderService(ICategoryRepository categoryRepository, IImageAdderService imageAdderService)
+        public CategoryAdderService(ICategoryRepository categoryRepository, IImageAdderService imageAdderService, ICacheService cacheService)
         {
             _categoryRepository = categoryRepository;
             _imageAdderService = imageAdderService;
+            _cacheService = cacheService;
         }
 
         public async Task<CategoryResponse> AddCategory(CategoryAddRequest? categoryAddRequest)
@@ -34,6 +36,8 @@ namespace Restaurent.Core.Service
             category.Id = Guid.NewGuid();
 
             await _categoryRepository.AddCategory(category);
+            await _cacheService.RemoveAsync("categories:all");
+
             return category.ToCategoryResponse();
         }
     }

@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -19,15 +19,17 @@ namespace RestaurentSolution.UnitTests
 
         private readonly Mock<ICategoryRepository> _categoryRepositoryMock;
         private readonly Mock<IImageAdderService> _imageAdderServiceMock;
+        private readonly Mock<ICacheService> _cacheServiceMock;
         public CategoryServiceTests() 
         {
             _fixture = new Fixture();
             _categoryRepositoryMock = new Mock<ICategoryRepository>();
             _imageAdderServiceMock = new Mock<IImageAdderService>();
+            _cacheServiceMock = new Mock<ICacheService>();
 
-            _categoriesGetterService = new CategoriesGetterService(_categoryRepositoryMock.Object);
-            _categoryAdderService = new CategoryAdderService(_categoryRepositoryMock.Object,_imageAdderServiceMock.Object);
-            _categoryUpdateService = new CategoryUpdateService(_categoryRepositoryMock.Object);
+            _categoriesGetterService = new CategoriesGetterService(_categoryRepositoryMock.Object,_cacheServiceMock.Object);
+            _categoryAdderService = new CategoryAdderService(_categoryRepositoryMock.Object,_imageAdderServiceMock.Object,_cacheServiceMock.Object);
+            _categoryUpdateService = new CategoryUpdateService(_categoryRepositoryMock.Object,_cacheServiceMock.Object);
         }
 
 
@@ -73,6 +75,72 @@ namespace RestaurentSolution.UnitTests
 
             categoryResponsesActual.Should().NotBeEmpty();
             categoryResponsesActual.Should().BeEquivalentTo(categoryResponsesExpected);
+        }
+        
+        [Fact]
+        public async Task GetAllCategories_CacheHit_ShouldReturnCategories()
+        {
+            List<Category> categories = new List<Category>()
+            {
+                _fixture.Build<Category>()
+                .With(t => t.Dishes, null as List<Dish>)
+                .Create(),
+                _fixture.Build<Category>()
+                .With(t => t.Dishes, null as List<Dish>)
+                .Create(),
+                _fixture.Build<Category>()
+                .With(t => t.Dishes, null as List<Dish>)
+                .Create(),
+                _fixture.Build<Category>()
+                .With(t => t.Dishes, null as List<Dish>)
+                .Create()
+            };
+
+            List<CategoryResponse> categoryResponsesExpected = categories.Select(temp => temp.ToCategoryResponse()).ToList();
+
+            _cacheServiceMock.Setup(temp => temp.GetAsync<List<CategoryResponse>>("categories:all"))
+                .ReturnsAsync(categoryResponsesExpected);
+
+            List<CategoryResponse> categoryResponsesActual = await _categoriesGetterService.GetAllCategories();
+
+            categoryResponsesActual.Should().NotBeEmpty();
+            categoryResponsesActual.Should().BeEquivalentTo(categoryResponsesExpected);
+            _categoryRepositoryMock.Verify(temp => temp.GetAllCategories(), Times.Never);
+        }
+
+        [Fact]
+        public async Task GetAllCategories_CacheMiss_ShouldCallRepositoryAndSetCache()
+        {
+            List<Category> categories = new List<Category>()
+            {
+                _fixture.Build<Category>()
+                .With(t => t.Dishes, null as List<Dish>)
+                .Create(),
+                _fixture.Build<Category>()
+                .With(t => t.Dishes, null as List<Dish>)
+                .Create(),
+                _fixture.Build<Category>()
+                .With(t => t.Dishes, null as List<Dish>)
+                .Create(),
+                _fixture.Build<Category>()
+                .With(t => t.Dishes, null as List<Dish>)
+                .Create()
+            };
+
+            List<CategoryResponse> categoryResponsesExpected = categories.Select(temp => temp.ToCategoryResponse()).ToList();
+
+            _cacheServiceMock.Setup(temp => temp.GetAsync<List<CategoryResponse>>("categories:all"))
+                .ReturnsAsync((List<CategoryResponse>?)null);
+
+            _categoryRepositoryMock.Setup(temp => temp.GetAllCategories())
+                .ReturnsAsync(categories);
+
+            List<CategoryResponse> categoryResponsesActual = await _categoriesGetterService.GetAllCategories();
+
+            categoryResponsesActual.Should().NotBeEmpty();
+            categoryResponsesActual.Should().BeEquivalentTo(categoryResponsesExpected);
+            _categoryRepositoryMock.Verify(temp => temp.GetAllCategories(), Times.Once);
+            _cacheServiceMock.Verify(temp => temp.SetAsync("categories:all", It.IsAny<List<CategoryResponse>>(), It.IsAny<TimeSpan?>()), Times.Once);
         }
 
         [Fact]
@@ -158,7 +226,26 @@ namespace RestaurentSolution.UnitTests
         }
 
         [Fact]
-        public async Task IsDishExist_ValidDishId_ShouldReturnTrue()
+        public async Task GetCategoryById_CacheHit_ShouldReturnMatchingCategory()
+        {
+            Category category = _fixture.Build<Category>()
+                .With(t => t.Dishes, null as List<Dish>)
+                .Create();
+
+            CategoryResponse categoryResponseExpected = category.ToCategoryResponse();
+
+            _cacheServiceMock.Setup(temp => temp.GetAsync<CategoryResponse>($"category:{category.Id}"))
+                .ReturnsAsync(categoryResponseExpected);
+
+            CategoryResponse? categoryResponseActual = await _categoriesGetterService.GetCategoryByCategoryId(category.Id);
+
+            categoryResponseActual.Should().NotBeNull();
+            categoryResponseActual.Should().BeEquivalentTo(categoryResponseExpected);
+            _categoryRepositoryMock.Verify(temp => temp.GetCategoryByCategoryId(It.IsAny<Guid>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task IsCategoryExist_ValidDishId_ShouldReturnTrue()
         {
             Category category = _fixture.Build<Category>()
                 .With(t => t.Dishes, null as List<Dish>)
@@ -173,7 +260,7 @@ namespace RestaurentSolution.UnitTests
         }
 
         [Fact]
-        public async Task IsDishExist_InValidDishId_ShouldReturnFalse()
+        public async Task IsCategoryExist_InValidDishId_ShouldReturnFalse()
         {
             _categoryRepositoryMock.Setup(temp => temp.IsCategoryExist(It.IsAny<Guid>()))
                .ReturnsAsync(false);
@@ -232,6 +319,32 @@ namespace RestaurentSolution.UnitTests
             categoryResponseActual.Should().BeEquivalentTo(categoryResponseExpected);
         }
 
+        [Fact]
+        public async Task AddCategory_ValidCategoryDetails_ShouldInvalidateCategoriesCache()
+        {
+            var mockImageFile = _fixture.Create<Mock<IFormFile>>();
+            mockImageFile.Setup(f => f.FileName).Returns("test.jpg");
+            mockImageFile.Setup(f => f.Length).Returns(1024);
+
+            CategoryAddRequest categoryAddRequest = _fixture.Build<CategoryAddRequest>()
+                .With(t => t.Cat_Image, mockImageFile.Object)
+                .Create();
+
+            Category category = categoryAddRequest.ToCategory();
+            CategoryResponse categoryResponseExpected = category.ToCategoryResponse();
+
+            _categoryRepositoryMock.Setup(temp => temp.AddCategory(It.IsAny<Category>()))
+                .ReturnsAsync(category);
+
+            _imageAdderServiceMock.Setup(temp => temp.ImageAdder(It.IsAny<IFormFile>()))
+                .ReturnsAsync("dummy_path.jpg");
+
+            CategoryResponse categoryResponseActual = await _categoryAdderService.AddCategory(categoryAddRequest);
+
+            categoryResponseActual.Should().NotBeNull();
+            _cacheServiceMock.Verify(temp => temp.RemoveAsync("categories:all"), Times.Once);
+        }
+
         #endregion
 
         #region UpdateCategoryStatus
@@ -270,6 +383,30 @@ namespace RestaurentSolution.UnitTests
 
             categoryResponseActual.Should().NotBeNull();
             categoryResponseActual.Should().BeEquivalentTo(categoryResponseExpected);
+        }
+
+        [Fact]
+        public async Task UpdateCategoryStatus_ProperDetails_ShouldInvalidateBothIndividualAndListCache()
+        {
+            CategoryStatusUpdateRequest request = _fixture.Build<CategoryStatusUpdateRequest>().Create();
+            Category category = _fixture.Build<Category>()
+                .With(t => t.Dishes, null as List<Dish>)
+                .Create();
+
+            CategoryResponse categoryResponseExpected = category.ToCategoryResponse();
+
+            _categoryRepositoryMock.Setup(temp => temp.GetCategoryByCategoryId(It.IsAny<Guid>()))
+                .ReturnsAsync(category);
+
+            _categoryRepositoryMock.Setup(temp => temp.UpdateCategoryStatus(It.IsAny<bool>(), It.IsAny<Guid>()))
+                .ReturnsAsync(category);
+
+            CategoryResponse? categoryResponseActual = await _categoryUpdateService.UpdateCategoryStatus(request);
+
+            categoryResponseActual.Should().NotBeNull();
+            categoryResponseActual.Should().BeEquivalentTo(categoryResponseExpected);
+            _cacheServiceMock.Verify(temp => temp.RemoveAsync($"category:{request.CategoryId}"), Times.Once);
+            _cacheServiceMock.Verify(temp => temp.RemoveAsync("categories:all"), Times.Once);
         }
 
         #endregion

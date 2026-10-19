@@ -1,49 +1,61 @@
 services:
- sqlserver:
-  image: mcr.microsoft.com/mssql/server:2019-latest
-  container_name: sqlserver
-  environment:
-  - ACCEPT_EULA=Y
-  - SA_PASSWORD=${SA_PASSWORD}
-  ports:
-  - 1433:1433
-  volumes:
-  - sqlserver_data:/var/opt/mssql
-  networks:
-  - restaurent-network
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD}
+    ports:
+      - 14333:1433
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - restaurent-network
 
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data
+    networks:
+      - restaurent-network
 
- restaurent-api:
-  image: restaurantapi
-  container_name: restaurant-api
-  build:
-   context: .
-   dockerfile: src/Restaurent.WebAPI/Dockerfile
-  environment:
-  - ASPNETCORE_ENVIRONMENT=Development
-  - ConnectionStrings__DefaultConnection=${CONNECTIONSTRINGS__DEFAULTCONNECTION}
-  - Jwt__Key=${JWT__KEY}
-  - Jwt__Issuer=${JWT__ISSUER}
-  - Jwt__Audience=${JWT__AUDIENCE}
-  - SMTPConfig__Username=${SMTPCONFIG__USERNAME}
-  - SMTPConfig__SenderDisplayName=${SMTPCONFIG__SENDERDISPLAYNAME}
-  - SMTPConfig__SenderAddress=${SMTPCONFIG__SENDERADDRESS}
-  - SMTPConfig__Port=${SMTPCONFIG__PORT}
-  - SMTPConfig__Password=${SMTPCONFIG__PASSWORD}
-  - SMTPConfig__Host=${SMTPCONFIG__HOST}
-  - AllowedOrigins__OriginName=${ALLOWEDORIGINS__ORIGINNAME}
-  - BlobStorage__ContainerName=${BLOBSTORAGE__CONTAINERNAME}
-  - BlobStorage__ConnectionString=${BLOBSTORAGE__CONNECTIONSTRING}
-  ports:
-   - 8080:8080
-  networks:
-  - restaurent-network
-  depends_on:
-  - sqlserver
+  restaurent-api:
+    image: restaurantapi
+    container_name: restaurant-api
+    build:
+      context: .
+      dockerfile: src/Restaurent.WebAPI/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=${CONNECTIONSTRINGS__DEFAULTCONNECTION}
+      - ConnectionStrings__Redis=${CONNECTIONSTRINGS__REDIS}
+      - Jwt__Key=${JWT__KEY}
+      - Jwt__Issuer=${JWT__ISSUER}
+      - Jwt__Audience=${JWT__AUDIENCE}
+      - SMTPConfig__Username=${SMTPCONFIG__USERNAME}
+      - SMTPConfig__SenderDisplayName=${SMTPCONFIG__SENDERDISPLAYNAME}
+      - SMTPConfig__SenderAddress=${SMTPCONFIG__SENDERADDRESS}
+      - SMTPConfig__Port=${SMTPCONFIG__PORT}
+      - SMTPConfig__Password=${SMTPCONFIG__PASSWORD}
+      - SMTPConfig__Host=${SMTPCONFIG__HOST}
+      - AllowedOrigins__OriginName=${ALLOWEDORIGINS__ORIGINNAME}
+      - BlobStorage__ContainerName=${BLOBSTORAGE__CONTAINERNAME}
+      - BlobStorage__ConnectionString=${BLOBSTORAGE__CONNECTIONSTRING}
+    ports:
+      - 8080:8080
+    networks:
+      - restaurent-network
+    depends_on:
+      - sqlserver
+      - redis
 
 networks:
   restaurent-network:
-   driver: bridge
+    driver: bridge
 
 volumes:
   sqlserver_data:
+  redis_data:

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Restaurent.Core.Domain.Entities;
 using Restaurent.Core.Domain.RepositoryContracts;
 using Restaurent.Core.DTO;
@@ -10,11 +10,13 @@ namespace Restaurent.Core.Service
     {
         private readonly IDishRepository _dishRepository;
         private readonly IImageUpdateService _imageUpdateService;
+        private readonly ICacheService _cacheService;
 
-        public DishUpdateService(IDishRepository dishRepository, IImageUpdateService imageUpdateService)
+        public DishUpdateService(IDishRepository dishRepository, IImageUpdateService imageUpdateService, ICacheService cacheService)
         {
             _dishRepository = dishRepository;
             _imageUpdateService = imageUpdateService;
+            _cacheService = cacheService;
         }
 
 
@@ -45,6 +47,9 @@ namespace Restaurent.Core.Service
             matchingDish.Image_Path = dishUpdateRequest.Image_Path;
 
             Dish updatedDish = await _dishRepository.UpdateDish(matchingDish);
+            await _cacheService.RemoveAsync($"dish:{matchingDish.DishId}");
+            await _cacheService.SetAsync("dishes:version", DateTime.UtcNow.Ticks.ToString());
+
             return updatedDish.ToDishResponse();
         }
     }
