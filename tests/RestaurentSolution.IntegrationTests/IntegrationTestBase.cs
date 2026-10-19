@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using AutoFixture;
 using FluentAssertions;
@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Restaurent.Core.Domain.Entities;
 using Restaurent.Core.Domain.Identity;
 using Restaurent.Core.DTO;
+using Restaurent.Core.ServiceContracts;
 using Restaurent.Infrastructure.DBContext;
 
 namespace RestaurentSolution.IntegrationTests
@@ -135,9 +136,18 @@ namespace RestaurentSolution.IntegrationTests
             return category.ToCategoryResponse();
         }
 
+        private async Task ResetCache()
+        {
+            using var scope = _factory.Services.CreateScope();
+            var cacheService = scope.ServiceProvider.GetRequiredService<ICacheService>();
+            await cacheService.RemoveAsync("categories:all");
+            await cacheService.RemoveAsync("dishes:version");
+        }
+
         public async Task InitializeAsync() 
         {
             await ResetDatabase();  
+            await ResetCache();
         }
 
         public Task DisposeAsync() 

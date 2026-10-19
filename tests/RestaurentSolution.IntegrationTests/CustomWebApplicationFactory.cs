@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
+using Microsoft.Extensions.Caching.Distributed;
 using Restaurent.Core.ServiceContracts;
 using Restaurent.Infrastructure.DBContext;
 
@@ -51,6 +52,9 @@ namespace RestaurentSolution.IntegrationTests
                 {
                     options.UseInMemoryDatabase(_dbName);
                 });
+
+                services.RemoveAll<IDistributedCache>();
+                services.AddDistributedMemoryCache();
 
                 var emailMock = new Mock<IEmailSenderService>();
                 services.AddScoped<IEmailSenderService>(_ => emailMock.Object);

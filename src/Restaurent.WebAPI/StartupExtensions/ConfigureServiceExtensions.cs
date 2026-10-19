@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Restaurent.Core.Domain.Identity;
@@ -8,6 +8,7 @@ using Restaurent.Core.Service;
 using Restaurent.Core.ServiceContracts;
 using Restaurent.Infrastructure.DBContext;
 using Restaurent.Infrastructure.Repositories;
+using Restaurent.Infrastructure.Services;
 
 namespace Restaurent.WebAPI.StartupExtensions
 {
@@ -22,6 +23,13 @@ namespace Restaurent.WebAPI.StartupExtensions
                     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
                 });
             }
+
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = configuration.GetConnectionString("Redis");
+            });
+
+            services.AddScoped<ICacheService, CacheService>();
 
             services.AddScoped<IDishAdderService, DishAdderService>();
             services.AddScoped<IDishGetterService, DishGetterService>();

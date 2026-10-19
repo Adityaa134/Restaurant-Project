@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Restaurent.Core.Domain.Entities;
 using Restaurent.Core.Domain.RepositoryContracts;
 using Restaurent.Core.DTO;
@@ -11,10 +11,13 @@ namespace Restaurent.Core.Service
     {
         private readonly IDishRepository _dishRepository;
         private readonly IImageAdderService _imageAdderService;
-        public DishAdderService(IDishRepository dishRepository, IImageAdderService imageAdderService)
+        private readonly ICacheService _cacheService;
+
+        public DishAdderService(IDishRepository dishRepository, IImageAdderService imageAdderService, ICacheService cacheService)
         {
             _dishRepository = dishRepository;
             _imageAdderService = imageAdderService;
+            _cacheService = cacheService;
         }
 
         public async Task<DishResponse> AddDish(DishAddRequest? dishAddRequest)
@@ -34,6 +37,7 @@ namespace Restaurent.Core.Service
             dish.DishId = Guid.NewGuid();
             
             await _dishRepository.AddDish(dish);
+            await _cacheService.SetAsync("dishes:version", DateTime.UtcNow.Ticks.ToString());
 
             return dish.ToDishResponse();
         }
