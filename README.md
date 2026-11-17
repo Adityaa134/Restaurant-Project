@@ -1,6 +1,6 @@
-# 🍽️ Online Food Ordering System
+# 🍽️ Food Ordering Platform
 
-A full-stack online food ordering application built with React, ASP.NET Core, SQL Server, and Redis. Features include dishes and category management, user authentication, shopping cart, order management, and Redis-based distributed caching.
+A full-stack food ordering platform built with React, ASP.NET Core, SQL Server, and Redis. Features include dishes and category management, user authentication, shopping cart, order management, and Redis-based distributed caching.
 
 ## Features
 
